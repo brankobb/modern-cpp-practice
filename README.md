@@ -1,1 +1,47 @@
 # modern-cpp-practice
+
+Plan vežbe: od C++03 temelja (životni vek objekta, kopiranje, RAII) do move semantike
+i modernog sloja (smart pointeri, forwarding, rule of 0). 10 sesija, ~2h svaka.
+
+Svaka sesija ima svoj folder: `notes.md` (sažetak iz izvora, pisan pre koda) i
+`main.cpp` (vežba). Build/pokretanje preko `./build.sh <fajl.cpp>` — kompajlira sa
+AddressSanitizer + UndefinedBehaviorSanitizer.
+
+```
+./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
+```
+
+## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
+
+| Ses. | Tema | Ključno | Izvor |
+|---|---|---|---|
+| [1](week1-cpp03-to-move/s01-object-lifetime) | Životni vek objekta | automatic/static/dynamic storage; kada se zovu ctor/dtor; redosled konstrukcije baza i članova; init lista ide po redosledu deklaracije | Effective C++ (3. izd.) st. 5–14, 29; learncpp.com (konstruktori) |
+| [2](week1-cpp03-to-move/s02-copying) | Kopiranje (C++03) | copy ctor i copy assignment; šta kompajler generiše; shallow vs deep copy; self-assignment; rule of 3 | Effective C++ st. 5–14, 29; learncpp.com (kopiranje) |
+| [3](week1-cpp03-to-move/s03-raii) | RAII i exception safety | stack unwinding; basic/strong/nothrow garancija; copy-and-swap; zašto destruktor ne sme da baca | Effective C++ st. 5–14, 29; Arthur O'Dwyer, *Back to Basics: RAII and the Rule of Zero* (CppCon 2019) |
+| [4](week1-cpp03-to-move/s04-move-semantics) | Move semantika | lvalue/rvalue, `T&&`, `std::move` je samo cast, move ctor/assignment, moved-from stanje | Effective Modern C++ st. 23; Klaus Iglberger, *Back to Basics: Move Semantics* (CppCon 2019) |
+| [5](week1-cpp03-to-move/s05-buffer-exercise) | Vežba | klasa `Buffer` (dinamički niz): prvo rule of 3 + copy-and-swap, pa dodaj move (rule of 5); proveri ASan-om | — |
+
+## Nedelja 2 (5.10 – 11.10): moderni sloj
+
+| Ses. | Tema | Ključno | Izvor |
+|---|---|---|---|
+| [6](week2-modern-layer/s06-generation-rules) | Pravila generisanja | kada se special members generišu ili brišu; `= default`, `= delete`; `noexcept` move i realokacija `vector`-a | Effective Modern C++ st. 11, 14, 17, 29 |
+| [7](week2-modern-layer/s07-copy-elision) | Copy elision i parametri | RVO/NRVO, C++17 garancija, zašto `return std::move(x)` šteti; prosleđivanje po vrednosti + move | Effective Modern C++ st. 41 |
+| [8](week2-modern-layer/s08-smart-pointers) | Smart pointeri | `unique_ptr` (deleter, move-only, bez cene), `shared_ptr` (kontrolni blok, atomski brojač), `weak_ptr`, `make_unique`/`make_shared` | Effective Modern C++ st. 18–21 |
+| [9](week2-modern-layer/s09-forwarding-lifetime) | Forwarding i lifetime zamke | forwarding reference, `std::forward`, reference collapsing; dangling na temporary, `string_view`, invalidacija iteratora | Effective Modern C++ st. 24, 25, 28 |
+| [10](week2-modern-layer/s10-uniqueptr-embedded) | Vežba | sopstveni `UniquePtr<T>`; `Buffer` prepiši u rule of 0; embedded: RAII guard za lock/IRQ i placement new na statičkom baferu | — |
+
+## Provera 11.10
+
+Odgovori naglas, oko 2 minuta po pitanju. Zapiši odgovore u [ANSWERS.md](ANSWERS.md) pre nego što ih izgovoriš.
+
+1. Šta kompajler generiše ako deklarišeš samo destruktor?
+2. Zašto `std::move` sam po sebi ništa ne pomera?
+3. Zašto move konstruktor treba da bude `noexcept`?
+4. Kada `return std::move(x)` šteti?
+5. `unique_ptr` vs `shared_ptr`: kolika je cena i kada koji?
+6. Kako copy-and-swap daje strong garanciju?
+7. Kako izgleda RAII bez heap-a u embedded kodu?
+
+Ako sigurno odgovoriš na bar 5 pitanja, prelaziš na STL. U suprotnom, prve dve sesije
+sledeće nedelje idu na ponavljanje.
