@@ -1,47 +1,64 @@
-# 03 — Uniform initialization (19)
+# 03 — Uniform initialization
 
-- `T x{...}` sintaksa (C++11), koristi se dosledno kasnije u kursu/repo-u
-- **narrowing conversion se ODBIJA** sa `{}` a PROLAZI (uz warning) sa `()`
-  ili `=` — npr. `int x{3.14};` je greška pri kompajliranju, `int x(3.14);` nije
-- **most vexing parse**: `Widget w();` se parsira kao DEKLARACIJA FUNKCIJE
-  koja vraća Widget, ne kao default-konstruisan objekat — `Widget w{};` to rešava
-- **initializer_list preferencija**: ako klasa ima i običan ctor i
-  `ctor(std::initializer_list<T>)`, `{}` sintaksa UVEK preferira
-  initializer_list verziju ako postoji, čak i kad to nije ono što želiš
-  (klasičan `std::vector<int> v(3, 5)` vs `std::vector<int> v{3, 5}` primer)
+Izvor: **Effective Modern C++, Item 7 — "Distinguish between () and {} when
+creating objects."** Ceo main.cpp prati taj item tačku po tačku.
 
-## Formalna podela: koja inicijalizacija je koja
+## Tri sintakse
 
-Sve što si video gore (narrowing, most vexing parse, initializer_list
-preferencija) su POSLEDICE toga koju "kategoriju" inicijalizacije koristiš.
-Standard ih imenuje ovako:
+```cpp
+int x(0);    // zagrade
+int y = 0;   // '='
+int z{0};    // vitičaste zagrade ("braced init")
+int w = {0}; // '=' + vitičaste (skoro isto kao z)
+```
 
-| Kategorija | Sintaksa | Primer |
-|---|---|---|
-| **default-initialization** | `T t;` (bez initializer-a) | `int x;` (nedefinisana vrednost!), `Widget w;` (zove default ctor) |
-| **value-initialization** | `T t{};` | `Widget w2{};` — za klase zove default ctor, za primitivne tipove zero-inicijalizuje (`int x{};` -> 0) |
-| **direct-initialization** | `T t(args);` ili `T t{args};` | `Widget w3(5);`, `Widget w4{5};` — konstruktor se poziva DIREKTNO, `explicit` ctor-i SE razmatraju |
-| **copy-initialization** | `T t = args;` (uključuje i prosleđivanje po vrednosti, `return`, `catch` po vrednosti) | `int narrow_ok(3.14)` je zapravo DIRECT (zagrade!) — pravi copy-init primer bio bi `int x = 3.14;` — `explicit` ctor-i se NE razmatraju |
-| **list-initialization** | `{}` sintaksa, deli se na *direct-list-init* (`T t{args};`) i *copy-list-init* (`T t = {args};`) | oba prolaze kroz narrowing proveru; initializer_list ctor ima prioritet u oba |
-| **aggregate initialization** | `T t{a, b};` za agregate (nema user-deklarisan ctor, nema private/protected non-static članove, nema virtual funkcije) | `PodPoint p{1, 2};` iz sesije 10 — direktno puni članove redosledom deklaracije, nema ctor poziva uopšte |
+Za proste tipove sve četiri rade isto. Razlike se pojavljuju kod klasa —
+otud i ostatak ovog dokumenta.
 
-**Zašto je bitna razlika direct vs copy kod `explicit`:** `explicit` na
-konstruktoru ga isključuje iz razmatranja BAŠ kod copy-initialization
-(i copy-list-initialization) — ne kod direct-initialization. Zato
-`Explicit e(5);` radi a `Explicit e = 5;` ne radi, iako oba "izgledaju"
-kao da prave isti objekat. Vidi primer u main.cpp.
+## Šta standard dozvoljava / ne dozvoljava po sintaksi
 
-## API korišćen u vežbi
+| Slučaj | `()` | `=` | `{}` |
+|---|---|---|---|
+| Default vrednost non-static člana klase | ❌ (parsira se kao deklaracija funkcije) | ✅ | ✅ |
+| Inicijalizacija non-copyable objekta (npr. `std::atomic<int>`) | ✅ | ❌ | ✅ |
+| Narrowing conversion (npr. `double` → `int`) | ✅ prolazi (uz warning) | ✅ prolazi (uz warning) | ❌ compile error |
+| Imun na most vexing parse | ❌ | N/A | ✅ |
+| Poziva `initializer_list` ctor ako postoji | ❌ | zavisi | ✅ UVEK ako je konverzija moguća |
 
-- `std::initializer_list<T>` (header `<initializer_list>`) — lagani "proxy"
-  objekat koji kompajler automatski pravi za `{a, b, c}` sintaksu; NE
-  poseduje podatke (samo pokazivač + veličina na privremeni niz koji
-  kompajler kreira) — zato ga nikad ne čuvaj za kasnije, samo koristi
-  odmah
-- `std::vector<int> v(3, 5)` — poziva ctor `vector(size_type count, const
-  T& value)`: 3 elementa, svaki inicijalizovan na 5
-- `std::vector<int> v{3, 5}` — poziva ctor `vector(initializer_list<T>)`
-  (ako postoji, UVEK ima prioritet nad drugim ctor-ima kod `{}` sintakse)
-  — zato ispadne `[3, 5]` (dva elementa), ne `[5, 5, 5]`
+## `initializer_list` "otmica" overload resolution-a — glavna poenta Item 7
+
+Ako klasa ima BILO KOJI konstruktor koji prima `std::initializer_list<T>`,
+`{}` sintaksa će UVEK pokušati NJEGA prvo — čak i kad postoji "bolji" match
+među ostalim konstruktorima, čak i za copy/move konstrukciju. Kompajler
+odustaje od `initializer_list` ctor-a SAMO ako je konverzija argumenata u
+njegov element-tip potpuno nemoguća (uključujući: ako bi zahtevala
+narrowing, program se NE kompajlira — ne prelazi tiho na drugi ctor).
+
+- Prazne vitičaste zagrade `{}` znače "BEZ argumenata" (poziva default
+  ctor), NE "prazan initializer_list". Da pozoveš `initializer_list` ctor
+  sa STVARNO praznom listom, jedini pouzdan način je `Widget({})`.
+  **Pažljivo:** `Widget{{}}` NIJE isto — proverio sam ovo uživo (g++,
+  `-std=c++17`) i unutrašnje `{}` se tretira kao JEDAN element liste koji
+  se value-inicijalizuje (npr. u `int` postaje 0), pa dobijaš listu sa
+  JEDNIM elementom, ne praznu — lako je pogrešno pretpostaviti suprotno.
+
+## Savet za autore klasa
+
+- Ako DODAŠ `initializer_list` ctor postojećoj klasi, klijentski kod koji
+  koristi `{}` može odjednom da počne da zove DRUGI konstruktor nego pre —
+  tiha promena ponašanja, ne compile error. Testiraj postojeći kod posle
+  ovakve izmene.
+- Nema konsenzusa "uvek koristi `{}`" ili "uvek koristi `()`" — odaberi
+  JEDNU konvenciju kao default i drži je se, koristi drugu samo kad moraš
+  (npr. `{}` kad ti treba da izbegneš narrowing, `()` kad radiš sa tipom
+  koji ima `initializer_list` ctor a ti hoćeš NEKI DRUGI konstruktor).
+
+## Savet za generički (template) kod
+
+Autor generičke funkcije ne može unapred znati da li pozivalac očekuje
+"`()` ponašanje" ili "`{}` ponašanje" za dati tip — zato `std::make_unique`
+i `std::make_shared` INTERNO koriste `()`, i to je DOKUMENTOVANA odluka kao
+deo njihovog interfejsa, ne slučajnost. Vidi `genericCodeProblem()` u
+main.cpp za konkretan primer zašto je ovo bitno.
 
 ## Zapažanja posle vežbe
