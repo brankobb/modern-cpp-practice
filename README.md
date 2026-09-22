@@ -70,6 +70,7 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 | [14](week0-fundamentals/14-type-conversions) | Konverzije tipova (EC++ It. 27) — implicitne konverzije, `static_cast`/`dynamic_cast`/`const_cast`/`reinterpret_cast` i zašto ne C-cast, strict aliasing i `bit_cast`, konstruktor i operator konverzije (`explicit operator bool`), korisnički → korisnički tip, proverena konverzija brojeva; pogrešni slučajevi u `errors/` i `ub/` |
 | [15](week0-fundamentals/15-strings) | Stringovi (kurs 85, 86, 88, 90) — literali i raw stringovi, `std::string` (npos, bajtovi vs slova, `c_str()` životni vek), brojevi ↔ tekst (`stoi`, `from_chars`), string streams, korisnički literali (`""s`, `ms`, `_km`); pogrešni slučajevi u `errors/` i `ub/` |
 | [16](week0-fundamentals/16-constexpr) | `constexpr` (kurs 91, EMC It. 15) — sme vs mora pri kompajliranju, UB u konstantnom izrazu je greška, literal tipovi, tabele u `.rodata`, `if constexpr`, `static_assert`; C++20 `consteval`/`constinit` u `main_cpp20.cpp`; pogrešni slučajevi u `errors/` i `ub/` |
+| [17](week0-fundamentals/17-vector-initializer-list) | `std::vector` i `std::initializer_list` (kurs 92, 93) — pravljenje, size vs capacity, reserve vs resize, pristup i izmene, `initializer_list` (const elementi, životni vek niza), šta ASan ne vidi i `-D_GLIBCXX_ASSERTIONS`; pogrešni slučajevi u `errors/` i `ub/` |
 
 ## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
 
