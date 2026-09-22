@@ -40,6 +40,12 @@ $out = Join-Path $env:TEMP ("mcpp-" + [System.Guid]::NewGuid().ToString("N").Sub
 function Invoke-Compile {
     param([string[]]$SanitizeFlags)
 
+    # Local override: with the outer $ErrorActionPreference = "Stop", a mere
+    # compiler WARNING on stderr (merged via 2>&1) would otherwise be treated
+    # as a terminating error. This assignment only shadows the preference
+    # inside this function, so it doesn't affect the rest of the script.
+    $ErrorActionPreference = "Continue"
+
     $compileArgs = @("-std=c++17", "-Wall", "-Wextra", "-Wshadow", "-g", "-O0") +
                    $SanitizeFlags +
                    @("-fno-omit-frame-pointer", $Src, "-o", $out) +
