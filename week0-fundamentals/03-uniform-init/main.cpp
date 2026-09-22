@@ -7,6 +7,10 @@ struct Widget {
     Widget(std::initializer_list<int>) { std::cout << "Widget(initializer_list)\n"; }
 };
 
+struct ExplicitOnly {
+    explicit ExplicitOnly(int) { std::cout << "ExplicitOnly(int)\n"; }
+};
+
 int main() {
     std::cout << "-- narrowing: () vs {} --\n";
     // Ako inicijalizuješ sa {} kad bi se izgubila preciznost (NIJE
@@ -53,6 +57,27 @@ int main() {
     std::vector<int> va(3, 5); // 3 elementa, svaki = 5 -> [5, 5, 5]
     std::vector<int> vb{3, 5}; // initializer_list -> [3, 5]
     std::cout << "va.size()=" << va.size() << " vb.size()=" << vb.size() << "\n";
+
+    std::cout << "-- direct-init vs copy-init (explicit) --\n";
+    // Ako pozoveš explicit ctor preko copy-initialization sintakse (=)
+    // (NIJE DOBRO, ne kompajlira) jer je explicit BAŠ ZATO tu -- da
+    // ISKLJUČI konstruktor iz razmatranja kod copy-init (i copy-list-init),
+    // ne dozvoljava "tihu" konverziju kroz =.
+    // ExplicitOnly bad1 = 5;    // TODO: otkomentariši -- compile error (copy-init)
+    // ExplicitOnly bad2 = {5};  // TODO: otkomentariši -- compile error (copy-list-init, ista zamka)
+
+    // Treba da koristiš direct-initialization ((), ili {} BEZ =) kad
+    // pozivaš explicit ctor -- direct-init I direct-list-init GA
+    // razmatraju, jer nema implicitne konverzije, poziv je nedvosmisleno
+    // namerni.
+    ExplicitOnly good1(5);  // direct-init -- radi
+    ExplicitOnly good2{5};  // direct-list-init -- radi
+    // Možeš i eksplicitno napisati konverziju na mestu poziva
+    // (ExplicitOnly good3 = ExplicitOnly(5);) kad ti STVARNO treba
+    // copy-init sintaksa (npr. API koji to zahteva) -- to je i dalje
+    // direct-init "iznutra", = samo kopira/premešta već napravljen objekat.
+    (void)good1;
+    (void)good2;
 
     (void)narrow_ok;
     (void)w3;
