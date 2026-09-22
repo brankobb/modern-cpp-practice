@@ -20,4 +20,19 @@ Osnovne gdb komande koje treba da znaš napamet:
 3. Nađi bag ispod PRE nego što pogledaš rešenje — koristi `break main`, `next`,
    `print`, i kad puca `bt`
 
+## Kako čitati ASan izveštaj
+
+Kad `build.sh`/`build.ps1` ispiše crveni blok, čitaj odozgo:
+1. `SUMMARY: AddressSanitizer: <vrsta greške>` — vrsta problema
+   (`stack-buffer-overflow`, `heap-use-after-free`, `SEGV` itd.)
+2. `WRITE`/`READ of size N at <adresa>` — da li je upis ili čitanje, i
+   koliko bajtova
+3. prvi red pod `#0` u stack trace-u — TAČNA linija koda gde se desilo
+4. `is located in stack of thread T0 at offset N in frame ... <== Memory
+   access at offset N overflows this variable` — koja promenljiva je
+   pogođena (ako je stack varijabla)
+
+Ne moraš da razumeš shadow bytes tabelu na dnu — to je ASan-ova interna
+implementacija, retko ti treba za debagovanje sopstvenog koda.
+
 ## Zapažanja posle vežbe

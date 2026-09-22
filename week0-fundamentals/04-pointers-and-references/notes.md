@@ -15,4 +15,17 @@
 - ispod haube je često implementirana kao pokazivač, ali jezik je tretira
   kao alias — nema posebne sintakse za dereferenciranje
 
+## API korišćen u vežbi
+
+- `&x` (unary) — uzima ADRESU promenljive; `*p` dereferencira (pristupa
+  vrednosti na toj adresi kroz pokazivač `p`)
+- pointer arithmetic (`p + 1`) — pomera se za `sizeof(*p)` bajtova (tip
+  diktira "korak"), ne za 1 bajt — zato `int* + 1` pomera 4 bajta, a
+  `char* + 1` pomera 1 bajt
+- `int arr[]` kao parametar funkcije — sintaksa je zavaravajuća; kompajler
+  je TRETIRA kao `int* arr` (array-to-pointer decay), pa `sizeof(arr)`
+  UNUTAR funkcije daje veličinu pokazivača (8 na 64-bit sistemu), ne
+  veličinu originalnog niza — ako ti treba veličina, moraš je proslediti
+  kao poseban parametar
+
 ## Zapažanja posle vežbe

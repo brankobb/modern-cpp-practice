@@ -12,4 +12,16 @@ Izvori: Effective Modern C++ st. 41
   (jeftin move, poziv se ionako mora dogoditi) naspram overload-a
   (const&, &&)
 
+## API korišćen u vežbi
+
+- RVO / NRVO (Return Value Optimization / Named RVO) — kompajlerska
+  optimizacija koja KONSTRUIŠE povratnu vrednost DIREKTNO na mestu
+  poziva, bez ijednog copy/move poziva (objekat se nikad ne "premešta",
+  jednostavno se od početka gradi tamo gde treba da završi)
+- NRVO nije garantovan standardom (zavisi od kompajlera i nivoa
+  optimizacije — zato test sa `-O0` i `-O2` daje različite rezultate),
+  ali C++17 GARANTUJE eliziju za `return T(...);` napisano DIREKTNO (bez
+  imenovane lokalne promenljive) — to više nije "optimizacija", nego
+  propisano ponašanje jezika
+
 ## Zapažanja posle vežbe

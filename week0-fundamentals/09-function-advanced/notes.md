@@ -18,4 +18,18 @@
   deklaracija) je bezbednija; ADL (argument-dependent lookup) znači da se
   funkcija iz namespace-a argumenta nađe i BEZ `using`
 
+## API korišćen u vežbi
+
+- `using FuncPtr = RetType(*)(ArgTypes...);` — moderni alias (C++11) za tip
+  pokazivača na funkciju, čitljiviji od starog
+  `typedef RetType (*FuncPtr)(ArgTypes...);`
+- `inline` na funkciji — NE garantuje da će kompajler stvarno "ubaciti" kod
+  (to kompajler odlučuje sam, na osnovu heuristika); stvarna svrha danas
+  je da dozvoli DEFINICIJU funkcije u header fajlu bez kršenja One
+  Definition Rule kad se taj header uključi u više `.cpp` fajlova
+- ADL (argument-dependent lookup) — kompajler automatski traži funkciju i
+  u namespace-u TIPA ARGUMENTA, čak i bez `using` (zato `length(v)` radi
+  bez `mymath::` prefiksa ako je `v` tipa `mymath::Vec2` — probaj da
+  izbaciš `mymath::` iz poziva u main-u)
+
 ## Zapažanja posle vežbe

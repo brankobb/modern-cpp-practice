@@ -10,4 +10,17 @@
   initializer_list verziju ako postoji, čak i kad to nije ono što želiš
   (klasičan `std::vector<int> v(3, 5)` vs `std::vector<int> v{3, 5}` primer)
 
+## API korišćen u vežbi
+
+- `std::initializer_list<T>` (header `<initializer_list>`) — lagani "proxy"
+  objekat koji kompajler automatski pravi za `{a, b, c}` sintaksu; NE
+  poseduje podatke (samo pokazivač + veličina na privremeni niz koji
+  kompajler kreira) — zato ga nikad ne čuvaj za kasnije, samo koristi
+  odmah
+- `std::vector<int> v(3, 5)` — poziva ctor `vector(size_type count, const
+  T& value)`: 3 elementa, svaki inicijalizovan na 5
+- `std::vector<int> v{3, 5}` — poziva ctor `vector(initializer_list<T>)`
+  (ako postoji, UVEK ima prioritet nad drugim ctor-ima kod `{}` sintakse)
+  — zato ispadne `[3, 5]` (dva elementa), ne `[5, 5, 5]`
+
 ## Zapažanja posle vežbe

@@ -15,4 +15,14 @@
 - podsetnik iz week1 s01: NIKAD ne zovi virtual funkciju iz ctor/dtor —
   tokom konstrukcije Base dela, vtable za Derived još nije "aktivna"
 
+## API korišćen u vežbi
+
+- `= 0` na virtual funkciji (pure virtual, `virtual double area() const = 0;`)
+  — čini klasu ABSTRAKTNOM; klasa se NE MOŽE instancirati dok se ova
+  funkcija ne implementira u nekoj izvedenoj klasi
+- `std::vector<Shape*>` + ručni `new`/`delete` u petlji — namerno "sirov"
+  pristup da pokaže mehaniku bez skrivanja iza biblioteke; u week2 s08
+  ćeš ovo zameniti sa `std::vector<std::unique_ptr<Shape>>` koji čisti
+  automatski i eliminiše mogućnost da zaboraviš `delete`
+
 ## Zapažanja posle vežbe

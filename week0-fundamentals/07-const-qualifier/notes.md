@@ -17,4 +17,12 @@
   ne menja podatke); ako skineš const sa STVARNO const objekta i pokušaš
   da ga izmeniš, to je UB
 
+## API korišćen u vežbi
+
+- `mutable` — dozvoljava da se ČLAN menja čak i iz `const` member funkcije;
+  koristi se za "logički const" stanje (npr. keš rezultata, mutex za
+  thread-safety u getteru) koje ne menja ono što korisnik klase
+  PERCIPIRA kao stanje objekta — spolja `getExpensiveValue()` i dalje
+  izgleda kao čisto čitanje
+
 ## Zapažanja posle vežbe

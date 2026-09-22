@@ -16,4 +16,15 @@
 - pravilo: operator treba da radi ono što IZGLEDA da radi (principle of
   least surprise) — ne preopterećuj `+` da radi oduzimanje
 
+## API korišćen u vežbi
+
+- `std::ostream& operator<<(std::ostream&, const T&)` — standardni obrazac
+  za "printable" tip; vraća REFERENCU na stream da omogući lančano
+  `std::cout << a << b;` (svaki `<<` vraća stream, sledeći `<<` se
+  primenjuje na tu povratnu vrednost)
+- slobodna funkcija (free function) `operator*(double, const Vector2D&)` —
+  MORA biti van klase jer LEVI operand (`double`) nije tip tvoje klase;
+  da si napisao `operator*` kao member funkciju Vector2D-a, radio bi
+  samo `vec * 2.0`, NE `2.0 * vec`
+
 ## Zapažanja posle vežbe

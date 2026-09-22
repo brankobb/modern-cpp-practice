@@ -15,4 +15,15 @@ for (auto& x : container) { x.modify(); }        // menja original
 for (const auto& x : container) { /* read */ }   // bez kopije, bez izmene -- default izbor
 ```
 
+## API korišćen u vežbi
+
+- `auto` — kompajler dedukuje tip iz initializer-a koristeći iste algoritme
+  kao template argument deduction; SKIDA top-level `const` i referencu
+  podrazumevano (`auto x = const_ref;` → `x` NIJE ni const ni referenca,
+  osim ako ne napišeš eksplicitno `auto&`/`const auto&`)
+- range-based for (`for (auto& x : container)`) — sintaksni šećer za
+  iteraciju preko `container.begin()`/`container.end()`; tip promenljive
+  `x` određuje da li se svaki element KOPIRA (`auto`) ili REFERIŠE
+  (`auto&`/`const auto&`)
+
 ## Zapažanja posle vežbe

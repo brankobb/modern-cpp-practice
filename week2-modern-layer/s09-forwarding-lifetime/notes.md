@@ -13,4 +13,19 @@ Izvori: Effective Modern C++ st. 24, 25, 28
   nestane
 - invalidacija iteratora -- koje operacije nad kontejnerom je invalidiraju
 
+## API korišćen u vežbi
+
+- `T&& arg` u template kontekstu (`template<typename T> void wrapper(T&&
+  arg)`) — ovo NIJE obična rvalue referenca, nego "forwarding reference"
+  (universal reference); tip `T` se DEDUKUJE tako da može da veže i
+  lvalue i rvalue argument (van template konteksta, `T&&` gde je `T`
+  KONKRETAN tip je uvek obična rvalue referenca)
+- `std::forward<T>(arg)` (header `<utility>`) — prosleđuje `arg` DALJE
+  zadržavajući njegovu ORIGINALNU lvalue/rvalue kategoriju (za razliku
+  od `std::move` koji UVEK forsira rvalue, bez obzira šta mu prosledis)
+- `std::string_view` — "pogled" na string bez vlasništva nad podacima
+  (samo pokazivač + dužina, ne kopira karaktere); brz za prosleđivanje,
+  ali OPASAN ako izvorni string nestane pre nego što view prestane da
+  se koristi (dangling view)
+
 ## Zapažanja posle vežbe

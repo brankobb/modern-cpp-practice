@@ -18,4 +18,16 @@
   preko reference ili pokazivača na Base, NIKAD po vrednosti (setiš se
   slicing-a iz week1 s02 — ovo je isti razlog)
 
+## API korišćen u vežbi
+
+- `override` (C++11, kontekstualni keyword — ne menja tip) — eksplicitno
+  traži od kompajlera da proveri da ova funkcija STVARNO override-uje
+  virtualnu funkciju iz baze; ako se potpisi ne poklapaju (tipfeler,
+  pogrešan `const`), GREŠKA pri kompajliranju umesto tihe nepovezane
+  funkcije koja se nikad ne bi pozvala polimorfno
+- `= default` na destruktoru (`virtual ~Base() = default;`) — traži od
+  kompajlera da generiše podrazumevanu implementaciju; i dalje pravi
+  VIRTUAL destructor (jer je `virtual` eksplicitno napisano), samo mu je
+  telo prazno i generisano
+
 ## Zapažanja posle vežbe

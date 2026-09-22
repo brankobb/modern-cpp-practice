@@ -11,4 +11,13 @@ Klaus Iglberger, *Back to Basics: Move Semantics* (CppCon 2019)
 - moved-from stanje — objekat mora ostati validan (destruktibilan), ali
   vrednost je nedefinisana (obično "prazan")
 
+## API korišćen u vežbi
+
+- `std::move(x)` (header `<utility>`) — NIJE funkcija koja nešto pomera;
+  to je efektivno `static_cast<T&&>(x)`, samo GOVORI kompajleru "tretiraj
+  ovo kao rvalue", što otvara vrata da se pri overload resolution-u
+  izabere move ctor/assignment umesto copy. Sam poziv `std::move` ne
+  menja `x` ni na koji način — tek NAREDNI kod (ono što uzme `x` kao
+  `T&&`) stvarno "krade" resurs
+
 ## Zapažanja posle vežbe
