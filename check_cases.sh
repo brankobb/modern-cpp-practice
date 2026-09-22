@@ -5,6 +5,9 @@
 #   <lekcija>/ub/*.cpp      -- mora da se kompajlira, a ASan/UBSan pri
 #                              pokretanju mora da prijavi "// EXPECT-UB:" (regex)
 # Opciono "// STD: c++20" u fajlu bira standard (podrazumevano c++17).
+# Opciono "// LINK: support/a.cpp support/b.cpp" (putanje relativno od fajla):
+#   fajl se kompajlira ZAJEDNO sa tim fajlovima i LINKUJE, pa greška sme da
+#   bude i od linkera ("multiple definition", "undefined reference").
 # Usage: ./check_cases.sh week0-fundamentals/04-pointers-and-references
 set -u
 
@@ -30,6 +33,11 @@ strict_flags() { # isti strogi flegovi kao build.sh / build.ps1
 
 header() { sed -n "s|^// $1: *||p" "$2"; }
 
+link_files() { # "// LINK:" fajlovi, sa putanjom relativnom od fajla
+    local x
+    for x in $(header LINK "$1"); do printf '%s\n' "$(dirname "$1")/$x"; done
+}
+
 for f in "$lesson"/errors/*.cpp; do
     [ -e "$f" ] || continue
     name="errors/$(basename "$f")"
@@ -38,11 +46,17 @@ for f in "$lesson"/errors/*.cpp; do
         key=GCC; [ "$cc" = "clang++" ] && key=CLANG
         expect="$(header "EXPECT-$key" "$f")"
         mapfile -t flags < <(strict_flags "$cc" "$std")
-        if out="$("$cc" "${flags[@]}" -fsyntax-only "$f" 2>&1)"; then
+        mapfile -t extra < <(link_files "$f")
+        if [ "${#extra[@]}" -gt 0 ]; then
+            mode=(-o "$tmp/link" "${extra[@]}")   # kompajliraj i linkuj
+        else
+            mode=(-fsyntax-only)
+        fi
+        if out="$("$cc" "${flags[@]}" "${mode[@]}" "$f" 2>&1)"; then
             echo "FAIL  $name [$cc]: kompajliralo se, a ne bi smelo"; fail=1
         elif ! grep -qF -- "$expect" <<<"$out"; then
             echo "FAIL  $name [$cc]: pada, ali ne iz očekivanog razloga (\"$expect\"):"
-            grep -m2 'error' <<<"$out"; fail=1
+            grep -m2 -E 'error|multiple definition|undefined reference' <<<"$out"; fail=1
         else
             echo "ok    $name [$cc]"
         fi
@@ -61,8 +75,9 @@ for f in "$lesson"/ub/*.cpp; do
             continue
         fi
         mapfile -t flags < <(strict_flags "$cc" "$std")
+        mapfile -t extra < <(link_files "$f")
         if ! "$cc" "${flags[@]}" -g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer \
-                "$f" -o "$tmp/ub" 2>"$tmp/cc.log"; then
+                "$f" "${extra[@]}" -o "$tmp/ub" 2>"$tmp/cc.log"; then
             echo "FAIL  $name [$cc]: ne kompajlira se, a trebalo bi"
             grep -m2 'error' "$tmp/cc.log"; fail=1
             continue
