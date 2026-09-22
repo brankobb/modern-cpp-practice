@@ -298,7 +298,7 @@ int& ri2 = d;        // ❌ errors/e19
 **Pravilo:** referenca kad objekat **mora** da postoji, a pokazivač kad
 "nema objekta" ima smisla ili kad se preusmerava. Kod polimorfizma i
 referenca i pokazivač čuvaju pravi tip objekta, a kopija po vrednosti ga
-"odseca" (slicing, lekcija 12).
+"odseca" (slicing, lekcija 13).
 
 ---
 
@@ -380,6 +380,8 @@ s09.
 - `new` ide sa `delete`, a `new[]` sa `delete[]`.
 - LeakSanitizer je konzervativan: ako vrednost pokazivača slučajno ostane
   negde u memoriji, taj objekat ne prijavi. Zato `u10` curi u petlji.
+- Šta tačno rade `new`, `new[]` i `malloc`, zašto se ne mešaju i kako se
+  pravi 2D niz na heap-u: lekcija 10.
 
 **Moderni C++:** vlasništvo izražavaju `std::unique_ptr` i
 `std::shared_ptr` (week2 s08), a **sirov pokazivač znači "posmatram, ne

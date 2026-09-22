@@ -1,4 +1,4 @@
-# 12 — Nasleđivanje i polimorfizam (OOP bridge deo 3/3)
+# 13 — Nasleđivanje i polimorfizam (OOP bridge)
 
 - `class Derived : public Base` — public nasleđivanje je skoro uvek ono što
   želiš ("is-a" odnos); `protected`/`private` nasleđivanje menja kako se
@@ -61,7 +61,7 @@ std::string byValue(SafeAnimal a);   // ❌ poziv se ne kompajlira (errors/e01)
 Ako klasi ipak treba kopiranje, dodaje se virtual `clone()` funkcija koja
 vraća `std::unique_ptr<Base>`.
 
-Provera: `./check_cases.sh week0-fundamentals/12-inheritance-polymorphism`.
+Provera: `./check_cases.sh week0-fundamentals/13-inheritance-polymorphism`.
 
 ## API korišćen u vežbi
 

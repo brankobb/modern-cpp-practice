@@ -35,7 +35,7 @@ i **Item 10** ("Prefer scoped enums to unscoped enums").
 | `float`, `double`, `long double` | funkcije `R(Args...)` |
 | `void` | pokazivači `T*` i reference `T&`, `T&&` (lekcija 04) |
 | `std::nullptr_t` | pokazivači na članove `T C::*` (lekcija 04) |
-| | klase i strukture (lekcije 10–12) |
+| | klase i strukture (lekcije 11–13) |
 | | `union` |
 | | `enum` i `enum class` |
 

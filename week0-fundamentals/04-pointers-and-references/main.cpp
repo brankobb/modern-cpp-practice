@@ -212,7 +212,7 @@ void s08_bindingAndLifetime() {
 }
 
 // ---------------------------------------------------------------- 9
-// Referenca vs pokazivač: samo tabela u notes.md (slicing kod polimorfizma: lekcija 12).
+// Referenca vs pokazivač: samo tabela u notes.md (slicing kod polimorfizma: lekcija 13).
 
 // ---------------------------------------------------------------- 10
 struct CopyCounter {

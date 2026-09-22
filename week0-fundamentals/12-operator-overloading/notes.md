@@ -1,4 +1,4 @@
-# 11 — Operator overloading (OOP bridge deo 2/3)
+# 12 — Operator overloading (OOP bridge)
 
 - member vs free function: piši operator kao MEMBER kad je levi operand
   tvoje klase (`a + b` gde je `a` tipa `MyClass`); piši kao FREE function

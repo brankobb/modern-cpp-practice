@@ -56,6 +56,7 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 | [07](week0-fundamentals/07-const-qualifier) | `const` (kompletno, EC++ It. 3, EMC It. 13/15/16) — pokazivači i `int**` zamka, const member funkcije, `mutable` i thread-safety, const povratna vrednost, `const_cast`, STL, `constexpr`, top-level vs low-level; pogrešni slučajevi u `errors/` i `ub/` |
 | [08](week0-fundamentals/08-auto-range-for) | `auto` i dedukcija tipova (kompletno, EMC It. 1–6) — tri slučaja template dedukcije, `auto`, `decltype`/`decltype(auto)`, prikaz tipa, `vector<bool>` proxy, range-for i životni vek; pogrešni slučajevi u `errors/` i `ub/` |
 | [09](week0-fundamentals/09-function-advanced) | Funkcije (EMC It. 11/26, EC++ It. 37) — overloading i overload resolution, overload po vrsti reference, `= delete`, podrazumevani argumenti, pokazivači na funkcije i `std::function`; pogrešni slučajevi u `errors/` i `ub/` |
+| [10](week0-fundamentals/10-dynamic-memory) | Dinamička memorija (EC++ It. 16, EMC It. 21) — `malloc`/`free` vs `new`/`delete`, neuspela alokacija, `new[]`/`delete[]` i zašto se oblici ne mešaju, 2D nizovi na četiri načina, `make_unique`/`vector`; pogrešni slučajevi u `errors/` i `ub/` |
 
 ### OOP bridge (pre Nedelje 1)
 
@@ -63,9 +64,9 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 
 | Fold. | Tema |
 |---|---|
-| [10](week0-fundamentals/10-classes-encapsulation) | Klase, enkapsulacija, `this`, static članovi — struct vs class, method chaining, instance counter |
-| [11](week0-fundamentals/11-operator-overloading) | Operator overloading — member vs free function, `operator[]`, `operator<<`, `operator==` |
-| [12](week0-fundamentals/12-inheritance-polymorphism) | Nasleđivanje i polimorfizam — abstraktne klase, `override`, dynamic dispatch, slicing (i kako ga zabraniti, C.67) |
+| [11](week0-fundamentals/11-classes-basics) | Klase: osnove — struct vs class, enkapsulacija, `this`, static članovi (stari format, prepisuje se) |
+| [12](week0-fundamentals/12-operator-overloading) | Operator overloading — member vs free function, `operator[]`, `operator<<`, `operator==` |
+| [13](week0-fundamentals/13-inheritance-polymorphism) | Nasleđivanje i polimorfizam — abstraktne klase, `override`, dynamic dispatch, slicing (i kako ga zabraniti, C.67) |
 
 ## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
 
