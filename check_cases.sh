@@ -8,6 +8,8 @@
 # Opciono "// LINK: support/a.cpp support/b.cpp" (putanje relativno od fajla):
 #   fajl se kompajlira ZAJEDNO sa tim fajlovima i LINKUJE, pa greška sme da
 #   bude i od linkera ("multiple definition", "undefined reference").
+# Opciono "// ONLY-CC: g++": slučaj važi samo za taj kompajler (npr. UB koji
+#   drugi kompajler odbije već pri kompajliranju); ostali se preskaču.
 # Usage: ./check_cases.sh week0-fundamentals/04-pointers-and-references
 set -u
 
@@ -42,7 +44,12 @@ for f in "$lesson"/errors/*.cpp; do
     [ -e "$f" ] || continue
     name="errors/$(basename "$f")"
     std="$(header STD "$f")"; std="${std:-c++17}"
+    only="$(header ONLY-CC "$f")"
     for cc in "${compilers[@]}"; do
+        if [ -n "$only" ] && [ "$cc" != "$only" ]; then
+            echo "skip  $name [$cc]: slučaj važi samo za $only"
+            continue
+        fi
         key=GCC; [ "$cc" = "clang++" ] && key=CLANG
         expect="$(header "EXPECT-$key" "$f")"
         mapfile -t flags < <(strict_flags "$cc" "$std")
@@ -68,7 +75,12 @@ for f in "$lesson"/ub/*.cpp; do
     name="ub/$(basename "$f")"
     std="$(header STD "$f")"; std="${std:-c++17}"
     expect="$(header EXPECT-UB "$f")"
+    only="$(header ONLY-CC "$f")"
     for cc in "${compilers[@]}"; do
+        if [ -n "$only" ] && [ "$cc" != "$only" ]; then
+            echo "skip  $name [$cc]: slučaj važi samo za $only"
+            continue
+        fi
         # Sanitizer runtime nije uvek instaliran za svaki kompajler -- proveri.
         if ! echo 'int main(){}' | "$cc" -x c++ -fsanitize=address,undefined - -o "$tmp/probe" >/dev/null 2>&1; then
             echo "skip  $name [$cc]: nema ASan/UBSan runtime za ovaj kompajler"
