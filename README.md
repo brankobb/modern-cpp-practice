@@ -11,10 +11,20 @@ AddressSanitizer + UndefinedBehaviorSanitizer.
 ./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
 ```
 
-**Windows:** koristi `build.ps1` (isti flegovi). Treba ti MinGW-w64 g++
-(GCC 12+ za ASan na Windows-u) na PATH-u — najlakše preko
-[MSYS2](https://www.msys2.org/) (`pacman -S mingw-w64-ucrt-x86_64-gcc`, pa
-dodaj `ucrt64/bin` u PATH) ili [w64devkit](https://github.com/skeeto/w64devkit).
+**Windows:** koristi `build.ps1` (isti flegovi). Treba ti MinGW-w64 g++ na
+PATH-u — najlakše preko [MSYS2](https://www.msys2.org/)
+(`pacman -S mingw-w64-ucrt-x86_64-gcc`, pa dodaj `ucrt64/bin` u PATH) ili
+[w64devkit](https://github.com/skeeto/w64devkit).
+
+Ako ti PowerShell odbije da pokrene skriptu ("running scripts is disabled"),
+otključaj za tekuću sesiju: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`.
+
+Mnogi MSYS2 GCC build-ovi nemaju `libasan`/`libubsan` za mingw target —
+ako linker javi `cannot find -lasan`, `build.ps1` to automatski prepozna i
+pređe na build BEZ sanitizera (uz upozorenje), pa ništa ne blokira rad.
+Za pravi ASan/UBSan na Windows-u instaliraj Clang toolchain umesto GCC-a:
+`pacman -S mingw-w64-clang-x86_64-toolchain`, dodaj `clang64/bin` u PATH,
+i pokreni sa `.\build.ps1 <fajl> -Compiler clang++`.
 
 ```powershell
 .\build.ps1 week1-cpp03-to-move\s01-object-lifetime\main.cpp
