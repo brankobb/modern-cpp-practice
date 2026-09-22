@@ -2,20 +2,77 @@
 #include <initializer_list>
 #include <iostream>
 #include <string>
+#include <typeinfo>
 #include <utility>
 #include <vector>
 
-// Effective Modern C++, Item 7: "Distinguish between () and {} when
-// creating objects." Svaka funkcija ispod demonstrira jednu tačku iz tog
-// item-a, redosledom kojim se pojavljuju u knjizi.
+// Sekcije 1-5: formalna podela inicijalizacije. Sekcije posle toga prate
+// Effective Modern C++ Item 7 ("Distinguish between () and {} when
+// creating objects") i par dodatnih tema (auto+{}, new{}, aggregate,
+// designated initializers). Svaka tvrdnja ovde je testirana
+// kompajliranjem/pokretanjem pre nego što je ušla u komentare.
 
-void threeSyntaxes() {
-    std::cout << "-- tri sintakse inicijalizacije (ekvivalentne za int) --\n";
-    int x(0);    // zagrade
-    int y = 0;   // '='
-    int z{0};    // vitičaste zagrade
-    int w = {0}; // '=' + vitičaste
-    std::cout << "x=" << x << " y=" << y << " z=" << z << " w=" << w << "\n";
+struct DefaultInitDemo {
+    int x; // BEZ default member initializer-a -- ostaje nedefinisan
+};
+
+void section1_defaultInit() {
+    std::cout << "-- 1. default-initialization --\n";
+    // Ako pročitaš x pre nego što mu nešto dodeliš (NIJE DOBRO) jer je
+    // vrednost NEDEFINISANA (garbage) -- ovo je UB, ne "verovatno nula".
+    DefaultInitDemo d;
+    d.x = 42; // moraš eksplicitno dodeliti pre čitanja
+    std::cout << "d.x (posle eksplicitne dodele) = " << d.x << "\n";
+
+    std::string s; // za klase, default-init ZOVE default ctor -- string je prazan, NE garbage
+    std::cout << "std::string s; -> \"" << s << "\" (prazan, ne garbage -- string ima default ctor)\n";
+}
+
+void section2_valueInit() {
+    std::cout << "-- 2. value-initialization --\n";
+    // Treba da koristiš {} (bez argumenata) kad želiš GARANTOVANU
+    // nula/prazno stanje za primitivan tip -- za razliku od
+    // default-init iznad, ovo NIJE nedefinisano.
+    int x{};
+    double d{};
+    bool b{};
+    std::cout << "int x{}=" << x << " double d{}=" << d << " bool b{}=" << b << "\n";
+}
+
+void section3_directInit() {
+    std::cout << "-- 3. direct-initialization --\n";
+    int x(42);
+    std::string s("hello");
+    std::vector<int> v(10); // 10 elemenata, vrednost 0
+    std::cout << "x=" << x << " s=" << s << " v.size()=" << v.size() << "\n";
+}
+
+class ExplicitOnly {
+public:
+    explicit ExplicitOnly(int v) : v_(v) { std::cout << "ExplicitOnly(int)\n"; }
+    int v_;
+};
+
+void section4_copyInit() {
+    std::cout << "-- 4. copy-initialization --\n";
+    int x = 42;
+    std::string s = "hello";
+    std::cout << "x=" << x << " s=" << s << "\n";
+
+    // Ako pozoveš explicit ctor preko copy-init sintakse (=) (NIJE DOBRO,
+    // ne kompajlira) jer explicit BAŠ ZATO postoji -- da isključi ctor iz
+    // razmatranja kod copy-init, sprečava "tihu" implicitnu konverziju.
+    // ExplicitOnly bad = 5; // TODO: otkomentariši -- compile error (copy-init, explicit isključen)
+    // Treba da koristiš direct-init kad je ctor explicit.
+    ExplicitOnly good(5); // direct-init -- radi, explicit ctor SE razmatra
+    std::cout << "good.v_=" << good.v_ << "\n";
+}
+
+void section5_uniformInit() {
+    std::cout << "-- 5. uniform (brace) initialization --\n";
+    int x{42};
+    std::string s{"hello"};
+    std::cout << "x=" << x << " s=" << s << "\n";
 }
 
 class MemberDefaults {
@@ -181,6 +238,95 @@ void emptyBracesMeaning() {
     WidgetEmpty w4{{}}; // iznenađenje: initializer_list ctor, size=1 (NE 0!)
 }
 
+void autoAndBraces() {
+    std::cout << "-- auto + {} (C++17 je promenio pravilo) --\n";
+    // Pre C++17, auto x{5}; je dedukovao std::initializer_list<int> --
+    // poznat izvor zabune. Treba da znaš da OD C++17 auto x{5}; dedukuje
+    // OBIČAN int (jednoelementni direct-list-init), dok auto y = {5};
+    // I DALJE dedukuje std::initializer_list<int> (copy-list-init sa
+    // jednim elementom -- druga grana pravila).
+    auto x{5};    // C++17+: x je int
+    auto y = {5}; // uvek: y je std::initializer_list<int>
+    std::cout << "typeid(x).name()=" << typeid(x).name()
+              << " typeid(y).name()=" << typeid(y).name() << "\n";
+    // Možeš i da izbegneš celu ovu zabunu tako što koristiš auto x = 5;
+    // (copy-init, bez {}) kad ti treba prost tip -- nema dvosmislenosti.
+}
+
+void newWithBraces() {
+    std::cout << "-- new sa {} --\n";
+    auto p1 = new int(42); // radi
+    auto p2 = new int{42}; // radi, isti rezultat za proste tipove
+    std::cout << "*p1=" << *p1 << " *p2=" << *p2 << "\n";
+    delete p1;
+    delete p2;
+    // Za tipove sa initializer_list ctor-om, new T{args} podleže ISTOJ
+    // "otmici" kao i obično T{args} -- pravilo se ne menja zbog new-a.
+}
+
+struct AggPoint {
+    int x;
+    int y;
+};
+
+void aggregateInit() {
+    std::cout << "-- aggregate initialization (struct i niz) --\n";
+    // AggPoint NEMA user-deklarisan ctor, nema private članove -- to je
+    // AGREGAT, pa {} direktno puni članove REDOSLEDOM DEKLARACIJE, bez
+    // poziva bilo kog konstruktora.
+    AggPoint p{1, 2};
+    std::cout << "p.x=" << p.x << " p.y=" << p.y << "\n";
+
+    int arr[]{1, 2, 3, 4}; // isto pravilo važi za obične nizove
+    std::cout << "arr[0..3] = " << arr[0] << " " << arr[1] << " " << arr[2] << " " << arr[3] << "\n";
+}
+
+#if __cplusplus >= 202002L
+struct DesignatedPoint {
+    int x;
+    int y;
+};
+
+void designatedInitializers() {
+    std::cout << "-- designated initializers (C++20) --\n";
+    // Treba da designatori BUDU U ISTOM REDOSLEDU kao deklaracija članova
+    // -- DesignatedPoint p{.y = 20, .x = 10}; (obrnut redosled) je GREŠKA,
+    // ne samo neuobičajeno.
+    DesignatedPoint p{.x = 10, .y = 20};
+    std::cout << "p.x=" << p.x << " p.y=" << p.y << "\n";
+}
+#else
+void designatedInitializers() {
+    std::cout << "-- designated initializers (C++20) -- PRESKOČENO, treba -std=c++20 --\n";
+    std::cout << "   pokreni: ./build.sh main.cpp -std=c++20 (ili build.ps1 isto)\n";
+}
+#endif
+
+class ConstAndRefMembers {
+public:
+    // Ako pokušaš da dodeliš const_/ref_ U TELU konstruktora (NIJE DOBRO,
+    // ne kompajlira) jer const član i referenca MORAJU biti inicijalizovani
+    // pre nego što telo ctor-a uopšte počne da se izvršava -- do tada su
+    // "gotovi" (const se ne može menjati, referenca se ne može rebindovati).
+    // Treba da koristiš INIT LISTU -- ovo nije stilska preporuka nego
+    // JEDINI način da se ovakvi članovi uopšte inicijalizuju.
+    ConstAndRefMembers(int v, int& ref) : const_(v), ref_(ref) {
+        // const_ = v; // TODO: otkomentariši -- compile error, const_ je već inicijalizovan
+        std::cout << "ConstAndRefMembers ctor, const_=" << const_ << " ref_=" << ref_ << "\n";
+    }
+
+private:
+    const int const_;
+    int& ref_;
+};
+
+void constAndRefMembers() {
+    std::cout << "-- const i reference članovi: init lista je OBAVEZNA --\n";
+    int x = 7;
+    ConstAndRefMembers c(5, x);
+    (void)c;
+}
+
 void vectorClassic() {
     std::cout << "-- std::vector(10, 20) vs std::vector{10, 20} --\n";
     std::vector<int> v1(10, 20); // () -- normalan ctor: 10 elemenata, svi = 20
@@ -214,7 +360,11 @@ void genericCodeProblem() {
 }
 
 int main() {
-    threeSyntaxes();
+    section1_defaultInit();
+    section2_valueInit();
+    section3_directInit();
+    section4_copyInit();
+    section5_uniformInit();
 
     std::cout << "-- default vrednost člana klase (samo {} i =, ne ()) --\n";
     MemberDefaults md;
@@ -227,6 +377,11 @@ int main() {
     initializerListNarrowingError();
     initializerListFallback();
     emptyBracesMeaning();
+    autoAndBraces();
+    newWithBraces();
+    aggregateInit();
+    designatedInitializers();
+    constAndRefMembers();
     vectorClassic();
     genericCodeProblem();
 }
