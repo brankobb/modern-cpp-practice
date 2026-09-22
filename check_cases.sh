@@ -10,6 +10,8 @@
 #   bude i od linkera ("multiple definition", "undefined reference").
 # Opciono "// ONLY-CC: g++": slučaj važi samo za taj kompajler (npr. UB koji
 #   drugi kompajler odbije već pri kompajliranju); ostali se preskaču.
+# Opciono "// FLAGS: -fsanitize=float-cast-overflow": dodatni flegovi za taj
+#   fajl (npr. sanitizer koji -fsanitize=undefined ne uključuje).
 # Usage: ./check_cases.sh week0-fundamentals/04-pointers-and-references
 set -u
 
@@ -53,6 +55,8 @@ for f in "$lesson"/errors/*.cpp; do
         key=GCC; [ "$cc" = "clang++" ] && key=CLANG
         expect="$(header "EXPECT-$key" "$f")"
         mapfile -t flags < <(strict_flags "$cc" "$std")
+        read -ra more <<<"$(header FLAGS "$f")"
+        flags+=("${more[@]}")
         mapfile -t extra < <(link_files "$f")
         if [ "${#extra[@]}" -gt 0 ]; then
             mode=(-o "$tmp/link" "${extra[@]}")   # kompajliraj i linkuj
@@ -87,6 +91,8 @@ for f in "$lesson"/ub/*.cpp; do
             continue
         fi
         mapfile -t flags < <(strict_flags "$cc" "$std")
+        read -ra more <<<"$(header FLAGS "$f")"
+        flags+=("${more[@]}")
         mapfile -t extra < <(link_files "$f")
         if ! "$cc" "${flags[@]}" -g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer \
                 "$f" "${extra[@]}" -o "$tmp/ub" 2>"$tmp/cc.log"; then
