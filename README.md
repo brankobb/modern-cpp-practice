@@ -52,7 +52,7 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 | [03](week0-fundamentals/03-uniform-init) | Inicijalizacija (kompletno, EMC It. 7) — default/value/direct/copy/list init, narrowing, initializer_list prioritet, agregati, C++20 designated; pogrešni slučajevi u `errors/` |
 | [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletno, EMC It. 8, EC++ It. 16/20/21) — `nullptr`, aritmetika, `void*`, `const`, vezivanje referenci i životni vek, prosleđivanje/vraćanje, vlasništvo; pogrešni slučajevi u `errors/` i `ub/` |
 | [07](week0-fundamentals/07-const-qualifier) | `const` (kompletno, EC++ It. 3, EMC It. 13/15/16) — pokazivači i `int**` zamka, const member funkcije, `mutable` i thread-safety, const povratna vrednost, `const_cast`, STL, `constexpr`, top-level vs low-level; pogrešni slučajevi u `errors/` i `ub/` |
-| [08](week0-fundamentals/08-auto-range-for) | Auto → range-based for — auto skida const/ref, `auto&` vs `const auto&` u petlji |
+| [08](week0-fundamentals/08-auto-range-for) | `auto` i dedukcija tipova (kompletno, EMC It. 1–6) — tri slučaja template dedukcije, `auto`, `decltype`/`decltype(auto)`, prikaz tipa, `vector<bool>` proxy, range-for i životni vek; pogrešni slučajevi u `errors/` i `ub/` |
 | [09](week0-fundamentals/09-function-advanced) | Overloading, default args, inline, function pointers, namespace |
 
 ### OOP bridge (pre Nedelje 1)
