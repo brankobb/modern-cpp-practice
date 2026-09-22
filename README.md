@@ -69,6 +69,7 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 | [13](week0-fundamentals/13-inheritance-polymorphism) | Nasleđivanje i polimorfizam (EC++ It. 7/9/32/33/38/39) — pristup i vrste nasleđivanja, redosled konstrukcije, sakrivanje imena, `virtual`/`override`/`final`, virtual destruktor, virtual u konstruktoru, vptr, slicing i `clone()`, dijamant, kompozicija; pogrešni slučajevi u `errors/` i `ub/` |
 | [14](week0-fundamentals/14-type-conversions) | Konverzije tipova (EC++ It. 27) — implicitne konverzije, `static_cast`/`dynamic_cast`/`const_cast`/`reinterpret_cast` i zašto ne C-cast, strict aliasing i `bit_cast`, konstruktor i operator konverzije (`explicit operator bool`), korisnički → korisnički tip, proverena konverzija brojeva; pogrešni slučajevi u `errors/` i `ub/` |
 | [15](week0-fundamentals/15-strings) | Stringovi (kurs 85, 86, 88, 90) — literali i raw stringovi, `std::string` (npos, bajtovi vs slova, `c_str()` životni vek), brojevi ↔ tekst (`stoi`, `from_chars`), string streams, korisnički literali (`""s`, `ms`, `_km`); pogrešni slučajevi u `errors/` i `ub/` |
+| [16](week0-fundamentals/16-constexpr) | `constexpr` (kurs 91, EMC It. 15) — sme vs mora pri kompajliranju, UB u konstantnom izrazu je greška, literal tipovi, tabele u `.rodata`, `if constexpr`, `static_assert`; C++20 `consteval`/`constinit` u `main_cpp20.cpp`; pogrešni slučajevi u `errors/` i `ub/` |
 
 ## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
 
