@@ -9,7 +9,7 @@
 // Inicijalizacija u C++ -- ISPRAVNI slučajevi. Sve u ovom fajlu se
 // kompajlira i radi (g++ 13 i clang 18, -std=c++17 i -std=c++20).
 // POGREŠNI slučajevi su u errors/: svaki fajl je jedan slučaj koji se NE
-// kompajlira, a ./check_errors.sh proverava da svaki pada iz očekivanog
+// kompajlira, a ./check_cases.sh <ova lekcija> proverava da svaki pada iz očekivanog
 // razloga na oba kompajlera. Numeracija sekcija prati notes.md.
 //
 // Neki warning-i pri kompajliranju su NAMERNI (most vexing parse, redosled

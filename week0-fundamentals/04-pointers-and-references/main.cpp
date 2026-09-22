@@ -1,202 +1,338 @@
+#include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <iostream>
+#include <iterator>
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <vector>
 
-void section1_pointerBasics() {
-    std::cout << "-- 1. pokazivač: osnove (&, *, void*) --\n";
+// Pokazivači i reference -- ISPRAVNI slučajevi. Sve u ovom fajlu se
+// kompajlira i radi bez ijedne ASan/UBSan prijave (g++ 13 i clang 18).
+// POGREŠNI slučajevi:
+//   errors/  -- kod koji se NE kompajlira
+//   ub/      -- kod koji se kompajlira, ali je undefined behavior (sanitizer ga hvata)
+// ./check_cases.sh week0-fundamentals/04-pointers-and-references  proverava oba.
+// Numeracija sekcija prati notes.md. Warning za sizeof na parametru-nizu
+// (sekcija 3) je namerni.
+
+// ---------------------------------------------------------------- 1
+void s01_pointerBasics() {
+    std::cout << "-- 1. pokazivač: osnove --\n";
     int x = 5;
-    int* p = &x;   // & -- uzmi adresu
-    int y = *p;    // * -- dereferenciraj
-    void* vp = p;  // generički pokazivač -- mora se cast-ovati pre dereferenciranja
-    std::cout << "x=" << x << " y (kopija preko *p)=" << y
-              << " vp=" << vp << "\n";
+    int* p = &x; // & -- adresa od x
+    *p = 7;      // * -- pristup objektu na toj adresi
+    std::cout << "x=" << x << " (promenjen kroz *p)\n";
+
+    // Pokazivač je i sam OBJEKAT: ima svoju adresu i veličinu, i može da
+    // se preusmeri.
+    int y = 9;
+    p = &y;
+    std::cout << "*p posle p = &y: " << *p << "; sizeof(p)=" << sizeof(p)
+              << "; &p != &x: " << std::boolalpha << (static_cast<void*>(&p) != static_cast<void*>(&x))
+              << std::noboolalpha << "\n";
+
+    // Zamka u deklaraciji: * pripada IMENU, ne tipu.
+    int* a1, b1;   // a1 je int*, b1 je OBIČAN int
+    int *a2, *b2;  // oba pokazivača
+    static_assert(std::is_same_v<decltype(a1), int*>);
+    static_assert(std::is_same_v<decltype(b1), int>);
+    static_assert(std::is_same_v<decltype(b2), int*>);
+    a1 = &x; b1 = 0; a2 = &x; b2 = &y;
+    std::cout << "int* a1, b1; -> b1 je int (static_assert)\n";
+    (void)a1; (void)b1; (void)a2; (void)b2;
 }
 
-void fInt(int) { std::cout << "f(int)\n"; }
-void fPtr(char*) { std::cout << "f(char*)\n"; }
+// ---------------------------------------------------------------- 2
+void f(int) { std::cout << "  -> f(int)\n"; }
+void f(char*) { std::cout << "  -> f(char*)\n"; }
 
-void section2_nullptrVsNullVsZero() {
-    std::cout << "-- 2. nullptr vs NULL vs 0 --\n";
-    fInt(0);       // 0 je int literal -> f(int)
-    fPtr(nullptr); // nullptr ima sopstveni tip (std::nullptr_t) -> f(char*)
-    // Ako imaš OBA overload-a f(int) i f(char*) u ISTOM scope-u i pozoveš
-    // f(NULL) (NIJE DOBRO, ne kompajlira) jer NULL nije garantovano
-    // pokazivačkog tipa (obično je makro za 0 ili 0L) -- kompajler ne zna
-    // koji overload da izabere, AMBIGUOUS COMPILE ERROR (testirano uživo).
-    // Treba da koristiš nullptr za pokazivače u NOVOM kodu -- uvek bira
-    // ispravan overload, bez dvosmislenosti.
-    std::cout << "sizeof(nullptr)=" << sizeof(nullptr) << "\n";
+template <typename F, typename P>
+void call(F func, P param) {
+    func(param);
+}
+void g(int* p) { std::cout << "  -> g(int*) dobio " << (p ? "ne-null" : "nullptr") << "\n"; }
+
+void s02_nullptr() {
+    std::cout << "-- 2. null pokazivač i nullptr (EMC Item 8) --\n";
+    int* p = nullptr;
+    int* q{}; // value-init pokazivača -> nullptr (lekcija 03)
+    if (!p && q == nullptr) std::cout << "p i q su null; uvek proveri pre dereferenciranja\n";
+
+    std::cout << "f(0):\n";
+    f(0);       // 0 je int -> f(int)
+    std::cout << "f(nullptr):\n";
+    f(nullptr); // nullptr ide SAMO u pokazivače -> f(char*); f(NULL) je dvosmislen (errors/e07)
+
+    std::cout << "call(g, nullptr):\n";
+    call(g, nullptr); // std::nullptr_t -> int* radi i kroz template; call(g, 0) ne (errors/e08)
+    static_assert(std::is_same_v<decltype(nullptr), std::nullptr_t>);
 }
 
-void section3_pointerArithmetic() {
-    std::cout << "-- 3. pointer arithmetic --\n";
-    int arr[5] = {1, 2, 3, 4, 5};
-    int* p = arr;
-    std::cout << "*p=" << *p << " *(p+1)=" << *(p + 1) << " *(p+4)=" << *(p + 4) << "\n";
-    std::ptrdiff_t diff = (p + 4) - p;
-    std::cout << "(p+4) - p = " << diff << " (razlika u ELEMENTIMA, ne bajtovima)\n";
-    // Ako dereferenciraš arr + 5 (jedan iza kraja) (NIJE DOBRO) jer je to
-    // UB -- p == arr+5 je validno poređenje (npr. za end() iterator stil),
-    // ali *(arr+5) čita van niza.
-    // Treba da koristiš poređenje sa "one-past-end" pokazivačem samo za
-    // proveru granice (kao std::vector::end()), nikad za dereferenciranje.
+// ---------------------------------------------------------------- 3
+void decayed(int arr[]) { // arr je ovde int* -- niz se "raspao" u pokazivač
+    std::cout << "  sizeof(arr) u funkciji = " << sizeof(arr) << " (veličina POKAZIVAČA)\n";
 }
 
-void section4_pointerToPointerAndRefToPointer() {
-    std::cout << "-- 4. pokazivač na pokazivač, referenca na pokazivač --\n";
+template <std::size_t N>
+std::size_t lengthOf(int (&)[N]) { // referenca na niz čuva veličinu u tipu
+    return N;
+}
+
+void s03_arithmeticAndArrays() {
+    std::cout << "-- 3. pointer arithmetic i nizovi --\n";
+    int arr[5] = {10, 20, 30, 40, 50};
+    int* p = arr; // niz -> pokazivač na prvi element (array-to-pointer decay)
+    std::cout << "*p=" << *p << " *(p+1)=" << *(p + 1) << " p[2]=" << p[2] << " (p[i] == *(p+i))\n";
+    std::cout << "bajtova između p+1 i p: "
+              << reinterpret_cast<char*>(p + 1) - reinterpret_cast<char*>(p)
+              << " (= sizeof(int), korak zavisi od tipa)\n";
+
+    std::ptrdiff_t n = (arr + 5) - arr; // razlika u ELEMENTIMA, samo unutar istog niza
+    std::cout << "(arr + 5) - arr = " << n << "\n";
+
+    // Pokazivač "jedan iza kraja" sme da se napravi i poredi -- ne i
+    // dereferencira (ub/u02). Tako rade i end() iteratori.
+    std::cout << "iteracija do arr + 5: ";
+    for (int* it = arr; it != arr + 5; ++it) std::cout << *it << ' ';
+    std::cout << "\n";
+
+    std::cout << "sizeof(arr) u main = " << sizeof(arr) << " (ceo niz)\n";
+    decayed(arr);
+    std::cout << "std::size(arr)=" << std::size(arr) << " lengthOf(arr)=" << lengthOf(arr) << "\n";
+
+    // Poređenje < pokazivača iz RAZLIČITIH objekata ima nespecificiran
+    // rezultat; std::less garantuje dosledan (totalni) poredak.
+    int a = 1, b = 2;
+    bool ordered = std::less<int*>{}(&a, &b) || std::less<int*>{}(&b, &a);
+    std::cout << "std::less daje poredak za nepovezane pokazivače: " << std::boolalpha << ordered
+              << std::noboolalpha << "\n";
+}
+
+// ---------------------------------------------------------------- 4
+void s04_voidPointer() {
+    std::cout << "-- 4. void* --\n";
+    int x = 42;
+    void* vp = &x;                      // bilo koji T* -> void* je implicitno
+    int* ip = static_cast<int*>(vp);    // nazad mora eksplicitno (errors/e03)
+    std::cout << "*static_cast<int*>(vp) = " << *ip << "\n";
+    // *vp i vp + 1 ne rade (errors/e04, e05): void nema tip ni veličinu.
+}
+
+// ---------------------------------------------------------------- 5
+void allocateOld(int** out) { *out = new int(1); } // C stil: pokazivač na pokazivač
+void allocateRef(int*& out) { out = new int(2); }  // C++: referenca na pokazivač
+
+std::unique_ptr<int> allocateModern() { return std::make_unique<int>(3); } // najbolje: vrati vlasnika
+
+void s05_pointerToPointer() {
+    std::cout << "-- 5. pokazivač na pokazivač --\n";
     int x = 5;
     int* p = &x;
-    int** pp = &p;   // pokazivač na pokazivač
-    int*& rp = p;    // referenca na pokazivač
-    std::cout << "**pp=" << **pp << " *rp=" << *rp << "\n";
-    // Ako pokušaš int& arr[3]; (NIJE DOBRO, ne kompajlira) jer niz
-    // referenci NE POSTOJI kao tip -- svaki slot niza mora imati
-    // nezavisnu adresu/identitet za dodelu, a referenca nema sopstvenu
-    // adresu odvojenu od objekta na koji referiše.
-    // int& arr[3]; // TODO: otkomentariši -- compile error
+    int** pp = &p;
+    **pp = 6;
+    std::cout << "**pp = 6 -> x=" << x << "\n";
+
+    // Primena: funkcija koja menja POZIVAOČEV pokazivač.
+    int* a = nullptr;
+    int* b = nullptr;
+    allocateOld(&a);
+    allocateRef(b);
+    auto c = allocateModern();
+    std::cout << "*a=" << *a << " *b=" << *b << " *c=" << *c << "\n";
+    delete a;
+    delete b; // c se oslobađa sam
 }
 
-void arrayDecayTrap(int arr[]) {
-    // Ako se osloniš na sizeof(arr) unutar funkcije da saznaš dužinu niza
-    // (NIJE DOBRO) jer je niz "decay-ovao" u pokazivač čim je prosleđen --
-    // dobićeš veličinu POKAZIVAČA (8 bajtova na 64-bit), ne veličinu
-    // originalnog niza.
-    // Treba da prosledis dužinu EKSPLICITNO kao poseban parametar
-    // (void f(int* arr, size_t n)), ili koristiš std::array/std::vector
-    // koji nose svoju veličinu sa sobom.
-    // Možeš i proslediti referencu na niz FIKSNE veličine
-    // (void f(int (&arr)[5])) -- tad sizeof radi ispravno, ali funkcija
-    // onda radi SAMO za nizove te tačne veličine.
-    std::cout << "sizeof(arr) unutar funkcije = " << sizeof(arr) << "\n";
+// ---------------------------------------------------------------- 6
+void s06_constAndPointers() {
+    std::cout << "-- 6. const i pokazivači (čitaj s desna na levo) --\n";
+    int x = 1, y = 2;
+
+    const int* p1 = &x;       // pokazivač na const int: *p1 = ... ne (errors/e09)
+    p1 = &y;                  // preusmeravanje: da
+    int* const p2 = &x;       // const pokazivač na int: p2 = &y ne (errors/e10)
+    *p2 = 10;                 // menjanje vrednosti: da
+    const int* const p3 = &x; // ni jedno ni drugo
+    x = 11;                   // x sam nije const -- p1/p3 samo zabranjuju izmenu KROZ njih
+
+    const int c = 5;
+    const int* pc = &c;       // na const objekat mora const int* (errors/e11)
+    std::cout << "*p1=" << *p1 << " *p2=" << *p2 << " *p3=" << *p3 << " *pc=" << *pc << "\n";
+    // Detaljnije: lekcija 07.
 }
 
-int* danglingPointer() {
-    int local = 42;
-    // Ako vratiš adresu lokalne promenljive (NIJE DOBRO) jer local izlazi
-    // iz scope-a čim se funkcija završi -- pokazivač koji vraćaš pokazuje
-    // na memoriju koja više "nije tvoja" (stack frame je uništen).
-    // Treba da vratiš PO VREDNOSTI (return local;) ako želiš kopiju, ili
-    // alociraš na heap-u (new int(42)) ako objekat mora da preživi poziv
-    // funkcije -- ali onda si ti odgovoran za delete.
-    // Možeš i koristiti static lokalnu promenljivu (static int local =
-    // 42;) ako ti treba da "preživi" pozive, ali onda je DELJENA između
-    // svih poziva funkcije -- retko je to ono što stvarno želiš.
-    return &local; // BUG: vraća adresu lokalne promenljive koja izlazi iz scope-a
-}
-
-struct Big {
-    char buf[100];
-};
-
-void printRefSize(Big& r) {
-    // sizeof(r) OVDE daje veličinu Big (100), ne veličinu pokazivača --
-    // referenca se "ponaša" kao sam objekat za sizeof/typeid/&, iako je
-    // ispod haube često implementirana kao pokazivač.
-    std::cout << "sizeof(Big&) unutar funkcije = " << sizeof(r) << " (veličina REFERISANOG tipa, ne pokazivača)\n";
-}
-
-void referenceBasics() {
-    std::cout << "-- 5. referenceBasics --\n";
+// ---------------------------------------------------------------- 7
+void s07_referenceBasics() {
+    std::cout << "-- 7. reference: osnove --\n";
     int x = 10;
-    int& ref = x; // MORA se inicijalizovati ovde
-    ref = 20;      // menja x, jer je ref alias za x
-    std::cout << "x = " << x << " (posle ref = 20)\n";
-    std::cout << "&x == &ref? " << (&x == &ref ? "DA" : "NE") << " (referenca deli adresu sa objektom)\n";
+    int& r = x; // MORA odmah da se veže (errors/e12)
+    r = 20;     // piše u x
+    std::cout << "x=" << x << "; &r == &x: " << std::boolalpha << (&r == &x)
+              << "; sizeof(r) == sizeof(x): " << (sizeof(r) == sizeof(x)) << std::noboolalpha << "\n";
 
     int y = 99;
-    // Ako pokušaš ref = y; misleći da REBINDUJEŠ ref na y (NIJE DOBRO, to
-    // ne radi to) jer se reference u C++-u NE MOGU rebindovati posle
-    // inicijalizacije -- ovo je ASSIGNMENT, kopira vrednost y (99) u x
-    // (na koji ref i dalje pokazuje).
-    // Treba da koristiš POKAZIVAČ ako ti treba promenljiva koja može da
-    // "promeni metu" tokom vremena (int* p = &x; p = &y;).
-    // Možeš i napraviti NOVU referencu na y ako ti to zapravo treba (int&
-    // ref2 = y;) -- ref i ref2 su dve odvojene, nezavisne reference.
-    // ref = y;    // OVO NE "rebinduje" ref na y -- ovo je ASSIGNMENT, kopira 99 u x!
-    // ref sada i dalje referiše x, samo je x sad 99
+    r = y;      // NIJE preusmeravanje: kopira 99 u x, r i dalje "je" x
+    y = 0;
+    std::cout << "posle r = y; y = 0;  x=" << x << " (referenca se ne preusmerava)\n";
 
-    Big big;
-    printRefSize(big);
+    // Referenca nije objekat: nema niza referenci, pokazivača na referencu
+    // ni reference na referencu (errors/e13, e14, e15). Kroz alias/template
+    // važi "reference collapsing": int& & -> int&.
+    using R = int&;
+    R& rr = x;
+    static_assert(std::is_same_v<decltype(rr), int&>);
+    int* px = &x;
+    int*& rpx = px; // referenca NA pokazivač postoji
+    std::cout << "R& rr -> int& (static_assert); *rpx=" << *rpx << "\n";
 }
 
-int& danglingRef() {
-    int local = 42;
-    // Ista greška kao danglingPointer(), samo preko reference -- rezultat
-    // je isti (UB), samo je sintaksa "tiša" jer nema eksplicitnog *.
-    return local; // BUG: dangling referenca
+// ---------------------------------------------------------------- 8
+void s08_bindingAndLifetime() {
+    std::cout << "-- 8. vezivanje referenci i produženje životnog veka --\n";
+    const int& r1 = 5; // const& se veže za privremeni, a privremeni živi koliko i r1
+    const std::string& s1 = std::string("privremeni string");
+    std::string&& s2 = std::string("rvalue referenca");
+    s2 += " (izmenjiva)";
+    std::cout << "r1=" << r1 << " s1=" << s1 << " s2=" << s2 << "\n";
+    // int& r = 5; ne radi (errors/e16); int&& r = x; ne radi (errors/e17).
+
+    // Iznenađenje: const int& na double se veže za privremenu KOPIJU.
+    double d = 1.5;
+    const int& ri = d; // ri je vezan za privremeni int(1), ne za d
+    d = 2.5;
+    std::cout << "double d = 1.5; const int& ri = d; d = 2.5; -> ri=" << ri << " (ne prati d)\n";
+    // int& ri = d; ne radi uopšte (errors/e19).
+
+    // Produženje NE prolazi kroz funkciju: const int& r = std::max(1, 2);
+    // visi (ub/u05). Kopija je bezbedna:
+    int m = std::max(1, 2);
+    std::cout << "int m = std::max(1, 2) -> " << m << "\n";
 }
 
+// ---------------------------------------------------------------- 9
+// Referenca vs pokazivač: samo tabela u notes.md (detaljno: lekcija 06).
+
+// ---------------------------------------------------------------- 10
 struct CopyCounter {
     CopyCounter() = default;
     CopyCounter(const CopyCounter&) { ++copies; }
     static inline int copies = 0;
 };
 
-void byValue(CopyCounter) {}       // kopira na svaki poziv
-void byConstRef(const CopyCounter&) {} // ne kopira
+void byValue(CopyCounter) {}
+void byConstRef(const CopyCounter&) {}
+void increment(int& v) { ++v; }                // izlazni parametar -- mora da postoji
+void maybeIncrement(int* v) { if (v) ++*v; }   // opcioni parametar -- može nullptr
 
-void section6_passByValueVsRef() {
-    std::cout << "-- 6. prosleđivanje: vrednost vs const referenca --\n";
+void s10_parameters() {
+    std::cout << "-- 10. prosleđivanje parametara (EC++ Item 20) --\n";
     CopyCounter c;
     CopyCounter::copies = 0;
     byValue(c);
-    std::cout << "posle byValue(c): copies=" << CopyCounter::copies << " (kopirano)\n";
+    std::cout << "byValue: kopija=" << CopyCounter::copies;
     CopyCounter::copies = 0;
     byConstRef(c);
-    std::cout << "posle byConstRef(c): copies=" << CopyCounter::copies << " (NIJE kopirano)\n";
-    // Ako prosleđuješ veliki objekat PO VREDNOSTI kad ga funkcija samo
-    // ČITA (NIJE DOBRO za performanse) jer se ceo objekat kopira na SVAKI
-    // poziv, čak i ako se ništa ne menja.
-    // Treba da koristiš const T& kao DEFAULT za veće objekte koje ne
-    // menjaš -- izbegava kopiranje, i dalje garantuje da funkcija ne
-    // menja original.
-    // Možeš i proslediti po vrednosti kad je tip JEFTIN za kopiranje
-    // (int, iterator) -- kopija je tad jeftinija ili ista cena kao
-    // indirection kroz referencu.
+    std::cout << "  byConstRef: kopija=" << CopyCounter::copies << "\n";
+    byConstRef(CopyCounter{}); // const& prima i privremeni objekat
+
+    int n = 1;
+    increment(n);          // increment(5) ne radi (errors/e18)
+    maybeIncrement(&n);
+    maybeIncrement(nullptr);
+    std::cout << "n posle increment + maybeIncrement = " << n << "\n";
 }
 
-class Container {
+// ---------------------------------------------------------------- 11
+class Counter {
 public:
-    int& at(std::size_t i) { return data_[i]; } // OK -- data_ živi duže od poziva at()
+    Counter& add(int v) { value_ += v; return *this; } // *this: živi duže od poziva
+    const int& value() const { return value_; }        // referenca na ČLAN
+    static int& instances() { static int count = 0; return count; } // static živi do kraja programa
 
 private:
-    int data_[3] = {1, 2, 3};
+    int value_ = 0;
 };
 
-void section7_returningReferences() {
-    std::cout << "-- 7. vraćanje referenci: OK vs NIKAD --\n";
-    Container c;
-    c.at(0) = 99; // OK -- referenca na ČLAN objekta, ne na lokalnu promenljivu
-    std::cout << "c.at(0)=" << c.at(0) << " (izmenjeno kroz vraćenu referencu)\n";
+void s11_returningReferences() {
+    std::cout << "-- 11. vraćanje referenci (EC++ Item 21) --\n";
+    Counter c;
+    c.add(1).add(2).add(3);           // chaining kroz vraćeni *this
+    const int& v = c.value();         // OK: c živi duže od v
+    ++Counter::instances();
+    std::cout << "c.value()=" << v << " instances=" << Counter::instances() << "\n";
+    // Vraćanje adrese/reference LOKALNE promenljive -- ub/u03, ub/u04.
+    // Referenca na član PRIVREMENOG objekta -- ub/u11.
+}
 
-    std::cout << "-- danglingPointer() (namerni bag, ASan treba da uhvati) --\n";
-    int* dp = danglingPointer();
-    std::cout << *dp << "\n"; // UB
+// ---------------------------------------------------------------- 12
+void s12_invalidation() {
+    std::cout << "-- 12. pokazivači na elemente kontejnera --\n";
+    std::vector<int> v{1, 2, 3};
+    std::size_t index = 0;   // indeks preživljava realokaciju
+    for (int i = 0; i < 100; ++i) v.push_back(i);
+    int* first = &v[index];  // pokazivač uzet POSLE poslednje izmene veličine
+    std::cout << "v[index]=" << v[index] << " *first=" << *first << "\n";
 
-    std::cout << "-- danglingRef() (namerni bag, ista greška preko reference) --\n";
-    int& dr = danglingRef();
-    std::cout << dr << "\n"; // UB
+    std::vector<int> w;
+    w.reserve(200);          // kapacitet unapred -> nema realokacije do 200
+    w.push_back(1);
+    int* stable = &w[0];
+    for (int i = 0; i < 100; ++i) w.push_back(i);
+    std::cout << "posle reserve, *stable=" << *stable << " (i dalje validan)\n";
+    // Bez toga pokazivač visi -- ub/u06.
+}
+
+// ---------------------------------------------------------------- 13
+void s13_ownership() {
+    std::cout << "-- 13. vlasništvo: new/delete i pametni pokazivači --\n";
+    int* one = new int(1);
+    int* many = new int[3]{1, 2, 3};
+    delete one;     // new   -> delete
+    delete[] many;  // new[] -> delete[]  (EC++ Item 16; mešanje -- ub/u09)
+
+    auto owned = std::make_unique<int>(42);        // oslobađa se sam
+    auto buffer = std::make_unique<int[]>(3);
+    int* observer = owned.get();                   // sirov pokazivač = NE-vlasnik
+    std::cout << "*owned=" << *owned << " *observer=" << *observer << " buffer[0]=" << buffer[0] << "\n";
+    // use-after-free, double free, curenje: ub/u07, u08, u10.
+}
+
+// ---------------------------------------------------------------- 14
+struct Point {
+    int x = 0;
+    int y = 0;
+    void shift(int d) { x += d; y += d; }
+};
+
+void s14_pointerToMember() {
+    std::cout << "-- 14. pokazivač na člana klase --\n";
+    int Point::* coord = &Point::x;          // "koji član", bez objekta
+    void (Point::* shiftFn)(int) = &Point::shift;
+
+    Point p;
+    p.*coord = 5;          // član x OBJEKTA p
+    coord = &Point::y;
+    p.*coord = 7;
+    (p.*shiftFn)(1);
+    Point* pp = &p;
+    (pp->*shiftFn)(1);
+    std::cout << "p = (" << p.x << ", " << p.y << ")\n";
 }
 
 int main() {
-    // unitbuf -- auto-flush posle svake cout operacije. Bez ovoga, kad
-    // program pukne (ASan/UBSan abort), sav ispis do tog trenutka može
-    // biti IZGUBLJEN ako stdout nije vezan za terminal (npr. kad
-    // preusmeriš u fajl) -- baferovanje tad postaje "full buffered"
-    // umesto "line buffered", i abort() ne flush-uje bafer. Testirano
-    // uživo: bez ovoga, ceo ispis pre crasha nestane pri `./run > out.txt`.
-    std::cout.setf(std::ios::unitbuf);
-
-    section1_pointerBasics();
-    section2_nullptrVsNullVsZero();
-    section3_pointerArithmetic();
-    section4_pointerToPointerAndRefToPointer();
-
-    std::cout << "-- arrayDecayTrap --\n";
-    int arr[5] = {1, 2, 3, 4, 5};
-    std::cout << "sizeof(arr) u main = " << sizeof(arr) << " (ceo niz)\n";
-    arrayDecayTrap(arr);
-
-    referenceBasics();
-    section6_passByValueVsRef();
-    section7_returningReferences();
+    s01_pointerBasics();
+    s02_nullptr();
+    s03_arithmeticAndArrays();
+    s04_voidPointer();
+    s05_pointerToPointer();
+    s06_constAndPointers();
+    s07_referenceBasics();
+    s08_bindingAndLifetime();
+    s10_parameters();
+    s11_returningReferences();
+    s12_invalidation();
+    s13_ownership();
+    s14_pointerToMember();
 }

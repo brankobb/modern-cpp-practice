@@ -12,6 +12,13 @@ standard zabranjuje je uvek greška, ne samo warning).
 ./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
 ```
 
+Lekcije koje imaju `errors/` (kod koji ne sme da se kompajlira) i `ub/` (kod
+koji ASan/UBSan mora da uhvati pri pokretanju) proveravaju se sa:
+
+```
+./check_cases.sh week0-fundamentals/04-pointers-and-references
+```
+
 **Windows:** koristi `build.ps1` (isti flegovi). Treba ti MinGW-w64 g++ na
 PATH-u — najlakše preko [MSYS2](https://www.msys2.org/)
 (`pacman -S mingw-w64-ucrt-x86_64-gcc`, pa dodaj `ucrt64/bin` u PATH) ili
@@ -42,8 +49,8 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 |---|---|
 | [01](week0-fundamentals/01-types-io-functions) | Primitivni tipovi, I/O, funkcije — overflow, integer promotion, cin fail state |
 | [02](week0-fundamentals/02-debugging) | Debugging (gdb umesto VS) — namerni buffer overflow, uhvati ga breakpoint-om i ASan-om |
-| [03](week0-fundamentals/03-uniform-init) | Inicijalizacija (kompletno, EMC It. 7) — default/value/direct/copy/list init, narrowing, initializer_list prioritet, agregati, C++20 designated; pogrešni slučajevi u `errors/` + `check_errors.sh` |
-| [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletan pregled) — `nullptr` vs `NULL` vs `0`, pointer arithmetic, pass-by-value/ref/pointer, vraćanje referenci (EC++ It. 20-21, EMC It. 8) |
+| [03](week0-fundamentals/03-uniform-init) | Inicijalizacija (kompletno, EMC It. 7) — default/value/direct/copy/list init, narrowing, initializer_list prioritet, agregati, C++20 designated; pogrešni slučajevi u `errors/` |
+| [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletno, EMC It. 8, EC++ It. 16/20/21) — `nullptr`, aritmetika, `void*`, `const`, vezivanje referenci i životni vek, prosleđivanje/vraćanje, vlasništvo; pogrešni slučajevi u `errors/` i `ub/` |
 | [05](week0-fundamentals/05-assignment-quizzes) | Kviz: pokazivači i reference — predict-the-output |
 | [06](week0-fundamentals/06-reference-vs-pointer) | Reference vs pointer — kad koji, slicing kroz prosleđivanje po vrednosti |
 | [07](week0-fundamentals/07-const-qualifier) | const Qualifier — `const int*` vs `int* const`, mutable, const_cast |

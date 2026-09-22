@@ -17,11 +17,11 @@ i `{}`) i **Item 21** (`make_unique`/`make_shared`).
 ```
 ./build.sh week0-fundamentals/03-uniform-init/main.cpp               # svi ISPRAVNI slučajevi
 ./build.sh week0-fundamentals/03-uniform-init/main.cpp -std=c++20    # + C++20 delovi
-./week0-fundamentals/03-uniform-init/check_errors.sh                 # svi POGREŠNI slučajevi
+./check_cases.sh week0-fundamentals/03-uniform-init                  # svi POGREŠNI slučajevi
 ```
 
 `errors/` sadrži po jedan fajl za svaki **pogrešan** slučaj (e01–e23). Svaki
-se NE kompajlira, a `check_errors.sh` proverava da pada na g++ i clang++, i
+se NE kompajlira, a `check_cases.sh` proverava da pada na g++ i clang++, i
 to baš iz razloga opisanog u fajlu. Na Windows-u pogledaj grešku za jedan
 fajl ovako: `.\build.ps1 week0-fundamentals\03-uniform-init\errors\e01_narrowing_promenljiva.cpp -Compiler clang++`.
 
