@@ -5,7 +5,8 @@ i modernog sloja (smart pointeri, forwarding, rule of 0). 10 sesija, ~2h svaka.
 
 Svaka sesija ima svoj folder: `notes.md` (sažetak iz izvora, pisan pre koda) i
 `main.cpp` (vežba). Build/pokretanje preko `./build.sh <fajl.cpp>` — kompajlira sa
-AddressSanitizer + UndefinedBehaviorSanitizer.
+AddressSanitizer + UndefinedBehaviorSanitizer i `-pedantic-errors` (kod koji
+standard zabranjuje je uvek greška, ne samo warning).
 
 ```
 ./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
@@ -41,7 +42,7 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 |---|---|
 | [01](week0-fundamentals/01-types-io-functions) | Primitivni tipovi, I/O, funkcije — overflow, integer promotion, cin fail state |
 | [02](week0-fundamentals/02-debugging) | Debugging (gdb umesto VS) — namerni buffer overflow, uhvati ga breakpoint-om i ASan-om |
-| [03](week0-fundamentals/03-uniform-init) | Uniform initialization — narrowing, most vexing parse, initializer_list preferencija |
+| [03](week0-fundamentals/03-uniform-init) | Inicijalizacija (kompletno, EMC It. 7) — default/value/direct/copy/list init, narrowing, initializer_list prioritet, agregati, C++20 designated; pogrešni slučajevi u `errors/` + `check_errors.sh` |
 | [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletan pregled) — `nullptr` vs `NULL` vs `0`, pointer arithmetic, pass-by-value/ref/pointer, vraćanje referenci (EC++ It. 20-21, EMC It. 8) |
 | [05](week0-fundamentals/05-assignment-quizzes) | Kviz: pokazivači i reference — predict-the-output |
 | [06](week0-fundamentals/06-reference-vs-pointer) | Reference vs pointer — kad koji, slicing kroz prosleđivanje po vrednosti |

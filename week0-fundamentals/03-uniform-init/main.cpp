@@ -2,386 +2,503 @@
 #include <initializer_list>
 #include <iostream>
 #include <string>
-#include <typeinfo>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
-// Sekcije 1-5: formalna podela inicijalizacije. Sekcije posle toga prate
-// Effective Modern C++ Item 7 ("Distinguish between () and {} when
-// creating objects") i par dodatnih tema (auto+{}, new{}, aggregate,
-// designated initializers). Svaka tvrdnja ovde je testirana
-// kompajliranjem/pokretanjem pre nego što je ušla u komentare.
+// Inicijalizacija u C++ -- ISPRAVNI slučajevi. Sve u ovom fajlu se
+// kompajlira i radi (g++ 13 i clang 18, -std=c++17 i -std=c++20).
+// POGREŠNI slučajevi su u errors/: svaki fajl je jedan slučaj koji se NE
+// kompajlira, a ./check_errors.sh proverava da svaki pada iz očekivanog
+// razloga na oba kompajlera. Numeracija sekcija prati notes.md.
+//
+// Neki warning-i pri kompajliranju su NAMERNI (most vexing parse, redosled
+// u init listi, izostavljeni članovi agregata) -- baš njih i demonstriramo.
 
-struct DefaultInitDemo {
-    int x; // BEZ default member initializer-a -- ostaje nedefinisan
+// ---------------------------------------------------------------- 1
+int g_global; // statičko trajanje: pre svega ide zero-initialization -> 0
+
+struct A {
+    int x;
 };
 
-void section1_defaultInit() {
-    std::cout << "-- 1. default-initialization --\n";
-    // Ako pročitaš x pre nego što mu nešto dodeliš (NIJE DOBRO) jer je
-    // vrednost NEDEFINISANA (garbage) -- ovo je UB, ne "verovatno nula".
-    DefaultInitDemo d;
-    d.x = 42; // moraš eksplicitno dodeliti pre čitanja
-    std::cout << "d.x (posle eksplicitne dodele) = " << d.x << "\n";
+void s01_defaultInit() {
+    std::cout << "-- 1. default initialization --\n";
+    static int s_local; // takođe statičko trajanje -> 0
+    std::cout << "globalni int: " << g_global << ", static lokalni int: " << s_local << "\n";
 
-    std::string s; // za klase, default-init ZOVE default ctor -- string je prazan, NE garbage
-    std::cout << "std::string s; -> \"" << s << "\" (prazan, ne garbage -- string ima default ctor)\n";
+    int x; // lokalni: NEODREĐENA vrednost -- čitanje pre upisa je UB
+    A a;   // a.x takođe neodređen
+    x = 1; // zato uvek prvo upis
+    a.x = 2;
+    std::cout << "lokalni posle upisa: x=" << x << " a.x=" << a.x << "\n";
+
+    std::string s; // klasa sa default ctor-om: uvek ispravno inicijalizovana
+    std::cout << "std::string s; -> size()=" << s.size() << " (prazan, ne garbage)\n";
 }
 
-void section2_valueInit() {
-    std::cout << "-- 2. value-initialization --\n";
-    // Treba da koristiš {} (bez argumenata) kad želiš GARANTOVANU
-    // nula/prazno stanje za primitivan tip -- za razliku od
-    // default-init iznad, ovo NIJE nedefinisano.
-    int x{};
-    double d{};
-    bool b{};
-    std::cout << "int x{}=" << x << " double d{}=" << d << " bool b{}=" << b << "\n";
+// ---------------------------------------------------------------- 2
+void s02_valueInit() {
+    std::cout << "-- 2. value initialization --\n";
+    int x{};       // 0
+    int y = int(); // 0 -- stariji oblik istog
+    double d{};    // 0.0
+    bool b{};      // false
+    int* p{};      // nullptr
+    A a{};         // A je agregat -> formalno aggregate init, rezultat isti: a.x == 0
+    std::cout << "int{}=" << x << " int()=" << y << " double{}=" << d
+              << " bool{}=" << std::boolalpha << b << std::noboolalpha
+              << " int*{}=" << (p == nullptr ? "nullptr" : "?")
+              << " A{}.x=" << a.x << "\n";
 }
 
-void section3_directInit() {
-    std::cout << "-- 3. direct-initialization --\n";
-    int x(42);
-    std::string s("hello");
-    std::vector<int> v(10); // 10 elemenata, vrednost 0
-    std::cout << "x=" << x << " s=" << s << " v.size()=" << v.size() << "\n";
-}
-
-class ExplicitOnly {
-public:
-    explicit ExplicitOnly(int v) : v_(v) { std::cout << "ExplicitOnly(int)\n"; }
+// ---------------------------------------------------------------- 3
+struct ExplicitOnly {
+    explicit ExplicitOnly(int v) : v_(v) {}
     int v_;
 };
 
-void section4_copyInit() {
-    std::cout << "-- 4. copy-initialization --\n";
+struct Name {
+    Name(std::string s) : v_(std::move(s)) {}
+    std::string v_;
+};
+
+void s03_directInit() {
+    std::cout << "-- 3. direct initialization --\n";
+    int x(42);
+    std::string s("hello");
+    std::vector<int> v(10); // 10 elemenata, svi 0
+    ExplicitOnly e(5);      // explicit ctor SE razmatra kod direct-init
+    Name n("Marko");        // "Marko" -> std::string je JEDNA korisnička konverzija -- OK
+    std::cout << "x=" << x << " s=" << s << " v.size()=" << v.size()
+              << " e.v_=" << e.v_ << " n.v_=" << n.v_ << "\n";
+}
+
+// ---------------------------------------------------------------- 4
+struct S {
+    explicit S(int) { std::cout << "  -> explicit S(int)\n"; }
+    S(long) { std::cout << "  -> S(long)\n"; }
+};
+
+void s04_copyInit() {
+    std::cout << "-- 4. copy initialization --\n";
     int x = 42;
-    std::string s = "hello";
+    std::string s = "hello"; // const char* -> std::string: jedna konverzija -- OK
     std::cout << "x=" << x << " s=" << s << "\n";
 
-    // Ako pozoveš explicit ctor preko copy-init sintakse (=) (NIJE DOBRO,
-    // ne kompajlira) jer explicit BAŠ ZATO postoji -- da isključi ctor iz
-    // razmatranja kod copy-init, sprečava "tihu" implicitnu konverziju.
-    // ExplicitOnly bad = 5; // TODO: otkomentariši -- compile error (copy-init, explicit isključen)
-    // Treba da koristiš direct-init kad je ctor explicit.
-    ExplicitOnly good(5); // direct-init -- radi, explicit ctor SE razmatra
-    std::cout << "good.v_=" << good.v_ << "\n";
+    // explicit S(int) se kod copy-init uopšte NE razmatra -> bira se S(long),
+    // iako je S(int) tačniji match. (Name n = "Marko"; ne radi -- errors/e08.)
+    std::cout << "S a = 1;\n";
+    S a = 1;
+    (void)a;
+
+    // C++17 garantuje copy elision -> nekopirljiv tip radi i sa =.
+    // U C++14 (kad je pisan EMC) ovo je bila greška -- errors/e23.
+    std::atomic<int> counter = 0;
+    std::cout << "std::atomic<int> counter = 0; -> " << counter.load() << "\n";
 }
 
-void section5_uniformInit() {
-    std::cout << "-- 5. uniform (brace) initialization --\n";
-    int x{42};
+// ---------------------------------------------------------------- 5
+void s05_listInit() {
+    std::cout << "-- 5. list initialization {} --\n";
+    int x{42};    // direct-list-init
+    int y = {42}; // copy-list-init
     std::string s{"hello"};
-    std::cout << "x=" << x << " s=" << s << "\n";
+    std::cout << "x=" << x << " y=" << y << " s=" << s << "\n";
+
+    // direct-list-init razmatra explicit ctor -> explicit S(int) pobeđuje.
+    // Isto sa "S c = {1};" je GREŠKA (errors/e07): i copy-list-init razmatra
+    // explicit ctor, ali ako on pobedi, program je neispravan.
+    std::cout << "S b{1};\n";
+    S b{1};
+    (void)b;
 }
 
-class MemberDefaults {
+// ---------------------------------------------------------------- 6
+void s06_narrowing() {
+    std::cout << "-- 6. narrowing: () i = ga tiho puštaju, {} ga zabranjuje --\n";
+    double d = 3.99;
+    int a(d);  // 3 -- tiho odsecanje, BEZ warning-a čak i uz -Wall -Wextra
+    int b = d; // 3 -- isto (upozorenje daje tek -Wconversion)
+    std::cout << "int a(3.99) -> " << a << ", int b = 3.99 -> " << b << "\n";
+
+    // {} pušta konverzije BEZ gubitka i konstante koje staju u ciljni tip:
+    int c{3};         // int konstanta
+    char ch{65};      // 65 staje u char
+    float f{0.1};     // double konstanta u opsegu float-a -- dozvoljeno iako
+                      // 0.1 nije tačno predstavljiv (pravilo za float -> float)
+    double wide{f};   // float -> double: proširenje, nikad narrowing
+    unsigned u{1};    // pozitivna konstanta
+    long long big{c}; // int -> long long: proširenje
+    std::cout << "int{3}=" << c << " char{65}=" << ch << " float{0.1}=" << f
+              << " double{float}=" << wide << " unsigned{1}=" << u
+              << " long long{int}=" << big << "\n";
+
+    // Namerna konverzija sa gubitkom -- napiši je eksplicitno, da se vidi.
+    int e{static_cast<int>(d)};
+    std::cout << "int{static_cast<int>(3.99)} -> " << e << "\n";
+    // Pogrešno: errors/e01 .. e05 (int{d}, int{3.14}, unsigned{-1},
+    // float{double_promenljiva}, int{long_long_promenljiva}).
+}
+
+// ---------------------------------------------------------------- 7
+class Person {
 public:
-    void print() const { std::cout << "a=" << a_ << " b=" << b_ << "\n"; }
+    Person(std::string name, int age) : m_name{std::move(name)}, m_age{age} {}
+    void print() const { std::cout << m_name << ", " << m_age << "\n"; }
 
 private:
-    // Ako pokušaš int c_(3); ovde (NIJE DOBRO, ne kompajlira) jer se to
-    // parsira kao DEKLARACIJA FUNKCIJE c_ koja vraća int, ne kao default
-    // vrednost člana -- () sintaksa nije dozvoljena za default vrednosti
-    // non-static članova.
-    // Treba da koristiš {} ili = za default vrednost člana -- oba rade
-    // identično za ovaj slučaj.
-    int a_{1};  // {} -- radi
-    int b_ = 2; // = -- radi
-    // int c_(3); // TODO: otkomentariši -- compile error, izgleda kao funkcija
+    std::string m_name;
+    int m_age;
 };
 
-void nonCopyableTrap() {
-    std::cout << "-- non-copyable objekat (std::atomic) --\n";
-    std::atomic<int> ai1{0}; // {} -- radi
-    std::atomic<int> ai2(0); // () -- radi
-    // Ako pokušaš std::atomic<int> ai3 = 0; (NIJE DOBRO, ne kompajlira)
-    // jer copy-initialization (=) implicitno pretpostavlja da je tip
-    // kopirljiv, a std::atomic je NAMERNO nekopirljiv (thread-safety
-    // garancije bi bile narušene kopiranjem).
-    // Treba da koristiš () ili {} za tipove koji nisu kopirljivi.
-    // std::atomic<int> ai3 = 0; // TODO: otkomentariši -- compile error
-    std::cout << "ai1=" << ai1.load() << " ai2=" << ai2.load() << "\n";
+void s07_objects() {
+    std::cout << "-- 7. {} za objekte --\n";
+    Person p{"Marko", 30};
+    p.print();
 }
 
-void narrowingCheck() {
-    std::cout << "-- narrowing: samo {} odbija --\n";
-    double d = 3.14;
-    // Ako pokušaš int n1{d}; (NIJE DOBRO, ne kompajlira) jer bi se
-    // izgubila preciznost (double -> int) -- {} EKSPLICITNO zabranjuje
-    // narrowing conversions, bez obzira da li je vrednost u datom
-    // trenutku "slučajno" tačna.
-    // int n1{d}; // TODO: otkomentariši -- compile error
-    // Treba da koristiš () ili = kad namerno želiš konverziju sa gubitkom
-    // preciznosti -- ili bolje, static_cast<int>(d) da bude eksplicitno.
-    int n2(d);  // () -- prolazi (uz warning)
-    int n3 = d; // = -- prolazi (uz warning)
-    std::cout << "n2=" << n2 << " n3=" << n3 << "\n";
-}
+// ---------------------------------------------------------------- 8
+class Config {
+public:
+    Config() = default;                                  // koristi default member initializere
+    explicit Config(int timeout) : timeout_{timeout} {}  // init lista PREGAZI default za timeout_
+    void print() const {
+        std::cout << "timeout=" << timeout_ << " retries=" << retries_ << " name=" << name_ << "\n";
+    }
 
-struct VexingParse {
-    VexingParse() { std::cout << "VexingParse()\n"; }
+private:
+    int timeout_{5};
+    int retries_ = 3; // i = radi; () ne radi -- errors/e09
+    std::string name_{"default"};
 };
 
-void mostVexingParse() {
-    std::cout << "-- most vexing parse: {} je imun --\n";
-    // Ako napišeš VexingParse v1(); misleći da praviš objekat (NIJE
-    // DOBRO) jer se ovo parsira kao DEKLARACIJA FUNKCIJE v1 koja ne prima
-    // ništa i vraća VexingParse -- objekat se NIKAD ne konstruiše.
-    VexingParse v1(); // TODO: ovo je funkcija, ne objekat! (probaj typeid(v1) -- ne kompajlira)
-    // Treba da koristiš {} kad želiš default-konstruisan objekat sa
-    // praznim argumentima -- {} nema tu dvosmislenost.
-    VexingParse v2{}; // OVO jeste objekat
+void s08_defaultMemberInit() {
+    std::cout << "-- 8. default member initializers --\n";
+    Config a;
+    Config b{60};
+    std::cout << "Config a;     -> ";
+    a.print();
+    std::cout << "Config b{60}; -> ";
+    b.print();
 }
+
+// ---------------------------------------------------------------- 9
+struct Tracer {
+    Tracer() { std::cout << "  Tracer() -- default ctor\n"; }
+    Tracer(const char* s) { std::cout << "  Tracer(\"" << s << "\")\n"; }
+    Tracer& operator=(const char* s) {
+        std::cout << "  Tracer::operator=(\"" << s << "\")\n";
+        return *this;
+    }
+};
+
+struct ViaBody {
+    ViaBody() { t = "x"; } // dodela: t je VEĆ default-konstruisan pre tela
+    Tracer t;
+};
+
+struct ViaInitList {
+    ViaInitList() : t{"x"} {} // prava inicijalizacija: jedan poziv
+    Tracer t;
+};
+
+struct NoDefault {
+    explicit NoDefault(int) {}
+};
+
+struct Mandatory {
+    // Sva tri člana MORAJU biti u init listi (errors/e20, e21).
+    Mandatory(int v, int& r) : c{v}, r_{r}, n{v} {}
+    const int c;
+    int& r_;
+    NoDefault n; // tip bez default ctor-a
+};
+
+struct Named {
+    explicit Named(const char* n) { std::cout << "  konstruisan " << n << "\n"; }
+};
+
+struct Order {
+    // Init lista kaže a pa b, ali članovi se konstruišu redosledom
+    // DEKLARACIJE: b pa a. -Wall (-Wreorder) upozorava na ovo.
+    Order() : a{"a"}, b{"b"} {}
+    Named b;
+    Named a;
+};
+
+void s09_ctorInitList() {
+    std::cout << "-- 9. constructor initializer list --\n";
+    std::cout << "ViaBody (dodela u telu):\n";
+    ViaBody vb;
+    std::cout << "ViaInitList (init lista):\n";
+    ViaInitList vil;
+    int x = 7;
+    Mandatory m(5, x);
+    std::cout << "Mandatory: c=" << m.c << " r_=" << m.r_ << "\n";
+    std::cout << "Order (init lista: a, b):\n";
+    Order o;
+    (void)vb;
+    (void)vil;
+    (void)o;
+}
+
+// ---------------------------------------------------------------- 10
+void s10_stlTrap() {
+    std::cout << "-- 10. STL zamka: () vs {} --\n";
+    std::vector<int> v1(10);               // 10 elemenata, svi 0
+    std::vector<int> v2{10};               // 1 element: 10
+    std::vector<int> v3(10, 20);           // 10 elemenata, svi 20
+    std::vector<int> v4{10, 20};           // 2 elementa: 10, 20
+    std::vector<std::string> v5{10};       // 10 PRAZNIH stringova -- vidi sekciju 11
+    std::vector<std::string> v6{"a", "b"}; // 2 elementa
+    std::cout << "vector<int>(10)=" << v1.size() << " el.  vector<int>{10}=" << v2.size()
+              << " el. (v2[0]=" << v2[0] << ")\n";
+    std::cout << "vector<int>(10,20)=" << v3.size() << " el.  vector<int>{10,20}=" << v4.size() << " el.\n";
+    std::cout << "vector<string>{10}=" << v5.size() << " el. (!)  vector<string>{\"a\",\"b\"}="
+              << v6.size() << " el.\n";
+}
+
+// ---------------------------------------------------------------- 11
+struct Basic {
+    Basic(int, int) { std::cout << "  Basic(int, int)\n"; }
+    Basic(std::initializer_list<int>) { std::cout << "  Basic(initializer_list<int>)\n"; }
+};
 
 class Widget {
 public:
-    Widget(int, bool) { std::cout << "Widget(int, bool)\n"; }
-    Widget(int, double) { std::cout << "Widget(int, double)\n"; }
+    Widget(int, bool) { std::cout << "  Widget(int, bool)\n"; }
+    Widget(int, double) { std::cout << "  Widget(int, double)\n"; }
     Widget(std::initializer_list<long double> il) {
-        std::cout << "Widget(initializer_list<long double>), size=" << il.size() << "\n";
+        std::cout << "  Widget(initializer_list<long double>), size=" << il.size() << "\n";
     }
-    Widget(const Widget&) { std::cout << "Widget(copy ctor)\n"; }
-    Widget(Widget&&) noexcept { std::cout << "Widget(move ctor)\n"; }
-    operator float() const {
-        std::cout << "  [Widget -> float konverzija]\n";
-        return 0.0f;
-    }
+    Widget(const Widget&) { std::cout << "  Widget(copy ctor)\n"; }
+    Widget(Widget&&) noexcept { std::cout << "  Widget(move ctor)\n"; }
+    operator float() const { return 0.0f; }
 };
-
-void initializerListHijack() {
-    std::cout << "-- initializer_list 'otmica' overload resolution-a --\n";
-    // Ako klasa ima BILO KOJI ctor koji prima initializer_list<T> (MOŽE
-    // BITI IZNENAĐENJE) jer {} sintaksa UVEK preferira taj ctor ako je
-    // konverzija moguća -- čak i kad postoji "bolji" match među ostalim
-    // konstruktorima.
-    Widget w1(10, true); // () -- normalan overload resolution
-    Widget w2{10, true}; // {} -- OTETO! poziva initializer_list ctor (int,bool -> long double)
-    Widget w3(10, 5.0);  // () -- normalan overload resolution
-    Widget w4{10, 5.0};  // {} -- OTETO! isto
-
-    std::cout << "-- otmica hvata čak i copy/move konstrukciju --\n";
-    // Treba da budeš svestan da čak i "očigledno" copy/move konstruisanje
-    // preko {} može biti oteto -- ako klasa ima operator konverzije (kao
-    // Widget::operator float() ovde) koji otvara put ka initializer_list
-    // tipu.
-    Widget w5(w4);             // () -- copy ctor
-    Widget w6{w4};             // {} -- OTETO! w4 -> float -> long double
-    Widget w7(std::move(w4));  // () -- move ctor
-    Widget w8{std::move(w4)};  // {} -- OTETO! isto
-}
-
-struct WidgetStrict {
-    WidgetStrict(int, bool) { std::cout << "WidgetStrict(int, bool)\n"; }
-    WidgetStrict(int, double) { std::cout << "WidgetStrict(int, double)\n"; }
-    WidgetStrict(std::initializer_list<bool>) {
-        std::cout << "WidgetStrict(initializer_list<bool>)\n";
-    }
-};
-
-void initializerListNarrowingError() {
-    std::cout << "-- otmica + narrowing = compile error --\n";
-    // Ako initializer_list ctor postoji ali bi konverzija argumenata u
-    // njegov element-tip zahtevala NARROWING (NIJE DOBRO, ne kompajlira)
-    // jer kompajler I DALJE insistira da proba initializer_list ctor prvi
-    // -- a narrowing je zabranjen u {} -- rezultat je COMPILE ERROR, čak i
-    // kad postoji savršen match među OSTALIM konstruktorima
-    // (WidgetStrict(int, double) bi savršeno odgovarao za {10, 5.0}, ali
-    // se nikad ne razmatra jer initializer_list<bool> ctor "blokira put").
-    // WidgetStrict w{10, 5.0}; // TODO: otkomentariši -- compile error (int/double -> bool je narrowing)
-}
 
 struct WidgetFallback {
-    WidgetFallback(int, bool) { std::cout << "WidgetFallback(int, bool)\n"; }
-    WidgetFallback(int, double) { std::cout << "WidgetFallback(int, double)\n"; }
+    WidgetFallback(int, bool) { std::cout << "  WidgetFallback(int, bool)\n"; }
     WidgetFallback(std::initializer_list<std::string>) {
-        std::cout << "WidgetFallback(initializer_list<string>)\n";
+        std::cout << "  WidgetFallback(initializer_list<string>)\n";
     }
 };
 
-void initializerListFallback() {
-    std::cout << "-- fallback: kad init-list ctor NIJE moguć, koristi se normalan overload --\n";
-    // Treba da znaš da se kompajler VRAĆA na normalan overload resolution
-    // SAMO kad NEMA NIKAKVOG načina da se argumenti konvertuju u tip
-    // initializer_list elementa (ovde: int/bool/double se ne mogu
-    // implicitno konvertovati u std::string, pa initializer_list<string>
-    // ctor uopšte nije viable kandidat).
-    WidgetFallback w1(10, true); // () -- normalan
-    WidgetFallback w2{10, true}; // {} -- I OVDE normalan! nema puta ka initializer_list<string>
-}
-
-class WidgetEmpty {
-public:
-    WidgetEmpty() { std::cout << "WidgetEmpty() -- default ctor\n"; }
+struct WidgetEmpty {
+    WidgetEmpty() { std::cout << "  WidgetEmpty() -- default ctor\n"; }
     WidgetEmpty(std::initializer_list<int> il) {
-        std::cout << "WidgetEmpty(initializer_list<int>), size=" << il.size() << "\n";
+        std::cout << "  WidgetEmpty(initializer_list<int>), size=" << il.size() << "\n";
     }
 };
 
-void emptyBracesMeaning() {
-    std::cout << "-- prazne {} = 'bez argumenata', NE prazan initializer_list --\n";
-    WidgetEmpty w1;   // default ctor
-    WidgetEmpty w2{}; // I OVO je default ctor, ne initializer_list sa 0 elemenata!
-    // Treba da eksplicitno staviš PRAZNE {} UNUTAR () poziva da bi pozvao
-    // initializer_list ctor sa STVARNO praznom listom -- ovo je jedini
-    // pouzdan način.
-    WidgetEmpty w3({}); // initializer_list ctor, size=0 -- ISPRAVAN način za praznu listu
+void s11_initializerListPriority() {
+    std::cout << "-- 11. initializer_list ima prioritet (EMC Item 7) --\n";
+    std::cout << "Basic a(1, 2); / Basic b{1, 2};\n";
+    Basic a(1, 2);
+    Basic b{1, 2};
 
-    // Ako pomisliš da je WidgetEmpty w4{{}}; TAKOĐE prazna lista (NIJE
-    // TAČNO, proverio sam ovo uživo jer sam prvobitno pogrešno napisao da
-    // JESTE) jer spoljašnje {} formira initializer_list, a UNUTRAŠNJE {}
-    // je NJEGOV JEDINI element -- taj element se VALUE-INICIJALIZUJE u
-    // int (postaje 0), pa dobijaš listu sa JEDNIM elementom (vrednosti
-    // 0), NE praznu listu.
-    // Treba da koristiš ISKLJUČIVO W({}) (paren oko prazne {}) kad ti
-    // treba GARANTOVANO prazan initializer_list -- W{{}} je druga stvar.
-    WidgetEmpty w4{{}}; // iznenađenje: initializer_list ctor, size=1 (NE 0!)
+    // Čak i kad postoji TAČAN match, {} bira initializer_list ctor ako se
+    // argumenti mogu konvertovati u element-tip bez narrowing-a.
+    std::cout << "Widget(10, true) / Widget{10, true} / Widget(10, 5.0) / Widget{10, 5.0}:\n";
+    Widget w1(10, true);
+    Widget w2{10, true};
+    Widget w3(10, 5.0);
+    Widget w4{10, 5.0};
+
+    // Kompajler se vraća na obične konstruktore SAMO ako initializer_list
+    // ctor uopšte nije moguć: int/bool ne mogu u std::string. Isti razlog
+    // zašto je vector<string>{10} deset praznih stringova.
+    std::cout << "WidgetFallback{10, true}:\n";
+    WidgetFallback f{10, true};
+
+    // Prazne {} znače "bez argumenata", NE prazna lista.
+    std::cout << "WidgetEmpty e1{}; / e2({}); / e3{{}};\n";
+    WidgetEmpty e1{};   // default ctor
+    WidgetEmpty e2({}); // initializer_list ctor, PRAZNA lista (size=0)
+    WidgetEmpty e3{{}}; // česta zabluda: NIJE prazna lista -- unutrašnje {} je
+                        // JEDAN element (value-init int -> 0), size=1
+
+    // ZAVISI OD KOMPAJLERA: {} sa objektom istog tipa kad klasa ima
+    // initializer_list ctor I konverziju u element-tip (operator float).
+    //   g++ 13:   initializer_list ctor, size=1  (po CWG 2137, važeći tekst standarda)
+    //   clang 18: copy ctor / move ctor
+    // Pouka: ne pravi klasu sa initializer_list ctor-om i konverzijom u
+    // njegov element-tip, i za kopiju piši Widget w5(w4) sa zagradama.
+    std::cout << "Widget w5{w4}; / Widget w6{std::move(w4)};  (zavisi od kompajlera):\n";
+    Widget w5{w4};
+    Widget w6{std::move(w4)};
+    (void)w1; (void)w2; (void)w3; (void)w5; (void)w6; (void)f; (void)e1; (void)e2; (void)e3;
 }
 
-void autoAndBraces() {
-    std::cout << "-- auto + {} (C++17 je promenio pravilo) --\n";
-    // Pre C++17, auto x{5}; je dedukovao std::initializer_list<int> --
-    // poznat izvor zabune. Treba da znaš da OD C++17 auto x{5}; dedukuje
-    // OBIČAN int (jednoelementni direct-list-init), dok auto y = {5};
-    // I DALJE dedukuje std::initializer_list<int> (copy-list-init sa
-    // jednim elementom -- druga grana pravila).
-    auto x{5};    // C++17+: x je int
-    auto y = {5}; // uvek: y je std::initializer_list<int>
-    std::cout << "typeid(x).name()=" << typeid(x).name()
-              << " typeid(y).name()=" << typeid(y).name() << "\n";
-    // Možeš i da izbegneš celu ovu zabunu tako što koristiš auto x = 5;
-    // (copy-init, bez {}) kad ti treba prost tip -- nema dvosmislenosti.
+// ---------------------------------------------------------------- 12
+void s12_auto() {
+    std::cout << "-- 12. auto i {} --\n";
+    auto a{5};          // int
+    auto b = {5};       // std::initializer_list<int>
+    auto c = 5;         // int
+    auto d = {1, 2, 3}; // std::initializer_list<int>
+    static_assert(std::is_same_v<decltype(a), int>);
+    static_assert(std::is_same_v<decltype(b), std::initializer_list<int>>);
+    static_assert(std::is_same_v<decltype(c), int>);
+    static_assert(std::is_same_v<decltype(d), std::initializer_list<int>>);
+    std::cout << "auto a{5} -> int, auto b = {5} -> initializer_list<int>, "
+              << "auto d = {1,2,3} -> initializer_list<int> (proverava static_assert)\n";
+    (void)a; (void)b; (void)c; (void)d;
 }
 
-void newWithBraces() {
-    std::cout << "-- new sa {} --\n";
-    auto p1 = new int(42); // radi
-    auto p2 = new int{42}; // radi, isti rezultat za proste tipove
-    std::cout << "*p1=" << *p1 << " *p2=" << *p2 << "\n";
-    delete p1;
-    delete p2;
-    // Za tipove sa initializer_list ctor-om, new T{args} podleže ISTOJ
-    // "otmici" kao i obično T{args} -- pravilo se ne menja zbog new-a.
+// ---------------------------------------------------------------- 13
+void s13_dynamic() {
+    std::cout << "-- 13. dinamička alokacija --\n";
+    int* p1 = new int(42);
+    int* p2 = new int{42};
+    int* p3 = new int;   // default-init: NEODREĐENA vrednost
+    int* p4 = new int(); // value-init: 0 -- () ovde NIJE most vexing parse
+    int* p5 = new int{}; // value-init: 0
+    *p3 = 7;             // pre čitanja mora upis
+    int* arr1 = new int[5]{};     // svi 0
+    int* arr2 = new int[5]{1, 2}; // 1 2 0 0 0
+    Person* person = new Person{"Marko", 30};
+    std::cout << "new int(42)=" << *p1 << " new int{42}=" << *p2 << " new int()=" << *p4
+              << " new int{}=" << *p5 << "\nnew int[5]{1,2} = ";
+    for (int i = 0; i < 5; ++i) std::cout << arr2[i] << ' ';
+    std::cout << "  new int[5]{} = ";
+    for (int i = 0; i < 5; ++i) std::cout << arr1[i] << ' ';
+    std::cout << "\nnew Person{\"Marko\", 30} -> ";
+    person->print();
+    delete p1; delete p2; delete p3; delete p4; delete p5;
+    delete[] arr1; delete[] arr2;
+    delete person;
 }
 
-struct AggPoint {
+// ---------------------------------------------------------------- 14
+struct Point {
     int x;
     int y;
 };
 
-void aggregateInit() {
-    std::cout << "-- aggregate initialization (struct i niz) --\n";
-    // AggPoint NEMA user-deklarisan ctor, nema private članove -- to je
-    // AGREGAT, pa {} direktno puni članove REDOSLEDOM DEKLARACIJE, bez
-    // poziva bilo kog konstruktora.
-    AggPoint p{1, 2};
-    std::cout << "p.x=" << p.x << " p.y=" << p.y << "\n";
+struct Line {
+    Point a;
+    Point b;
+};
 
-    int arr[]{1, 2, 3, 4}; // isto pravilo važi za obične nizove
-    std::cout << "arr[0..3] = " << arr[0] << " " << arr[1] << " " << arr[2] << " " << arr[3] << "\n";
+void s14_aggregate() {
+    std::cout << "-- 14. aggregate initialization --\n";
+    Point p{1, 2};
+    Point q{1};  // y = 0 (dozvoljeno; -Wextra ipak upozori na izostavljen član)
+    Point z{};   // oba 0
+    Line l{{0, 0}, {3, 4}}; // ugnežđeni agregati
+    int arr[]{1, 2, 3, 4};  // veličina (4) se dedukuje
+    int part[5]{1, 2};      // 1 2 0 0 0
+    std::cout << "Point{1,2}=(" << p.x << "," << p.y << ") Point{1}=(" << q.x << "," << q.y
+              << ") Point{}=(" << z.x << "," << z.y << ") Line.b=(" << l.b.x << "," << l.b.y << ")\n";
+    std::cout << "sizeof(arr)/sizeof(int)=" << sizeof(arr) / sizeof(int) << "  int[5]{1,2} = ";
+    for (int v : part) std::cout << v << ' ';
+    std::cout << "\n";
+#if __cplusplus < 202002L
+    // C++17: struktura sa "= default" ctor-om JOŠ JE agregat (ctor nije
+    // user-provided). U C++20 više nije (user-declared) -- errors/e22.
+    struct Defaulted {
+        Defaulted() = default;
+        int x;
+        int y;
+    };
+    Defaulted dd{1, 2};
+    std::cout << "C++17: Defaulted{1,2} (ima = default ctor) je agregat: (" << dd.x << "," << dd.y << ")\n";
+#else
+    // C++20 (P0960): agregat može i sa (). U C++17 greška -- errors/e16.
+    Point paren(1, 2);
+    std::cout << "C++20: Point(1, 2) = (" << paren.x << "," << paren.y << ")\n";
+#endif
 }
 
+// ---------------------------------------------------------------- 15
 #if __cplusplus >= 202002L
-struct DesignatedPoint {
-    int x;
-    int y;
+struct NetConfig {
+    int timeout;
+    int retries;
+    bool verbose;
 };
 
-void designatedInitializers() {
-    std::cout << "-- designated initializers (C++20) --\n";
-    // Treba da designatori BUDU U ISTOM REDOSLEDU kao deklaracija članova
-    // -- DesignatedPoint p{.y = 20, .x = 10}; (obrnut redosled) je GREŠKA,
-    // ne samo neuobičajeno.
-    DesignatedPoint p{.x = 10, .y = 20};
-    std::cout << "p.x=" << p.x << " p.y=" << p.y << "\n";
+void s15_designated() {
+    std::cout << "-- 15. designated initializers (C++20) --\n";
+    NetConfig a{.timeout = 10, .retries = 3}; // verbose -> false
+    NetConfig b{.retries = 5};                // preskakanje je dozvoljeno: timeout -> 0
+    std::cout << "a: timeout=" << a.timeout << " retries=" << a.retries << " verbose=" << a.verbose << "\n";
+    std::cout << "b: timeout=" << b.timeout << " retries=" << b.retries << " verbose=" << b.verbose << "\n";
+    // Pogrešno: pogrešan redosled (errors/e17), mešanje sa pozicionim (errors/e18).
 }
 #else
-void designatedInitializers() {
-    std::cout << "-- designated initializers (C++20) -- PRESKOČENO, treba -std=c++20 --\n";
-    std::cout << "   pokreni: ./build.sh main.cpp -std=c++20 (ili build.ps1 isto)\n";
+void s15_designated() {
+    std::cout << "-- 15. designated initializers (C++20) -- PRESKOČENO, pokreni sa -std=c++20 --\n";
 }
 #endif
 
-class ConstAndRefMembers {
-public:
-    // Ako pokušaš da dodeliš const_/ref_ U TELU konstruktora (NIJE DOBRO,
-    // ne kompajlira) jer const član i referenca MORAJU biti inicijalizovani
-    // pre nego što telo ctor-a uopšte počne da se izvršava -- do tada su
-    // "gotovi" (const se ne može menjati, referenca se ne može rebindovati).
-    // Treba da koristiš INIT LISTU -- ovo nije stilska preporuka nego
-    // JEDINI način da se ovakvi članovi uopšte inicijalizuju.
-    ConstAndRefMembers(int v, int& ref) : const_(v), ref_(ref) {
-        // const_ = v; // TODO: otkomentariši -- compile error, const_ je već inicijalizovan
-        std::cout << "ConstAndRefMembers ctor, const_=" << const_ << " ref_=" << ref_ << "\n";
-    }
-
-private:
-    const int const_;
-    int& ref_;
+// ---------------------------------------------------------------- 16
+struct MyClass {
+    int value = 0;
+};
+struct Timer {};
+struct TimerWidget {
+    explicit TimerWidget(Timer) {}
 };
 
-void constAndRefMembers() {
-    std::cout << "-- const i reference članovi: init lista je OBAVEZNA --\n";
-    int x = 7;
-    ConstAndRefMembers c(5, x);
-    (void)c;
+void s16_mostVexingParse() {
+    std::cout << "-- 16. most vexing parse --\n";
+    MyClass obj(); // deklaracija FUNKCIJE obj: bez parametara, vraća MyClass
+    static_assert(std::is_function_v<decltype(obj)>);
+
+    TimerWidget w(Timer()); // "pravi" most vexing parse: funkcija w čiji je
+                            // parametar funkcija koja vraća Timer
+    static_assert(std::is_function_v<decltype(w)>);
+
+    MyClass ok1{};            // objekat
+    MyClass ok2;              // objekat
+    TimerWidget ok3{Timer{}}; // objekat
+    TimerWidget ok4((Timer())); // objekat -- i dodatne zagrade rešavaju
+    std::cout << "obj i w su funkcije (static_assert); ok1.value=" << ok1.value
+              << " ok2.value=" << ok2.value << "\n";
+    (void)ok3;
+    (void)ok4;
 }
 
-void vectorClassic() {
-    std::cout << "-- std::vector(10, 20) vs std::vector{10, 20} --\n";
-    std::vector<int> v1(10, 20); // () -- normalan ctor: 10 elemenata, svi = 20
-    std::vector<int> v2{10, 20}; // {} -- initializer_list ctor: 2 elementa, [10, 20]
-    std::cout << "v1.size()=" << v1.size() << " v2.size()=" << v2.size() << "\n";
-}
-
-// Zašto std::make_unique/std::make_shared INTERNO koriste () a ne {}:
-// autor generičke funkcije ne može unapred znati da li pozivalac očekuje
-// "() ponašanje" ili "{} ponašanje" za dati tip -- zato standardna
-// biblioteka BIRA () i to DOKUMENTUJE kao deo interfejsa.
+// ---------------------------------------------------------------- 17
+// Autor generičke funkcije ne zna da li pozivalac očekuje () ili {}
+// ponašanje -- std::make_unique/std::make_shared zato koriste () i to je
+// deo njihove dokumentacije (EMC Item 7, Item 21).
 template <typename T, typename... Ts>
 T makeWithParens(Ts&&... params) {
-    return T(std::forward<Ts>(params)...); // () -- kao std::make_unique/make_shared
+    return T(std::forward<Ts>(params)...);
 }
 
 template <typename T, typename... Ts>
 T makeWithBraces(Ts&&... params) {
-    return T{std::forward<Ts>(params)...}; // {} -- drugačiji rezultat za neke tipove!
+    return T{std::forward<Ts>(params)...};
 }
 
-void genericCodeProblem() {
-    std::cout << "-- generički kod: () vs {} daju RAZLIČIT rezultat za isti poziv --\n";
-    // Treba da autor generičke funkcije SVESNO odabere i DOKUMENTUJE koju
-    // sintaksu koristi -- pozivalac ne može da pogodi bez da pogleda
-    // implementaciju (ili dokumentaciju).
+void s17_genericCode() {
+    std::cout << "-- 17. generički kod: () vs {} za isti poziv --\n";
     auto v1 = makeWithParens<std::vector<int>>(10, 20);
     auto v2 = makeWithBraces<std::vector<int>>(10, 20);
-    std::cout << "makeWithParens<vector<int>>(10,20) -> size=" << v1.size()
-              << ", makeWithBraces<vector<int>>(10,20) -> size=" << v2.size() << "\n";
+    std::cout << "makeWithParens<vector<int>>(10, 20) -> " << v1.size()
+              << " el.   makeWithBraces<vector<int>>(10, 20) -> " << v2.size() << " el.\n";
 }
 
 int main() {
-    section1_defaultInit();
-    section2_valueInit();
-    section3_directInit();
-    section4_copyInit();
-    section5_uniformInit();
-
-    std::cout << "-- default vrednost člana klase (samo {} i =, ne ()) --\n";
-    MemberDefaults md;
-    md.print();
-
-    nonCopyableTrap();
-    narrowingCheck();
-    mostVexingParse();
-    initializerListHijack();
-    initializerListNarrowingError();
-    initializerListFallback();
-    emptyBracesMeaning();
-    autoAndBraces();
-    newWithBraces();
-    aggregateInit();
-    designatedInitializers();
-    constAndRefMembers();
-    vectorClassic();
-    genericCodeProblem();
+    s01_defaultInit();
+    s02_valueInit();
+    s03_directInit();
+    s04_copyInit();
+    s05_listInit();
+    s06_narrowing();
+    s07_objects();
+    s08_defaultMemberInit();
+    s09_ctorInitList();
+    s10_stlTrap();
+    s11_initializerListPriority();
+    s12_auto();
+    s13_dynamic();
+    s14_aggregate();
+    s15_designated();
+    s16_mostVexingParse();
+    s17_genericCode();
 }

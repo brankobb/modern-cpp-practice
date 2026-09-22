@@ -46,7 +46,15 @@ function Invoke-Compile {
     # inside this function, so it doesn't affect the rest of the script.
     $ErrorActionPreference = "Continue"
 
+    # -pedantic-errors: code the standard calls ill-formed is always an error
+    # (g++ otherwise only warns on narrowing from a variable inside {}).
+    # clang only warns on out-of-order designated initializers, and that
+    # warning is not part of -pedantic, so it is promoted separately.
+    $strictFlags = @("-pedantic-errors")
+    if ($Compiler -match "clang") { $strictFlags += "-Werror=reorder-init-list" }
+
     $compileArgs = @("-std=c++17", "-Wall", "-Wextra", "-Wshadow", "-g", "-O0") +
+                   $strictFlags +
                    $SanitizeFlags +
                    @("-fno-omit-frame-pointer", $Src, "-o", $out) +
                    $ExtraArgs
@@ -62,8 +70,8 @@ if ($result.ExitCode -ne 0 -and ($result.Output -match "cannot find -lasan|canno
     $result = Invoke-Compile -SanitizeFlags @()
 }
 
+$result.Output | ForEach-Object { Write-Host $_ }
 if ($result.ExitCode -ne 0) {
-    $result.Output | ForEach-Object { Write-Host $_ }
     exit $result.ExitCode
 }
 
