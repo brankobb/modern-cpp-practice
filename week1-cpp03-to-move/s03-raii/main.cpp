@@ -24,6 +24,19 @@ public:
         std::swap(a.size_, b.size_);
     }
 
+    // Ako napišeš operator= koji NAJPRE delete[] data_ pa onda new
+    // int[other.size_] i std::copy (NIJE DOBRO -- "naivna" verzija) jer
+    // ako new ili copy baci izuzetak POSLE delete-a, *this ostaje sa
+    // OBRISANIM podacima -- objekat je u polu-validnom, oštećenom stanju
+    // (narušena je čak i basic exception guarantee).
+    // Treba da koristiš copy-and-swap (kao ovde): parametar PO VREDNOSTI
+    // pravi kopiju PRE nego što diramo *this, pa swap (koji ne baca)
+    // zamenjuje sadržaj -- ako kopiranje baci, *this ostaje NETAKNUT
+    // (strong exception guarantee, besplatno).
+    // Možeš i napisati operator= koji PRVO alocira NOVU memoriju, PA TEK
+    // ONDA oslobodi staru (bez swap-a) -- daje istu strong garanciju, ali
+    // copy-and-swap je kraći i radi i za move (kad se parametar
+    // konstruiše move-om umesto copy-em).
     Resource& operator=(Resource other) { // po vrednosti -> copy-and-swap
         swap(*this, other);
         return *this;
@@ -35,6 +48,7 @@ private:
 };
 
 int main() {
+    std::cout << "-- copy-and-swap operator= --\n";
     Resource a(10);
     Resource b(20);
     a = b; // testiraj copy-and-swap

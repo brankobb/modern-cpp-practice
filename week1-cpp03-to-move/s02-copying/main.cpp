@@ -9,6 +9,17 @@
 //
 // Zatim popravi: napiši copy ctor i copy assignment koji rade DEEP copy,
 // uključujući self-assignment proveru u operator=.
+//
+// Ako ostaviš klasu BEZ copy ctor/assignment kad poseduje resurs (NIJE
+// DOBRO) jer kompajler GENERIŠE default verzije koje rade SHALLOW copy
+// (kopiraju pokazivač, ne ono na šta pokazuje) -- oba objekta onda misle
+// da poseduju ISTI resurs, i oba destruktora će pokušati da ga oslobode
+// (double-free, tačno ono što vidiš ispod pod ASan-om).
+// Treba da napišeš SOPSTVENI copy ctor/assignment koji rade DEEP copy
+// (alociraju NOVU memoriju i kopiraju SADRŽAJ) kad god klasa poseduje
+// resurs preko sirovog pokazivača.
+// Možeš i izbeći problem u korenu -- koristi std::string umesto char* --
+// već ima ispravno deep-copy ponašanje ugrađeno, ne moraš ti da ga pišeš.
 
 class NaiveString {
 public:
@@ -24,6 +35,7 @@ private:
 };
 
 int main() {
+    std::cout << "-- shallow copy (namerni bag, ASan treba da uhvati double-free) --\n";
     NaiveString a("hello");
     NaiveString b = a; // shallow copy
     (void)b;

@@ -21,6 +21,17 @@ Logged makeA() {
     return x; // NRVO kandidat
 }
 
+// Ako napišeš return std::move(x); na LOKALNOJ promenljivoj (NIJE DOBRO,
+// čest anti-pattern) jer std::move(x) je izraz tipa Logged&& (rvalue
+// referenca), NE sam objekat x -- kompajler onda MORA da pozove move ctor
+// da napravi povratnu vrednost od te reference, umesto da primeni NRVO i
+// izgradi x DIREKTNO na mestu poziva.
+// Treba da napišeš samo return x; (bez std::move) kad vraćaš lokalnu
+// promenljivu -- kompajler automatski tretira ovo kao "move ili elide"
+// kandidata, dobijaš NAJBOLJE od oba bez tvoje intervencije.
+// Možeš i koristiti std::move kad vraćaš NEŠTO ŠTO NIJE lokalna
+// promenljiva iz OVE funkcije (npr. parametar primljen po vrednosti koji
+// vraćaš) -- tu NRVO ionako ne važi, pa std::move ima smisla.
 Logged makeB() {
     Logged x;
     return std::move(x); // šteti NRVO-u

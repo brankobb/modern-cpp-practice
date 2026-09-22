@@ -19,6 +19,19 @@ public:
         std::cout << "ctor(size)\n";
     }
     Resource(const Resource&) { std::cout << "copy ctor\n"; }
+
+    // Ako "ukradeš" pokazivač u move ctor-u ali NE postaviš other.data_ =
+    // nullptr (NIJE DOBRO) jer oba objekta (this i other) onda "misle" da
+    // poseduju ISTI pokazivač -- kad other izađe iz scope-a i pozove se
+    // ~Resource(), oslobodiće memoriju koju TVOJ objekat i dalje koristi
+    // (use-after-free čim je ti pokušaš da koristiš, double-free kad se i
+    // tvoj destruktor pozove).
+    // Treba da UVEK ostaviš other u "praznom ali validnom" stanju
+    // (nullptr / 0) posle krađe -- da njegov destruktor bude bezopasan
+    // no-op.
+    // Možeš i koristiti std::exchange(other.data_, nullptr) umesto
+    // ručnog "ukradi pa nuluj" -- kraće, isti efekat, manje šanse da
+    // zaboraviš korak.
     Resource(Resource&& other) noexcept
         : data_(other.data_), size_(other.size_) {
         std::cout << "move ctor\n";
@@ -33,7 +46,13 @@ private:
 };
 
 int main() {
+    std::cout << "-- sa std::move (treba: move ctor) --\n";
     Resource a(10);
     Resource b = std::move(a); // treba: move ctor
     (void)b;
+
+    std::cout << "-- bez std::move (treba: copy ctor) --\n";
+    Resource c(10);
+    Resource d = c; // BEZ std::move -- c je lvalue, poziva se copy ctor
+    (void)d;
 }
