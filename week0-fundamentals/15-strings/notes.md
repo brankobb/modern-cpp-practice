@@ -33,8 +33,8 @@ i `[over.literal]` (korisnički literali). Uz to C++ Core Guidelines
 | `"a" "b"` | `const char[3]` | susedni literali se spajaju pri kompajliranju |
 | `u8"abc"` | C++17: `const char[4]`; **C++20: `const char8_t[4]`** | u C++20 ne ide u `const char*` (`errors/e02`) |
 | `u"abc"`, `U"abc"`, `L"abc"` | `char16_t`, `char32_t`, `wchar_t` | za API-je koji to traže (Windows: `wchar_t`) |
-| `"abc"s` | `std::string` | sekcija 7 |
-| `"abc"sv` | `std::string_view` | sekcija 7 |
+| `"abc"s` | `std::string` | sekcija 6 |
+| `"abc"sv` | `std::string_view` | sekcija 6 |
 
 - ❌ `"Zdravo, " + "svete"` se ne kompajlira: dva pokazivača se ne sabiraju
   (`errors/e01`). `+` za tekst radi samo kad je bar jedan operand
