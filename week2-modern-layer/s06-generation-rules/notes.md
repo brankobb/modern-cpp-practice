@@ -48,8 +48,8 @@ daju tek `-Wdeprecated-copy-dtor` (g++) i `-Wdeprecated` (clang).
 
 Dve vrste "nema":
 
-- **nije deklarisan**: funkcija ne postoji, pa je poziv prepusti
-  sledećem kandidatu. Za move to je **kopija**: `T b = std::move(a)` se
+- **nije deklarisan**: funkcija ne postoji, pa poziv ide na sledećeg
+  kandidata. Za move to je **kopija**: `T b = std::move(a)` se
   kompajlira i tiho kopira.
 - **obrisan**: funkcija postoji i učestvuje u overload resolution-u, pa
   je poziv greška (`errors/e01`).
@@ -175,8 +175,8 @@ Session& operator=(Session&&) = default;
 
 - ✅ Move-only tip: obriši kopiju, `= default` za move.
 - ❌ **Ne briši move** na tipu koji se kopira. Obrisan move učestvuje u
-  overload resolution-u i pobedi za rvalue, pa `return w;`,
-  `std::move(a)` i realokacija vektora postanu greška (`errors/e02`).
+  overload resolution-u i pobedi za rvalue, pa `return w;` i
+  `T b = std::move(a);` postanu greška (`errors/e02`).
   Ako tip ne treba da se pomera, samo ne deklariši move: kopija će ga
   zameniti.
 
