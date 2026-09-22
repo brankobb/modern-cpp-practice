@@ -11,6 +11,25 @@ AddressSanitizer + UndefinedBehaviorSanitizer.
 ./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
 ```
 
+## Nedelja 0: fundamentals audit
+
+Brz audit osnova (gotchas/edge-case fokus, ne tutorial od nule) — most ka
+Nedelji 1. Grupisano po istoj logici kao kurs čiji je redosled analiziran:
+tipovi/I-O/funkcije prvo, pa debugging dok su greške sveže, pa uniform
+init/pokazivači/reference/const/auto pre nego što uđeš u klase.
+
+| Fold. | Tema |
+|---|---|
+| [01](week0-fundamentals/01-types-io-functions) | Primitivni tipovi, I/O, funkcije — overflow, integer promotion, cin fail state |
+| [02](week0-fundamentals/02-debugging) | Debugging (gdb umesto VS) — namerni buffer overflow, uhvati ga breakpoint-om i ASan-om |
+| [03](week0-fundamentals/03-uniform-init) | Uniform initialization — narrowing, most vexing parse, initializer_list preferencija |
+| [04](week0-fundamentals/04-pointers-and-references) | Pokazivači → reference — array decay, dangling pointer, referenca mora biti inicijalizovana |
+| [05](week0-fundamentals/05-assignment-quizzes) | Kviz: pokazivači i reference — predict-the-output |
+| [06](week0-fundamentals/06-reference-vs-pointer) | Reference vs pointer — kad koji, slicing kroz prosleđivanje po vrednosti |
+| [07](week0-fundamentals/07-const-qualifier) | const Qualifier — `const int*` vs `int* const`, mutable, const_cast |
+| [08](week0-fundamentals/08-auto-range-for) | Auto → range-based for — auto skida const/ref, `auto&` vs `const auto&` u petlji |
+| [09](week0-fundamentals/09-function-advanced) | Overloading, default args, inline, function pointers, namespace |
+
 ## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
 
 | Ses. | Tema | Ključno | Izvor |
