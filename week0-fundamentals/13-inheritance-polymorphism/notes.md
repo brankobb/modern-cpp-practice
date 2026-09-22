@@ -1,76 +1,276 @@
-# 13 — Nasleđivanje i polimorfizam (OOP bridge)
+# 13 — Nasleđivanje i polimorfizam
 
-- `class Derived : public Base` — public nasleđivanje je skoro uvek ono što
-  želiš ("is-a" odnos); `protected`/`private` nasleđivanje menja kako se
-  Base-ovi javni/protected članovi vide iz Derived-a (retko potrebno, preskoči
-  za sad ako nisi siguran zašto bi ti trebalo)
-- `virtual` funkcija — omogućava dynamic dispatch (poziva se STVARNI tip
-  objekta, ne deklarisani tip pokazivača/reference) — radi SAMO kroz
-  pokazivač ili referencu; kopija u bazni objekat gubi pravi tip (slicing, ispod)
-- `= 0` (pure virtual) — čini klasu ABSTRAKTNOM, ne može se instancirati;
-  koristi se za "interfejs" koji izvedene klase MORAJU implementirati
-- `override` keyword (C++11) — eksplicitno kažeš "ovo treba da override-uje
-  bazu"; ako se potpis ne poklapa (tipfeler, pogrešan `const`), kompajler
-  javlja GREŠKU umesto da tiho napravi novu, nepovezanu funkciju
-- podsetnik iz week1 s01: NIKAD ne zovi virtual funkciju iz ctor/dtor —
-  tokom konstrukcije Base dela, vtable za Derived još nije "aktivna"
+Kako se klasa gradi na drugoj klasi (nasleđivanje), kako poziv kroz
+baznu referencu stigne do funkcije izvedene klase (`virtual`), i šta sve
+tu može da pođe naopako: slicing, destruktor koji nije virtual, virtual
+poziv iz konstruktora, sakrivanje imena.
 
-## Slicing
+**Izvori:** standard, delovi `[class.derived]`, `[class.virtual]`,
+`[class.abstract]`, `[class.access.base]`, `[class.protected]`,
+`[class.member.lookup]`, `[class.mi]` i `[namespace.udecl]` (nasleđeni
+konstruktori). Uz to *Effective C++* **Item 7** (virtual destruktor),
+**Item 9** (virtual u konstruktoru), **Item 32** (public = is-a),
+**Item 33** (sakrivanje imena), **Item 38/39** (kompozicija i private
+nasleđivanje), i C++ Core Guidelines **C.35**, **C.67**, **C.128**,
+**C.130** i **C.133**.
 
-Kad se objekat izvedene klase **kopira** u objekat bazne klase, kopira se
-samo bazni deo. Izvedeni deo (njegovi podaci i override-i) se "odseca".
-Kompajler ne javlja ni grešku ni upozorenje.
+**Kako vežbati:**
 
-```cpp
-std::string byValue(Animal a);         // parametar po vrednosti -> kopija samo Animal dela
-std::string byRef(const Animal& a);    // bez kopije -> pravi tip ostaje
-
-Dog rex("Rex");
-byValue(rex);   // "..."        <- odsečeno, poziva se Animal::speak
-byRef(rex);     // "Rex: Av!"
+```
+./build.sh week0-fundamentals/13-inheritance-polymorphism/main.cpp      # ISPRAVNI slučajevi
+./check_cases.sh week0-fundamentals/13-inheritance-polymorphism         # POGREŠNI slučajevi
 ```
 
-Slicing se dešava na tri mesta:
+- `errors/` (e01–e12): kod koji se **ne kompajlira**.
+- `ub/` (u01–u03): kod koji se kompajlira, a ASan/UBSan ga hvata.
+
+---
+
+# 1. Nasleđivanje i pristup
+
+```cpp
+class SavingsAccount : public Account { ... };   // SavingsAccount JESTE Account
+```
+
+**`public` nasleđivanje znači "is-a"** (EC++ Item 32): svuda gde se
+očekuje `Account&` ili `Account*` sme da se prosledi `SavingsAccount`.
+Ako to ne važi (kvadrat "jeste" pravougaonik, ali mu se ne može menjati
+samo širina), nasleđivanje nije pravi alat.
+
+| Član baze | Vidi ga izvedena klasa | Vidi ga ostatak programa |
+|---|---|---|
+| `public` | ✅ | ✅ |
+| `protected` | ✅ (samo kroz sopstveni tip, `errors/e10`) | ❌ |
+| `private` | ❌ (`errors/e06`) | ❌ |
+
+⚠️ `protected` **podaci** su slaba enkapsulacija (C.133): svaka izvedena
+klasa može da pokvari invarijantu baze. Bolje su `protected` funkcije.
+
+| Vrsta nasleđivanja | `public` članovi baze postaju | Konverzija `Derived*` → `Base*` spolja |
+|---|---|---|
+| `public` | `public` | ✅ |
+| `protected` | `protected` | ❌ |
+| `private` (podrazumevano za `class`) | `private` | ❌ (`errors/e07`) |
+
+---
+
+# 2. Konstrukcija i destrukcija
+
+```
+frame() Vehicle(2) bell() Bike() | ~Bike() ~bell() ~Vehicle() ~frame()
+```
+
+- **Konstrukcija:** prvo **baza** (sa svojim članovima), pa **članovi
+  izvedene klase**, pa **telo** izvedenog konstruktora. Destrukcija
+  obrnuto.
+- Argumenti za bazu idu u **init listu**: `Bike() : Vehicle(2), bell_("bell")`.
+  Ako baza nema podrazumevani konstruktor, a init lista je ne navede,
+  greška (`errors/e09`).
+- **Nasleđeni konstruktori (C++11):** `using Vehicle::Vehicle;` u `Truck`
+  daje `Truck(int)` bez pisanja.
+
+---
+
+# 3. Sakrivanje imena (EC++ Item 33)
+
+```cpp
+class Logger     { void log(int); void log(const std::string&); };
+class FileLogger : public Logger { void log(double); };
+
+fileLogger.log(5);            // FileLogger::log(double)! int -> double
+fileLogger.log("tekst"s);     // ❌ ne kompajlira se (errors/e08)
+```
+
+Traženje imena staje u **prvom** scope-u gde nađe ime (`FileLogger`), pa
+se `Logger::log` uopšte ne razmatra. Overload ne ide preko granice klase.
+
+✅ `using Logger::log;` u izvedenoj klasi vraća sva imena iz baze, pa su
+svi overload-i zajedno (`main.cpp`, sekcija 3).
+
+Isto važi za **virtual** funkcije: ako potpis nije isti (npr. fali
+`const`), izvedena funkcija ne nadjačava baznu, nego je **sakrije**. g++ i
+clang sa `-Wall` upozore (`-Woverloaded-virtual`), a `override` to
+pretvara u grešku (`errors/e03`).
+
+---
+
+# 4. `virtual`, `override`, `final`
+
+```cpp
+class Shape {
+public:
+    virtual ~Shape() = default;
+    virtual double area() const = 0;     // pure virtual -> apstraktna klasa
+    virtual std::string name() const;    // ima podrazumevanu implementaciju
+};
+class Circle : public Shape {
+    double area() const override;        // override: kompajler proveri da nadjačava
+};
+class Square final : public Shape { ... }; // final: kraj hijerarhije
+```
+
+- **Dynamic dispatch:** poziv virtual funkcije **kroz referencu ili
+  pokazivač** ide na funkciju **stvarnog** tipa objekta. Kroz objekat po
+  vrednosti ide na funkciju statičkog tipa (slicing, sekcija 8).
+- Kvalifikovan poziv `ref.Shape::name()` isključuje virtual i uvek zove
+  baznu verziju.
+- **Apstraktna klasa** (bar jedna `= 0` funkcija) ne može da ima objekte
+  (`errors/e02`). Izvedena klasa koja ne implementira sve `= 0` funkcije
+  je i sama apstraktna.
+- ✅ **Uvek `override`** (C.128) na funkciji koja nadjačava. Greška u
+  potpisu postaje greška pri kompajliranju (`errors/e03`), a ne tiha nova
+  funkcija.
+- `final` na klasi zabranjuje nasleđivanje (`errors/e04`), a na funkciji
+  dalje nadjačavanje (`errors/e05`).
+- ❌ Konstruktor ne može biti virtual (`errors/e11`).
+- Podrazumevani argumenti se kod virtual funkcija biraju statički: lekcija
+  09, sekcija 6 (EC++ Item 37).
+
+---
+
+# 5. Virtual destruktor (EC++ Item 7)
+
+```cpp
+Resource* r = new FileResource;
+delete r;   // sa virtual ~Resource():   ~FileResource() ~Resource()
+            // bez virtual:              UB -- ~FileResource se ne pozove (ub/u01)
+```
+
+`delete` kroz bazni pokazivač poziva destruktor **statičkog** tipa, osim
+ako je destruktor virtual. Bez toga izvedeni deo nikad ne oslobodi svoje
+resurse, a standard kaže da je to UB. Test: ASan prijavi
+`new-delete-type-mismatch`, a kad se ta provera isključi, LeakSanitizer
+prijavi string koji `~Label` nije oslobodio.
+
+✅ Pravilo (C.35): destruktor bazne klase je **`public` i `virtual`**
+(ako se briše kroz bazni pokazivač), ili **`protected` i ne-virtual**
+(ako ne sme).
+
+---
+
+# 6. Virtual poziv u konstruktoru (EC++ Item 9)
+
+```
+u Widget(): Widget::kind; posle konstrukcije: Button::kind(OK)
+```
+
+Dok se pravi bazni deo, objekat **jeste** bazna klasa. Izvedeni deo još
+ne postoji (`label_` nije napravljen), pa virtual poziv ide na funkciju
+baze. Isto važi u destruktoru, obrnutim redom.
+
+⚠️ Ako je ta funkcija u bazi **pure virtual**, program pukne sa `pure
+virtual method called` (`ub/u02`). Direktan poziv oba kompajlera prijave,
+ali kroz pomoćnu funkciju ne.
+
+---
+
+# 7. Cena: vptr i vtable
+
+Klasa sa virtual funkcijama ima u svakom objektu skriven pokazivač
+(**vptr**) na tabelu funkcija te klase (**vtable**). Poziv virtual
+funkcije je: pročitaj vptr, pročitaj adresu iz tabele, pozovi.
+
+Test (x86-64, g++ i clang): `sizeof(Plain) = 4`, a `sizeof(WithVirtual)
+= 16` (8 bajtova vptr + 4 bajta `int` + poravnanje na 8). Standard ne
+propisuje vtable, ali je to način na koji rade svi glavni kompajleri.
+
+---
+
+# 8. Slicing
+
+Kad se izvedeni objekat **kopira** u objekat bazne klase, kopira se samo
+bazni deo. Izvedeni deo (podaci i override-i) se "odseca". Kompajler ne
+javlja ni grešku ni upozorenje.
 
 | Gde | Primer | Ispravno |
 |---|---|---|
-| parametar po vrednosti | `void f(Animal a)` | `void f(const Animal& a)` ili `const Animal*` |
+| parametar po vrednosti | `void f(Animal a)` | `void f(const Animal& a)` |
 | kopija u bazni objekat | `Animal copy = rex;` | `const Animal& ref = rex;` |
 | kontejner baznih objekata | `std::vector<Animal>` | `std::vector<std::unique_ptr<Animal>>` |
 
-**Pravilo:** polimorfne objekte (klase sa `virtual` funkcijama) prosleđuj i
-čuvaj preko reference ili (pametnog) pokazivača, nikad po vrednosti.
-Referenca kad objekat mora da postoji, pokazivač kad je opciono (lekcija
-04, sekcija 9).
+**Rešenje koje hvata grešku pri kompajliranju** (C.67): polimorfna bazna
+klasa zabrani javno kopiranje (`= delete` ili `protected`). Tada se
+slicing ne kompajlira (`errors/e01`).
 
-**Rešenje koje hvata grešku pri kompajliranju** (C++ Core Guidelines
-C.67): polimorfna bazna klasa zabrani javno kopiranje.
+---
+
+# 9. Kopiranje polimorfnog objekta: `clone()` (C.130)
+
+Kad kopija ipak treba, a imaš samo `Document&`, kopija mora biti **pravog**
+tipa. Rešenje je virtual funkcija koja pravi kopiju:
 
 ```cpp
-class SafeAnimal {
+class Document {
 public:
-    SafeAnimal() = default;
-    SafeAnimal(const SafeAnimal&) = delete;
-    SafeAnimal& operator=(const SafeAnimal&) = delete;
-    virtual ~SafeAnimal() = default;
-    ...
+    virtual std::unique_ptr<Document> clone() const = 0;
+protected:
+    Document(const Document&) = default;   // samo izvedene klase kopiraju bazni deo
 };
-std::string byValue(SafeAnimal a);   // ❌ poziv se ne kompajlira (errors/e01)
+class Report : public Document {
+    std::unique_ptr<Document> clone() const override { return std::make_unique<Report>(*this); }
+};
 ```
 
-Ako klasi ipak treba kopiranje, dodaje se virtual `clone()` funkcija koja
-vraća `std::unique_ptr<Base>`.
+---
 
-Provera: `./check_cases.sh week0-fundamentals/13-inheritance-polymorphism`.
+# 10. Višestruko nasleđivanje i dijamant
 
-## API korišćen u vežbi
+```cpp
+struct Printer : Device {};   struct Scanner : Device {};
+struct Copier : Printer, Scanner {};   // DVA Device podobjekta -> c.id je dvosmisleno (errors/e12)
+```
 
-- `= 0` na virtual funkciji (pure virtual, `virtual double area() const = 0;`)
-  — čini klasu ABSTRAKTNOM; klasa se NE MOŽE instancirati dok se ova
-  funkcija ne implementira u nekoj izvedenoj klasi
-- `std::vector<Shape*>` + ručni `new`/`delete` u petlji — namerno "sirov"
-  pristup da pokaže mehaniku bez skrivanja iza biblioteke; u week2 s08
-  ćeš ovo zameniti sa `std::vector<std::unique_ptr<Shape>>` koji čisti
-  automatski i eliminiše mogućnost da zaboraviš `delete`
+- `virtual` nasleđivanje (`struct Printer : virtual Device`) daje **jedan**
+  zajednički `Device`.
+- Virtual bazu tada pravi **najizvedenija** klasa (`Copier() : Device(3)`),
+  a pozivi `Device(1)` i `Device(2)` iz `Printer` i `Scanner` se ignorišu.
+  Test: ispisuje se samo `Device(3)`.
+- ✅ U praksi: višestruko nasleđivanje od **interfejsa** (klase samo sa
+  pure virtual funkcijama, bez podataka) je bezbedno i uobičajeno.
+  Dijamant sa podacima je retko potreban.
+
+---
+
+# 11. Kompozicija vs private nasleđivanje (EC++ Item 38/39)
+
+| | Znači | Kad |
+|---|---|---|
+| `public` nasleđivanje | "is-a" | izvedena klasa se koristi kao bazna |
+| kompozicija (član) | "has-a" / "implementirano pomoću" | **podrazumevani izbor** za ponovnu upotrebu koda |
+| `private` nasleđivanje | "implementirano pomoću" | retko: kad treba nadjačati virtual funkciju ili pristupiti `protected` delu |
+
+Nasleđivanje samo da bi se "pozajmio kod" je najčešća greška. Kompozicija
+je labavija veza: `Car` ima `Engine` i ne izlaže njegov interfejs.
+
+---
+
+# Pravilo za praksu
+
+✅ `public` nasleđivanje samo za "is-a"; za ponovnu upotrebu koda
+kompozicija.
+
+✅ Bazna klasa za polimorfizam: `virtual` destruktor, zabranjeno javno
+kopiranje (C.67), po potrebi `clone()`.
+
+✅ `override` na svakoj funkciji koja nadjačava; `final` gde hijerarhija
+treba da stane.
+
+✅ Polimorfne objekte čuvaj i prosleđuj kroz referencu ili (pametni)
+pokazivač, nikad po vrednosti.
+
+✅ `using Base::f;` kad izvedena klasa dodaje overload.
+
+⚠️ Ne zovi virtual funkcije iz konstruktora i destruktora.
+
+⚠️ `static_cast` naniže ne proverava tip (`ub/u03`). Za proveru
+`dynamic_cast` (lekcija 14), a najčešće je bolja virtual funkcija.
+
+**Rezime:** nasleđivanje daje dve stvari: izvedena klasa sadrži baznu (i
+pravi se posle nje), i sme da se koristi tamo gde se očekuje bazna.
+Polimorfizam radi samo kroz reference i pokazivače, samo za `virtual`
+funkcije, i samo kad je objekat potpuno napravljen. Većina grešaka dolazi
+od kopiranja u baznu klasu (slicing), brisanja kroz baznu klasu bez
+virtual destruktora, i funkcija koje izgledaju kao override a nisu.
 
 ## Zapažanja posle vežbe
+
