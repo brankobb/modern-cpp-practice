@@ -73,11 +73,11 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 
 | Ses. | Tema | Ključno | Izvor |
 |---|---|---|---|
-| [1](week1-cpp03-to-move/s01-object-lifetime) | Životni vek objekta | automatic/static/dynamic storage; kada se zovu ctor/dtor; redosled konstrukcije baza i članova; init lista ide po redosledu deklaracije | Effective C++ (3. izd.) st. 5–14, 29; learncpp.com (konstruktori) |
-| [2](week1-cpp03-to-move/s02-copying) | Kopiranje (C++03) | copy ctor i copy assignment; šta kompajler generiše; shallow vs deep copy; self-assignment; rule of 3 | Effective C++ st. 5–14, 29; learncpp.com (kopiranje) |
-| [3](week1-cpp03-to-move/s03-raii) | RAII i exception safety | stack unwinding; basic/strong/nothrow garancija; copy-and-swap; zašto destruktor ne sme da baca | Effective C++ st. 5–14, 29; Arthur O'Dwyer, *Back to Basics: RAII and the Rule of Zero* (CppCon 2019) |
-| [4](week1-cpp03-to-move/s04-move-semantics) | Move semantika | lvalue/rvalue, `T&&`, `std::move` je samo cast, move ctor/assignment, moved-from stanje | Effective Modern C++ st. 23; Klaus Iglberger, *Back to Basics: Move Semantics* (CppCon 2019) |
-| [5](week1-cpp03-to-move/s05-buffer-exercise) | Vežba | klasa `Buffer` (dinamički niz): prvo rule of 3 + copy-and-swap, pa dodaj move (rule of 5); proveri ASan-om | — |
+| [1](week1-cpp03-to-move/s01-object-lifetime) | Životni vek objekta | trajanje skladišta; redosled u bloku, nizu i klasi; privremeni objekti i produženje života; izuzetak u konstruktoru; `std::exit`; redosled uništavanja static objekata; `ub/` | EC++ It. 4, 13; standard `[basic.life]` |
+| [2](week1-cpp03-to-move/s02-copying) | Kopiranje | šta kompajler piše; kada se kopija pravi; kada je obrisana; plitka vs duboka kopija; rule of 3; kopiraj sve delove; rule of 0; `errors/` i `ub/` | EC++ It. 5, 6, 11, 12 |
+| [3](week1-cpp03-to-move/s03-raii) | RAII i exception safety | RAII klasa; stack unwinding; resursi u članovima; basic/strong/nothrow sa testom; destruktor ne baca; `unique_ptr` sa deleterom, scope guard; `errors/` i `ub/` | EC++ It. 8, 13, 14, 29 |
+| [4](week1-cpp03-to-move/s04-move-semantics) | Move semantika (kurs 53–55, 58) | kategorije vrednosti; vezivanje referenci; `std::move` je cast; move ctor/dodela; imenovana `T&&` je lvalue; move na `const` kopira; moved-from stanje; kad move nije jeftin; `errors/` i `ub/` | EMC It. 23, 25, 29 |
+| [5](week1-cpp03-to-move/s05-buffer-exercise) | Vežba `Buffer` (kurs 56) | `exercise.cpp` (kostur) i `main.cpp` (rešenje): rule of 3 → 5 → 0; merenje kopija/move-ova; `noexcept` i realokacija `vector`-a; `errors/` i `ub/` | C.20, C.21, C.66 |
 
 ## Nedelja 2 (5.10 – 11.10): moderni sloj
 
