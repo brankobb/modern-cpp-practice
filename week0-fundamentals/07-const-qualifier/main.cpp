@@ -1,58 +1,306 @@
+#include <array>
+#include <atomic>
+#include <cstddef>
 #include <iostream>
+#include <map>
+#include <mutex>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-void constPointerVariants() {
-    std::cout << "-- constPointerVariants --\n";
-    int a = 1, b = 2;
+// const -- ISPRAVNI slučajevi. Sve u ovom fajlu se kompajlira i radi bez
+// ASan/UBSan prijava (g++ 13 i clang 18).
+// POGREŠNI slučajevi:
+//   errors/  -- kod koji se NE kompajlira
+//   ub/      -- kod koji se kompajlira, ali je undefined behavior
+// ./check_cases.sh week0-fundamentals/07-const-qualifier  proverava oba.
+// Numeracija sekcija prati notes.md.
 
-    const int* p1 = &a; // pokazivač na const int
-    // Ako pokušaš da promeniš *p1 (NIJE DOBRO, ne kompajlira) jer je p1
-    // "pokazivač na const int" -- vrednost na koju pokazuje se ne sme
-    // menjati KROZ p1 (sama promenljiva a i dalje MOŽE biti promenjena na
-    // drugi način, npr. direktno a = 5;).
-    // *p1 = 5;          // TODO: otkomentariši -- compile error
-    // Treba da koristiš const int* kad ti FUNKCIJA samo ČITA podatke
-    // preko pokazivača (npr. parametar koji ne treba da menja ulaz).
-    p1 = &b;             // OK -- pokazivač sam nije const
-
-    int* const p2 = &a;  // const pokazivač na int
-    // Možeš i int* const kad ti treba da UVEK pokazuje na isti objekat
-    // (adresa se ne menja), ali smeš da menjaš vrednost preko njega.
-    *p2 = 5;              // OK -- vrednost nije const
-    // p2 = &b;           // TODO: otkomentariši -- compile error
-
-    const int* const p3 = &a; // oboje const -- ni adresa ni vrednost se ne menjaju
-    std::cout << "*p1=" << *p1 << " *p2=" << *p2 << " *p3=" << *p3 << "\n";
-    (void)p1; (void)p2; (void)p3;
-}
-
-class Cache {
-public:
-    // Ako pokušaš da promeniš cached_/value_ u const funkciji BEZ mutable
-    // (NIJE DOBRO, ne kompajlira) jer const member funkcija obećava da
-    // NEĆE menjati stanje objekta.
-    // Treba da označiš članove koji predstavljaju "interni keš, ne
-    // logičko stanje objekta" kao mutable -- to je legitiman izuzetak od
-    // const pravila, ne rupa u sistemu.
-    // Možeš i izbeći mutable tako što keš držiš POTPUNO odvojeno (npr.
-    // spoljni std::unordered_map<const Cache*, int>), ali to je obično
-    // komplikovanije bez stvarne koristi.
-    int getExpensiveValue() const {
-        if (!cached_) {
-            cached_ = true;
-            value_ = 42; // dozvoljeno jer je mutable, iako je funkcija const
-        }
-        return value_;
-    }
-
-private:
-    mutable bool cached_ = false;
-    mutable int value_ = 0;
+// ---------------------------------------------------------------- 1
+struct Plain {
+    int x;
 };
 
-int main() {
-    constPointerVariants();
+int readSensor() { return 42; } // "runtime" vrednost
 
-    std::cout << "-- Cache (mutable) --\n";
-    Cache c;
-    std::cout << c.getExpensiveValue() << "\n"; // radi iako je getter const
+void s01_basics() {
+    std::cout << "-- 1. const: osnove --\n";
+    const int fromRuntime = readSensor(); // const NE znači "poznato pri kompajliranju"
+    const std::string name;               // OK: string ima korisnički default ctor -> prazan
+    const Plain p{};                      // OK: {} -> x == 0 (bez {} greška -- errors/e14)
+    std::cout << "fromRuntime=" << fromRuntime << " name.size()=" << name.size()
+              << " p.x=" << p.x << "\n";
+    // const int x;  -> greška: mora odmah da dobije vrednost (errors/e01)
+    // fromRuntime = 1; -> greška (errors/e02)
+}
+
+// ---------------------------------------------------------------- 2
+void s02_pointers() {
+    std::cout << "-- 2. const i pokazivači --\n";
+    // "west const" i "east const" su ISTI tip -- const se odnosi na ono levo
+    // od sebe, a ako levo nema ništa, na ono desno.
+    static_assert(std::is_same_v<const int*, int const*>);
+    static_assert(!std::is_same_v<const int*, int* const>);
+
+    int x = 1;
+    int* p = &x;
+    int** pp = &p;
+    const int* cp = p;            // int* -> const int*: dodavanje const je OK
+    const int* const* cpp = pp;   // int** -> const int* const*: OK
+    // const int** bad = pp;      -> greška (errors/e03), vidi notes.md
+    std::cout << "*cp=" << *cp << " **cpp=" << **cpp << "\n";
+}
+
+// ---------------------------------------------------------------- 3
+std::size_t countChars(const std::string& s) { return s.size(); } // čita, ne kopira
+
+void s03_constReference() {
+    std::cout << "-- 3. const reference --\n";
+    int x = 1;
+    const int& r = x; // kroz r samo čitanje (errors/e17); x se i dalje menja direktno
+    x = 2;
+    std::cout << "r posle x = 2: " << r << "\n";
+    std::cout << "countChars(\"literal\") = " << countChars("literal")
+              << " (const& prima i privremeni std::string)\n";
+}
+
+// ---------------------------------------------------------------- 4
+class TextBlock {
+public:
+    explicit TextBlock(std::string text) : text_(std::move(text)) {}
+
+    // EC++ Item 3: const i non-const overload. Kompajler bira po tome da li
+    // je OBJEKAT const.
+    const char& operator[](std::size_t i) const {
+        std::cout << "  [const operator[]]\n";
+        return text_[i];
+    }
+    // Non-const verzija bez dupliranja koda: pozovi const verziju, pa skini
+    // const sa rezultata. Bezbedno je jer je *this ovde sigurno ne-const.
+    char& operator[](std::size_t i) {
+        std::cout << "  [non-const operator[] -> ";
+        return const_cast<char&>(static_cast<const TextBlock&>(*this)[i]);
+    }
+    const std::string& text() const { return text_; }
+
+private:
+    std::string text_;
+};
+
+class Buffer {
+public:
+    explicit Buffer(char* data) : data_(data) {}
+    // "Bitwise const": funkcija ne menja NIJEDAN član (pokazivač data_ ostaje
+    // isti), pa se kompajlira -- ali menja ono na šta pokazuje. Kompajler
+    // proverava samo bitove objekta; LOGIČKU konstantnost čuvaš ti.
+    void scribble() const { data_[0] = '#'; }
+
+private:
+    char* data_;
+};
+
+void s04_constMemberFunctions() {
+    std::cout << "-- 4. const member funkcije (EC++ Item 3) --\n";
+    TextBlock tb("Hello");
+    const TextBlock ctb("World");
+    std::cout << "tb[0] (ne-const objekat):\n";
+    tb[0] = 'J';
+    std::cout << "ctb[0] (const objekat):\n";
+    char c = ctb[0];   // ctb[0] = 'X'; -> greška: vraća const char&
+    std::cout << "tb.text()=" << tb.text() << " ctb[0]=" << c << "\n";
+
+    char raw[] = "abc";
+    const Buffer buf(raw);
+    buf.scribble();
+    std::cout << "posle const Buffer::scribble(): " << raw << " (bitwise const, a ne logički)\n";
+}
+
+// ---------------------------------------------------------------- 5
+class Polynomial {
+public:
+    explicit Polynomial(double a) : a_(a) {}
+
+    // Spolja je ovo čisto čitanje -> const. Keš je interni detalj -> mutable.
+    // EMC Item 16: const funkcije se smeju zvati iz više niti istovremeno,
+    // pa mutable stanje mora da bude zaštićeno (mutex ili atomic).
+    double expensiveValue() const {
+        ++calls_; // atomic -- bezbedno bez lock-a
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!cacheValid_) {
+            cachedValue_ = a_ * a_; // "skupo" računanje
+            cacheValid_ = true;
+        }
+        return cachedValue_;
+    }
+    int calls() const { return calls_.load(); }
+
+private:
+    double a_;
+    mutable std::mutex mutex_;
+    mutable bool cacheValid_ = false;
+    mutable double cachedValue_ = 0.0;
+    mutable std::atomic<int> calls_{0};
+};
+
+void s05_mutable() {
+    std::cout << "-- 5. mutable i thread-safety (EMC Item 16) --\n";
+    const Polynomial p(3.0);
+    double v1 = p.expensiveValue();
+    double v2 = p.expensiveValue();
+    std::cout << "vrednost=" << v1 << "," << v2 << " broj poziva=" << p.calls() << "\n";
+}
+
+// ---------------------------------------------------------------- 6
+struct Tracer {
+    Tracer() = default;
+    Tracer(const Tracer&) = default;
+    Tracer(Tracer&&) = default;
+    Tracer& operator=(const Tracer&) {
+        std::cout << "  copy assignment\n";
+        return *this;
+    }
+    Tracer& operator=(Tracer&&) {
+        std::cout << "  move assignment\n";
+        return *this;
+    }
+};
+
+const Tracer makeConst() { return Tracer{}; }
+Tracer makePlain() { return Tracer{}; }
+
+struct Rational {
+    int n = 0;
+    Rational() = default;
+    Rational(int v) : n(v) {}
+    Rational(const Rational&) = default;
+    Rational(Rational&&) = default;
+    // Dodela samo u lvalue (&) -- zabranjuje (a * b) = c bez const povratne vrednosti.
+    Rational& operator=(const Rational&) & = default;
+    Rational& operator=(Rational&&) & = default;
+};
+Rational operator*(const Rational& a, const Rational& b) { return Rational{a.n * b.n}; }
+
+void s06_constReturn() {
+    std::cout << "-- 6. const povratna vrednost --\n";
+    Tracer t;
+    std::cout << "t = makeConst();  (const Tracer -> move nije moguć):\n";
+    t = makeConst();
+    std::cout << "t = makePlain();  (obična vrednost -> move):\n";
+    t = makePlain();
+
+    Rational a{2}, b{3}, c{4};
+    a = b * c; // OK: dodela u lvalue, i to move
+    std::cout << "a = b * c -> " << a.n << "  ((a * b) = c je greška zbog & na operator=)\n";
+}
+
+// ---------------------------------------------------------------- 7
+void legacyLog(char* msg) { std::cout << "  legacyLog: " << msg << "\n"; } // stari C API: ne menja msg
+
+void s07_constCast() {
+    std::cout << "-- 7. const_cast: kad je legitiman --\n";
+    // 1) Stari API koji ne menja podatke, ali je deklarisan bez const.
+    const std::string message = "poruka";
+    legacyLog(const_cast<char*>(message.c_str()));
+
+    // 2) Objekat SAM nije const -- samo pristup je bio kroz const pokazivač.
+    int x = 1;
+    const int* cp = &x;
+    *const_cast<int*>(cp) = 2;  // definisano ponašanje: x nije const
+    std::cout << "x posle upisa kroz const_cast = " << x << "\n";
+    // Upis u objekat koji JESTE definisan kao const je UB (ub/u01, u02).
+    // static_cast ne sme da skine const (errors/e16).
+}
+
+// ---------------------------------------------------------------- 8
+void s08_stl() {
+    std::cout << "-- 8. const i STL (EMC Item 13) --\n";
+    std::vector<int> v{3, 1, 2};
+    int sum = 0;
+    for (auto it = v.cbegin(); it != v.cend(); ++it) sum += *it; // samo čitanje
+    std::cout << "suma preko cbegin/cend = " << sum << "\n";
+
+    const std::map<std::string, int> ages{{"Ana", 30}};
+    // ages["Ana"] ne radi na const mapi (errors/e08):
+    std::cout << "ages.at(\"Ana\") = " << ages.at("Ana") << "\n";
+    auto found = ages.find("Marko");
+    std::cout << "ages.find(\"Marko\") == end: " << std::boolalpha << (found == ages.end())
+              << std::noboolalpha << "\n";
+
+    // std::as_const: nateraj izbor const overload-a na ne-const objektu.
+    TextBlock tb("xyz");
+    std::cout << "std::as_const(tb)[0]:\n";
+    char first = std::as_const(tb)[0];
+    std::cout << "first=" << first << "\n";
+
+    for (const auto& value : v) sum += value; // podrazumevani oblik za čitanje
+    std::cout << "suma posle range-for sa const auto& = " << sum << "\n";
+}
+
+// ---------------------------------------------------------------- 9
+constexpr int square(int n) { return n * n; }
+
+void s09_constexpr() {
+    std::cout << "-- 9. const vs constexpr (EMC Item 15) --\n";
+    constexpr int n = square(4);   // izračunato pri kompajliranju
+    std::array<int, n> a{};        // zato sme kao veličina
+    const int m = 10;              // const int sa KONSTANTNIM inicijalizatorom
+    int legacy[m] = {};            // ...je upotrebljiv u konstantnom izrazu
+    static_assert(n == 16 && m == 10);
+    constexpr double pi = 3.14159; // za double MORA constexpr (const double ne važi -- errors/e12)
+    static_assert(pi > 3.0);
+    int runtime = square(readSensor()); // constexpr funkcija radi i u runtime-u
+    std::cout << "a.size()=" << a.size() << " sizeof(legacy)/sizeof(int)=" << sizeof(legacy) / sizeof(int)
+              << " square(42)=" << runtime << "\n";
+}
+
+// ---------------------------------------------------------------- 10
+template <typename T>
+void deduce(T) {
+    static_assert(std::is_same_v<T, int>); // top-level const odbačen i ovde
+}
+
+void s10_topLevelVsLowLevel() {
+    std::cout << "-- 10. top-level vs low-level const --\n";
+    const int ci = 1;
+    const int* pci = &ci;
+    const int* const cpci = &ci;
+
+    auto a = ci;    // top-level const se odbacuje: kopija sme da se menja
+    auto b = pci;   // low-level const (na pokazivanom) OSTAJE
+    auto c = cpci;  // top-level odbačen, low-level ostaje
+    decltype(ci) d = 2; // decltype čuva const
+    static_assert(std::is_same_v<decltype(a), int>);
+    static_assert(std::is_same_v<decltype(b), const int*>);
+    static_assert(std::is_same_v<decltype(c), const int*>);
+    static_assert(std::is_same_v<decltype(d), const int>);
+    deduce(ci);
+    a = 5;
+    std::cout << "auto od const int -> int (menja se: a=" << a
+              << "), auto od const int* -> const int* (static_assert)\n";
+    (void)b; (void)c; (void)d;
+}
+
+// ---------------------------------------------------------------- 11
+void s11_lambda() {
+    std::cout << "-- 11. lambde: operator() je podrazumevano const --\n";
+    int x = 0;
+    auto next = [x]() mutable { return ++x; }; // menja SVOJU kopiju (errors/e18 bez mutable)
+    int first = next();
+    int second = next();
+    std::cout << "next()=" << first << "," << second << " spoljni x=" << x << "\n";
+}
+
+int main() {
+    s01_basics();
+    s02_pointers();
+    s03_constReference();
+    s04_constMemberFunctions();
+    s05_mutable();
+    s06_constReturn();
+    s07_constCast();
+    s08_stl();
+    s09_constexpr();
+    s10_topLevelVsLowLevel();
+    s11_lambda();
 }

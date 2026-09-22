@@ -53,7 +53,7 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 | [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletno, EMC It. 8, EC++ It. 16/20/21) — `nullptr`, aritmetika, `void*`, `const`, vezivanje referenci i životni vek, prosleđivanje/vraćanje, vlasništvo; pogrešni slučajevi u `errors/` i `ub/` |
 | [05](week0-fundamentals/05-assignment-quizzes) | Kviz: pokazivači i reference — predict-the-output |
 | [06](week0-fundamentals/06-reference-vs-pointer) | Reference vs pointer — kad koji, slicing kroz prosleđivanje po vrednosti |
-| [07](week0-fundamentals/07-const-qualifier) | const Qualifier — `const int*` vs `int* const`, mutable, const_cast |
+| [07](week0-fundamentals/07-const-qualifier) | `const` (kompletno, EC++ It. 3, EMC It. 13/15/16) — pokazivači i `int**` zamka, const member funkcije, `mutable` i thread-safety, const povratna vrednost, `const_cast`, STL, `constexpr`, top-level vs low-level; pogrešni slučajevi u `errors/` i `ub/` |
 | [08](week0-fundamentals/08-auto-range-for) | Auto → range-based for — auto skida const/ref, `auto&` vs `const auto&` u petlji |
 | [09](week0-fundamentals/09-function-advanced) | Overloading, default args, inline, function pointers, namespace |
 
