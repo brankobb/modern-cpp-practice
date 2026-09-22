@@ -65,7 +65,7 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 | Fold. | Tema |
 |---|---|
 | [11](week0-fundamentals/11-classes-basics) | Klase: osnove (EC++ It. 4/5/6/22, EMC It. 11) — class vs struct i invarijanta, konstruktori i init lista (redosled!), destruktor, NSDMI, `this` i chaining, `static` i `const` članovi, copy konstruktor (plitka vs duboka kopija), delegirajući konstruktori, `= default`/`= delete`; pogrešni slučajevi u `errors/` i `ub/` |
-| [12](week0-fundamentals/12-operator-overloading) | Operator overloading — member vs free function, `operator[]`, `operator<<`, `operator==` |
+| [12](week0-fundamentals/12-operator-overloading) | Operator overloading (EC++ It. 10/11/23/24) — član vs slobodna funkcija, `friend` (hidden friend), `operator=` i dodela samom sebi, poređenje (C++17 i C++20 `<=>`), stream, `[]`, `++`, `()`, `*`/`->`, šta se ne preopterećuje; pogrešni slučajevi u `errors/` i `ub/` |
 | [13](week0-fundamentals/13-inheritance-polymorphism) | Nasleđivanje i polimorfizam — abstraktne klase, `override`, dynamic dispatch, slicing (i kako ga zabraniti, C.67) |
 
 ## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
