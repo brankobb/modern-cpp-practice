@@ -50,7 +50,8 @@ function Invoke-Compile {
     # (g++ otherwise only warns on narrowing from a variable inside {}).
     # clang only warns on out-of-order designated initializers, and that
     # warning is not part of -pedantic, so it is promoted separately.
-    $strictFlags = @("-pedantic-errors")
+    # Variable length arrays are only a warning on clang without -Werror=vla.
+    $strictFlags = @("-pedantic-errors", "-Werror=vla")
     if ($Compiler -match "clang") { $strictFlags += "-Werror=reorder-init-list" }
 
     $compileArgs = @("-std=c++17", "-Wall", "-Wextra", "-Wshadow", "-g", "-O0") +

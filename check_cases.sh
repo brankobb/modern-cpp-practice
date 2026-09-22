@@ -23,7 +23,7 @@ for cc in g++ clang++; do
 done
 
 strict_flags() { # isti strogi flegovi kao build.sh / build.ps1
-    local flags=(-std="$2" -Wall -Wextra -Wshadow -pedantic-errors)
+    local flags=(-std="$2" -Wall -Wextra -Wshadow -pedantic-errors -Werror=vla)
     [ "$1" = "clang++" ] && flags+=(-Werror=reorder-init-list)
     printf '%s\n' "${flags[@]}"
 }
