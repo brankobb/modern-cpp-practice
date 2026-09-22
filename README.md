@@ -83,11 +83,11 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 
 | Ses. | Tema | Ključno | Izvor |
 |---|---|---|---|
-| [6](week2-modern-layer/s06-generation-rules) | Pravila generisanja | kada se special members generišu ili brišu; `= default`, `= delete`; `noexcept` move i realokacija `vector`-a | Effective Modern C++ st. 11, 14, 17, 29 |
-| [7](week2-modern-layer/s07-copy-elision) | Copy elision i parametri | RVO/NRVO, C++17 garancija, zašto `return std::move(x)` šteti; prosleđivanje po vrednosti + move | Effective Modern C++ st. 41 |
-| [8](week2-modern-layer/s08-smart-pointers) | Smart pointeri | `unique_ptr` (deleter, move-only, bez cene), `shared_ptr` (kontrolni blok, atomski brojač), `weak_ptr`, `make_unique`/`make_shared` | Effective Modern C++ st. 18–21 |
-| [9](week2-modern-layer/s09-forwarding-lifetime) | Forwarding i lifetime zamke | forwarding reference, `std::forward`, reference collapsing; dangling na temporary, `string_view`, invalidacija iteratora | Effective Modern C++ st. 24, 25, 28 |
-| [10](week2-modern-layer/s10-uniqueptr-embedded) | Vežba | sopstveni `UniquePtr<T>`; `Buffer` prepiši u rule of 0; embedded: RAII guard za lock/IRQ i placement new na statičkom baferu | — |
+| [6](week2-modern-layer/s06-generation-rules) | Pravila generisanja | tabela generisanja proverena kodom; destruktor ukida move; `= default` i `noexcept`; `vector` i `move_if_noexcept`; šablonski konstruktor otima kopiju; move-only tipovi; `errors/` i `ub/` | EMC It. 11, 14, 17, 26 |
+| [7](week2-modern-layer/s07-copy-elision) | Copy elision i parametri (kurs 57) | RVO/NRVO i pessimizing move sa testom; automatski move na `return` (i razlika g++/clang, P1825); garantovana elizija; izbor oblika parametra; `emplace_back`; `errors/` | EMC It. 25, 41, 42 |
+| [8](week2-modern-layer/s08-smart-pointers) | Pametni pokazivači (kurs 72–82) | `unique_ptr` i vlasništvo u parametrima; `shared_ptr` i kontrolni blok; make funkcije (brojanje alokacija); `weak_ptr`; ciklusi; deleteri; nizovi; `enable_shared_from_this`; `errors/` i `ub/` | EMC It. 18–22 |
+| [9](week2-modern-layer/s09-forwarding-lifetime) | Forwarding i lifetime zamke | forwarding vs rvalue referenca; reference collapsing; `std::forward` vs `std::move`; kada forwarding ne radi; `string_view`; invalidacija iteratora; lambda capture; `errors/` i `ub/` | EMC It. 24, 25, 28, 30–32 |
+| [10](week2-modern-layer/s10-uniqueptr-embedded) | Vežba | `exercise.cpp` (kostur) i `main.cpp` (rešenje): sopstveni `UniquePtr`; guard za prekide koji vraća prethodno stanje; `std::lock_guard` sa `SpinLock`; objekat bez heap-a (placement new, `alignas`, `std::launder`); `errors/` i `ub/` | — |
 
 ## Provera 11.10
 
