@@ -30,6 +30,16 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 | [08](week0-fundamentals/08-auto-range-for) | Auto → range-based for — auto skida const/ref, `auto&` vs `const auto&` u petlji |
 | [09](week0-fundamentals/09-function-advanced) | Overloading, default args, inline, function pointers, namespace |
 
+### OOP bridge (pre Nedelje 1)
+
+Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
+
+| Fold. | Tema |
+|---|---|
+| [10](week0-fundamentals/10-classes-encapsulation) | Klase, enkapsulacija, `this`, static članovi — struct vs class, method chaining, instance counter |
+| [11](week0-fundamentals/11-operator-overloading) | Operator overloading — member vs free function, `operator[]`, `operator<<`, `operator==` |
+| [12](week0-fundamentals/12-inheritance-polymorphism) | Nasleđivanje i polimorfizam — abstraktne klase, `override`, dynamic dispatch, veza sa virtual destructor/slicing iz ranijih sesija |
+
 ## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
 
 | Ses. | Tema | Ključno | Izvor |
