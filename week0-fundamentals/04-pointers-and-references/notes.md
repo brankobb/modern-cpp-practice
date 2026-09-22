@@ -296,8 +296,9 @@ int& ri2 = d;        // ❌ errors/e19
 | Može da visi | da | da |
 
 **Pravilo:** referenca kad objekat **mora** da postoji, a pokazivač kad
-"nema objekta" ima smisla ili kad se preusmerava. Detaljnije, i o slicing-u
-kod polimorfizma, u lekciji 06.
+"nema objekta" ima smisla ili kad se preusmerava. Kod polimorfizma i
+referenca i pokazivač čuvaju pravi tip objekta, a kopija po vrednosti ga
+"odseca" (slicing, lekcija 12).
 
 ---
 

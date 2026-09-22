@@ -51,8 +51,6 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 | [02](week0-fundamentals/02-debugging) | Debugging (gdb umesto VS) — namerni buffer overflow, uhvati ga breakpoint-om i ASan-om |
 | [03](week0-fundamentals/03-uniform-init) | Inicijalizacija (kompletno, EMC It. 7) — default/value/direct/copy/list init, narrowing, initializer_list prioritet, agregati, C++20 designated; pogrešni slučajevi u `errors/` |
 | [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletno, EMC It. 8, EC++ It. 16/20/21) — `nullptr`, aritmetika, `void*`, `const`, vezivanje referenci i životni vek, prosleđivanje/vraćanje, vlasništvo; pogrešni slučajevi u `errors/` i `ub/` |
-| [05](week0-fundamentals/05-assignment-quizzes) | Kviz: pokazivači i reference — predict-the-output |
-| [06](week0-fundamentals/06-reference-vs-pointer) | Reference vs pointer — kad koji, slicing kroz prosleđivanje po vrednosti |
 | [07](week0-fundamentals/07-const-qualifier) | `const` (kompletno, EC++ It. 3, EMC It. 13/15/16) — pokazivači i `int**` zamka, const member funkcije, `mutable` i thread-safety, const povratna vrednost, `const_cast`, STL, `constexpr`, top-level vs low-level; pogrešni slučajevi u `errors/` i `ub/` |
 | [08](week0-fundamentals/08-auto-range-for) | Auto → range-based for — auto skida const/ref, `auto&` vs `const auto&` u petlji |
 | [09](week0-fundamentals/09-function-advanced) | Overloading, default args, inline, function pointers, namespace |
@@ -65,7 +63,7 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 |---|---|
 | [10](week0-fundamentals/10-classes-encapsulation) | Klase, enkapsulacija, `this`, static članovi — struct vs class, method chaining, instance counter |
 | [11](week0-fundamentals/11-operator-overloading) | Operator overloading — member vs free function, `operator[]`, `operator<<`, `operator==` |
-| [12](week0-fundamentals/12-inheritance-polymorphism) | Nasleđivanje i polimorfizam — abstraktne klase, `override`, dynamic dispatch, veza sa virtual destructor/slicing iz ranijih sesija |
+| [12](week0-fundamentals/12-inheritance-polymorphism) | Nasleđivanje i polimorfizam — abstraktne klase, `override`, dynamic dispatch, slicing (i kako ga zabraniti, C.67) |
 
 ## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
 
