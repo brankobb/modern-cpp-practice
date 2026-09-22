@@ -1,9 +1,13 @@
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
+#include <cxxabi.h>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <stdexcept>
 #include <string>
+#include <typeindex>
 #include <typeinfo>
 #include <vector>
 #if __cplusplus >= 202002L
@@ -256,6 +260,58 @@ void s08_checkedNarrowing() {
     std::cout << "\n  (static_cast<short>(100000) bi tiho dao " << static_cast<short>(100000) << ")\n";
 }
 
+// ---------------------------------------------------------------- 9
+// typeid i RTTI (kurs 110). Hijerarhija Animal/Dog/Cat je iz sekcije 4.
+struct Plain {};                   // bez virtual funkcija: nema RTTI za dinamički tip
+struct PlainChild : Plain {};
+struct Puppy : Dog {};             // Puppy JESTE Dog, ali nije TAČNO Dog
+
+// name() vraća ime koje bira kompajler ("3Dog" kod g++ i clang). Prevod u
+// čitljivo ime je GNU/Itanium proširenje (abi::__cxa_demangle), nije standard.
+std::string readable(const std::type_info& info) {
+    int status = 0;
+    char* demangled = abi::__cxa_demangle(info.name(), nullptr, nullptr, &status);
+    std::string result = status == 0 ? demangled : info.name();
+    std::free(demangled);
+    return result;
+}
+
+void s09_typeid() {
+    std::cout << "-- 9. typeid i RTTI (kurs 110) --\n";
+    Dog dog;
+    Animal& asAnimal = dog;
+    Animal* pointer = &dog;
+    PlainChild child;
+    Plain& asPlain = child;
+    std::cout << "  typeid(asAnimal).name()=\"" << typeid(asAnimal).name() << "\" -> " << readable(typeid(asAnimal))
+              << " (dinamički tip: Animal je polimorfan)\n";
+    std::cout << "  typeid(asPlain) -> " << readable(typeid(asPlain)) << " (statički tip: Plain nema virtual funkcija)\n";
+    std::cout << "  typeid(pointer) -> " << readable(typeid(pointer)) << ", typeid(*pointer) -> " << readable(typeid(*pointer))
+              << "\n";
+    std::cout << std::boolalpha << "  typeid(const int&) == typeid(int): " << (typeid(const int&) == typeid(int))
+              << " (const i referenca se ignorišu)\n";
+
+    Puppy puppy;
+    Animal& someAnimal = puppy;
+    bool exactlyDog = typeid(someAnimal) == typeid(Dog);
+    bool isADog = dynamic_cast<Dog*>(&someAnimal) != nullptr;
+    std::cout << "  Puppy kao Animal&: typeid == typeid(Dog): " << exactlyDog << ", dynamic_cast<Dog*>: " << (isADog ? "uspeo" : "nullptr")
+              << "  <- typeid pita TAČAN tip, dynamic_cast \"da li je vrsta\"\n" << std::noboolalpha;
+
+    Animal* none = nullptr;
+    try {
+        std::cout << "  typeid(*nullptr polimorfnog tipa) -> ";
+        std::cout << typeid(*none).name();
+    } catch (const std::bad_typeid&) {
+        std::cout << "std::bad_typeid\n";
+    }
+
+    std::map<std::type_index, int> counts; // type_info se ne kopira; type_index je njegov omotač za kontejnere
+    std::vector<Animal*> animals{&dog, &puppy, &dog};
+    for (Animal* a : animals) ++counts[typeid(*a)];
+    std::cout << "  broj po tipu (map<type_index, int>): Dog=" << counts[typeid(Dog)] << " Puppy=" << counts[typeid(Puppy)] << "\n";
+}
+
 int main() {
     s01_implicitConversions();
     s02_staticCast();
@@ -265,4 +321,5 @@ int main() {
     s06_conversionOperator();
     s07_userToUser();
     s08_checkedNarrowing();
+    s09_typeid();
 }

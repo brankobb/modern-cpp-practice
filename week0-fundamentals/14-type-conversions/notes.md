@@ -19,7 +19,7 @@ konverzije (iz klase u drugi tip).
 ./check_cases.sh week0-fundamentals/14-type-conversions        # POGREŠNI slučajevi
 ```
 
-- `errors/` (e01–e09): kod koji se **ne kompajlira**.
+- `errors/` (e01–e10): kod koji se **ne kompajlira**.
 - `ub/` (u01–u03): kod koji se kompajlira, a UBSan/ASan ga hvata.
 - Srodno iz ranijih lekcija: lekcija 01 (promocije, signed/unsigned),
   03 (`explicit`, narrowing, `errors/e08` dve korisničke konverzije),
@@ -214,6 +214,48 @@ prošao prvu proveru, jer `unsigned(-1)` vraćen u `int` opet daje -1.
 
 ---
 
+# 9. `typeid` i RTTI (kurs 110)
+
+```cpp
+typeid(asAnimal)            // std::type_info DINAMIČKOG tipa (Animal je polimorfan)
+typeid(*pointer)            // isto, preko pokazivača
+typeid(pointer)             // tip POKAZIVAČA: Animal*
+typeid(Dog) == typeid(x)    // tačno isti tip?
+```
+
+| Test (`main.cpp`, sekcija 9) | Rezultat |
+|---|---|
+| `typeid(asAnimal).name()` | `"3Dog"`: ime koje bira kompajler (Itanium ABI); čitljivo tek posle `abi::__cxa_demangle` (GNU proširenje) |
+| `typeid(Plain&)` na `PlainChild` objektu | `Plain`: bez virtual funkcija nema dinamičkog tipa, pa je rezultat statički tip |
+| `typeid(pointer)` / `typeid(*pointer)` | `Animal*` / `Dog` |
+| `typeid(const int&) == typeid(int)` | `true`: const i referenca na vrhu se ignorišu |
+| `Puppy` kao `Animal&`: `typeid == typeid(Dog)` | `false`, a `dynamic_cast<Dog*>` uspeva |
+| `typeid(*nullptr)` polimorfnog tipa | baca `std::bad_typeid` |
+| `std::map<std::type_index, int>` | brojanje po tipu; `type_info` se ne kopira, `type_index` je omotač za kontejnere |
+
+**`typeid` vs `dynamic_cast`:**
+
+- `typeid` pita "da li je objekat **tačno** ovog tipa".
+- `dynamic_cast` pita "da li je objekat **ovog tipa ili izveden iz njega**"
+  (is-a), što je skoro uvek pravo pitanje.
+- Oba koriste **RTTI**: podatke o tipu koje kompajler čuva uz vtable.
+  Zato rade samo za polimorfne tipove, a sa `-fno-rtti` ne postoje
+  (`errors/e10`; poruke se razlikuju: g++ `cannot use 'typeid' with
+  '-fno-rtti'`, clang `use of typeid requires -frtti`).
+
+⚠️ Za polimorfni tip se izraz u `typeid(...)` **izvršava** (mora da se
+nađe objekat). clang upozori kad izraz ima sporedne efekte
+(`-Wpotentially-evaluated-expression`); za nepolimorfni tip se ne izvršava.
+
+⚠️ `name()` nije prenosiv: format zavisi od kompajlera. Za ispis i
+logovanje je u redu, za poređenje i ključeve koristi `type_info` ili
+`type_index`.
+
+✅ Najčešće ni `typeid` ni `dynamic_cast` nisu potrebni: virtual funkcija
+(ili `std::variant` + `std::visit`) iskazuje isto bez pitanja o tipu.
+
+---
+
 # Mapa na kurs
 
 | Nastavak kursa | Sekcija |
@@ -222,6 +264,8 @@ prošao prvu proveru, jer `unsigned(-1)` vraćen u `int` opet daje -1.
 | 68 Primitive to User Type | 5 |
 | 69 User to Primitive Type | 6 |
 | 70 User Defined to User Defined | 7 |
+| 110 `typeid` Operator | 9 |
+| 111 `dynamic_cast` Operator | 4 |
 
 ---
 
