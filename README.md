@@ -11,6 +11,15 @@ AddressSanitizer + UndefinedBehaviorSanitizer.
 ./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
 ```
 
+**Windows:** koristi `build.ps1` (isti flegovi). Treba ti MinGW-w64 g++
+(GCC 12+ za ASan na Windows-u) na PATH-u — najlakše preko
+[MSYS2](https://www.msys2.org/) (`pacman -S mingw-w64-ucrt-x86_64-gcc`, pa
+dodaj `ucrt64/bin` u PATH) ili [w64devkit](https://github.com/skeeto/w64devkit).
+
+```powershell
+.\build.ps1 week1-cpp03-to-move\s01-object-lifetime\main.cpp
+```
+
 ## Nedelja 0: fundamentals audit
 
 Brz audit osnova (gotchas/edge-case fokus, ne tutorial od nule) — most ka
