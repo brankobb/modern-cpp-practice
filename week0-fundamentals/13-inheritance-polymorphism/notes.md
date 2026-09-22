@@ -21,7 +21,8 @@ nasleđivanje), i C++ Core Guidelines **C.35**, **C.67**, **C.128**,
 ./check_cases.sh week0-fundamentals/13-inheritance-polymorphism         # POGREŠNI slučajevi
 ```
 
-- `errors/` (e01–e12): kod koji se **ne kompajlira**.
+- `errors/` (e01–e13): kod koji se **ne kompajlira** (e13 ne linkuje;
+  pomoćni fajl je u `errors/support/`).
 - `ub/` (u01–u03): kod koji se kompajlira, a ASan/UBSan ga hvata.
 
 ---
@@ -164,15 +165,43 @@ ali kroz pomoćnu funkciju ne.
 
 ---
 
-# 7. Cena: vptr i vtable
+# 7. vptr i vtable (kurs 106–107)
 
-Klasa sa virtual funkcijama ima u svakom objektu skriven pokazivač
-(**vptr**) na tabelu funkcija te klase (**vtable**). Poziv virtual
-funkcije je: pročitaj vptr, pročitaj adresu iz tabele, pozovi.
+Standard ne propisuje kako radi `virtual`; sve ispod je način na koji
+rade g++ i clang (Itanium C++ ABI), proveren testom.
 
-Test (x86-64, g++ i clang): `sizeof(Plain) = 4`, a `sizeof(WithVirtual)
-= 16` (8 bajtova vptr + 4 bajta `int` + poravnanje na 8). Standard ne
-propisuje vtable, ali je to način na koji rade svi glavni kompajleri.
+- Za svaku polimorfnu **klasu** postoji jedna **vtable**: niz adresa
+  njenih virtual funkcija. Svaki **objekat** ima skriven pokazivač na
+  vtable svoje klase (**vptr**), na početku objekta.
+- Poziv `p->area()`: pročitaj vptr iz objekta, pročitaj adresu iz
+  tabele na poznatom mestu, pozovi. To je jedan indirektan skok više od
+  običnog poziva, i najčešće sprečava inline.
+
+| Test (`main.cpp`, sekcija 7) | Rezultat |
+|---|---|
+| `sizeof(Plain)` / `sizeof(WithVirtual)` | 4 / 16 (8 bajtova vptr + `int` + poravnanje) |
+| dva `Machine` objekta: isti vptr? | da (jedna vtable po klasi) |
+| `Machine` i `Robot`: isti vptr? | ne |
+| vptr objekta `Robot` **dok se pravi `Machine` deo** | isti kao kod `Machine` |
+| `sizeof(Record)` za `Record : Printable, Storable` | 16: po jedan vptr za svaku polimorfnu bazu |
+
+**vptr u toku konstrukcije:** konstruktor svake klase na početku postavi
+vptr na **svoju** vtable. Dok radi konstruktor baze, objekat zaista
+"jeste" baza, pa virtual poziv ide na njene funkcije (sekcija 6). Posle
+konstruktora izvedene klase vptr pokazuje na njenu tabelu. Destruktori
+rade isto, obrnutim redom.
+
+**Devirtualizacija:** kad kompajler zna tačan tip, virtual poziv postaje
+običan (i može inline). Test, `-O2`, funkcija koja prima `const T&` i
+poziva `area()`:
+
+| Tip parametra | g++ 13 | clang 18 |
+|---|---|---|
+| `Square` (nije `final`) | proveri vptr: ako je `Square::area`, inline; inače indirektan skok | indirektan skok |
+| `Fixed` (`final`) | direktno, inline | direktno, inline |
+
+`final` kaže kompajleru da ispod te klase nema izvedenih, pa `Fixed&` može
+da bude samo `Fixed`. Isto važi za `final` na samoj funkciji.
 
 ---
 
@@ -241,6 +270,33 @@ struct Copier : Printer, Scanner {};   // DVA Device podobjekta -> c.id je dvosm
 
 Nasleđivanje samo da bi se "pozajmio kod" je najčešća greška. Kompozicija
 je labavija veza: `Car` ima `Engine` i ne izlaže njegov interfejs.
+
+---
+
+# 12. Apstraktne klase i interfejsi (kurs 112)
+
+```cpp
+class Sink {                                         // interfejs: samo pure virtual, bez podataka
+public:
+    virtual ~Sink() = 0;
+    virtual void log(const std::string& m) const = 0;
+};
+Sink::~Sink() = default;                             // MORA da postoji
+void Sink::log(const std::string& m) const { ... }   // pure virtual SME da ima telo
+```
+
+- **Pure virtual destruktor** je način da klasa bude apstraktna kad nema
+  nijednu drugu `= 0` funkciju. Ali destruktor izvedene klase uvek
+  poziva destruktor baze, pa **definicija mora da postoji**; bez nje
+  greška dolazi od linkera (`errors/e13`, `undefined reference to
+  Base::~Base()`).
+- **Pure virtual funkcija sa telom:** izvedena klasa mora da je
+  nadjača, ali može da pozove podrazumevano ponašanje eksplicitno
+  (`Sink::log(m)`). Test: `[console] [podrazumevano] poruka`.
+- **Interfejs** (samo pure virtual funkcije i virtual destruktor, bez
+  podataka) je najčistiji oblik nasleđivanja: višestruko nasleđivanje
+  od interfejsa nema problem dijamanta (sekcija 10), a C++ Core
+  Guidelines ga preporučuju za hijerarhije (C.121, C.129).
 
 ---
 

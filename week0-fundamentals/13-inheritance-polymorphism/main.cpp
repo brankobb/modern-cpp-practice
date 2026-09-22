@@ -1,3 +1,6 @@
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -244,12 +247,52 @@ private:
     int x_ = 0;
 };
 
+// Čita prvih 8 bajtova objekta: kod g++ i clang (Itanium ABI) to je vptr.
+// Standard ne propisuje vtable -- ovo je samo pogled "ispod haube".
+std::uintptr_t vptrOf(const void* object) {
+    std::uintptr_t value = 0;
+    std::memcpy(&value, object, sizeof value);
+    return value;
+}
+
+std::uintptr_t vptrDuringBaseConstruction = 0;
+
+struct Machine {
+    Machine() { vptrDuringBaseConstruction = vptrOf(this); } // koji vptr ima objekat dok se pravi baza?
+    virtual ~Machine() = default;
+    virtual const char* kind() const { return "Machine"; }
+};
+
+struct Robot : Machine {
+    const char* kind() const override { return "Robot"; }
+};
+
+struct Printable {
+    virtual ~Printable() = default;
+};
+struct Storable {
+    virtual ~Storable() = default;
+};
+struct Record : Printable, Storable {}; // dve polimorfne baze -> dva vptr-a
+
 void s07_vtable() {
-    std::cout << "-- 7. cena: vptr u svakom objektu --\n";
+    std::cout << "-- 7. vptr i vtable (kurs 106-107) --\n";
     std::cout << "  sizeof(Plain)=" << sizeof(Plain) << " sizeof(WithVirtual)=" << sizeof(WithVirtual)
               << "  <- skriveni pokazivač na tabelu virtual funkcija (+ poravnanje)\n";
     (void)Plain{}.x();
     (void)WithVirtual{}.x();
+
+    Machine m1;
+    Machine m2;
+    Robot r1;
+    Robot r2;
+    std::cout << "  isti vptr: Machine/Machine=" << (vptrOf(&m1) == vptrOf(&m2) ? "da" : "ne")
+              << " Robot/Robot=" << (vptrOf(&r1) == vptrOf(&r2) ? "da" : "ne")
+              << " Machine/Robot=" << (vptrOf(&m1) == vptrOf(&r1) ? "da" : "ne") << "  <- jedna vtable po KLASI\n";
+    std::cout << "  dok se pravi Machine deo Robot-a, vptr pokazuje na vtable od Machine: "
+              << (vptrDuringBaseConstruction == vptrOf(&m1) ? "da" : "ne") << " (zato virtual u konstruktoru ide na bazu, sekcija 6)\n";
+    std::cout << "  sizeof(Printable)=" << sizeof(Printable) << " sizeof(Record : Printable, Storable)=" << sizeof(Record)
+              << "  <- po jedan vptr za svaku polimorfnu bazu\n";
 }
 
 // ---------------------------------------------------------------- 8
@@ -371,6 +414,37 @@ void s11_compositionVsPrivate() {
               << "  (Engine& e = scooter; se ne kompajlira, errors/e07)\n";
 }
 
+// ---------------------------------------------------------------- 12
+// Interfejs: samo pure virtual funkcije, bez podataka.
+class Sink {
+public:
+    virtual ~Sink() = 0; // pure virtual destruktor: klasa je apstraktna i bez drugih = 0 funkcija
+    virtual void log(const std::string& message) const = 0;
+};
+
+Sink::~Sink() = default; // MORA da postoji: izvedeni destruktor ga poziva (bez ovoga: errors/e13)
+
+// Pure virtual funkcija SME da ima telo: podrazumevano ponašanje koje
+// izvedena klasa mora eksplicitno da izabere.
+void Sink::log(const std::string& message) const { std::cout << "[podrazumevano] " << message; }
+
+class ConsoleSink : public Sink {
+public:
+    void log(const std::string& message) const override {
+        std::cout << "[console] ";
+        Sink::log(message); // poziv tela pure virtual funkcije -- samo kvalifikovano
+    }
+};
+
+void s12_abstractClasses() {
+    std::cout << "-- 12. apstraktne klase i interfejsi (kurs 112) --\n";
+    ConsoleSink console;
+    const Sink& sink = console;
+    std::cout << "  ";
+    sink.log("poruka");
+    std::cout << "\n  <- Sink ima pure virtual destruktor (sa definicijom) i pure virtual log (sa telom)\n";
+}
+
 int main() {
     s01_basics();
     s02_constructionOrder();
@@ -383,4 +457,5 @@ int main() {
     s09_clone();
     s10_multipleInheritance();
     s11_compositionVsPrivate();
+    s12_abstractClasses();
 }
