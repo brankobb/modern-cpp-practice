@@ -24,6 +24,11 @@ void fillBuffer(int* buf, int size) {
 }
 
 int main() {
+    // unitbuf -- auto-flush posle svake cout operacije, da ispis ne
+    // ostane zaglavljen u baferu ako program pukne pre nego što se
+    // isprazni (bitno kad je stdout preusmeren u fajl, ne terminal).
+    std::cout.setf(std::ios::unitbuf);
+
     const int n = 5;
     int buffer[n];
     fillBuffer(buffer, n);

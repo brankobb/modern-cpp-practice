@@ -42,7 +42,7 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 | [01](week0-fundamentals/01-types-io-functions) | Primitivni tipovi, I/O, funkcije — overflow, integer promotion, cin fail state |
 | [02](week0-fundamentals/02-debugging) | Debugging (gdb umesto VS) — namerni buffer overflow, uhvati ga breakpoint-om i ASan-om |
 | [03](week0-fundamentals/03-uniform-init) | Uniform initialization — narrowing, most vexing parse, initializer_list preferencija |
-| [04](week0-fundamentals/04-pointers-and-references) | Pokazivači → reference — array decay, dangling pointer, referenca mora biti inicijalizovana |
+| [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletan pregled) — `nullptr` vs `NULL` vs `0`, pointer arithmetic, pass-by-value/ref/pointer, vraćanje referenci (EC++ It. 20-21, EMC It. 8) |
 | [05](week0-fundamentals/05-assignment-quizzes) | Kviz: pokazivači i reference — predict-the-output |
 | [06](week0-fundamentals/06-reference-vs-pointer) | Reference vs pointer — kad koji, slicing kroz prosleđivanje po vrednosti |
 | [07](week0-fundamentals/07-const-qualifier) | const Qualifier — `const int*` vs `int* const`, mutable, const_cast |

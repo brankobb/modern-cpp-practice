@@ -79,6 +79,11 @@ void iteratorInvalidationTrap() {
 }
 
 int main() {
+    // unitbuf -- auto-flush posle svake cout operacije, da ispis ne
+    // ostane zaglavljen u baferu ako program pukne pre nego što se
+    // isprazni (bitno kad je stdout preusmeren u fajl, ne terminal).
+    std::cout.setf(std::ios::unitbuf);
+
     std::cout << "-- forwarding reference + std::forward --\n";
     std::string s = "hi";
     wrapper(s);            // treba: inner(const&)
