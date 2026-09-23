@@ -289,4 +289,19 @@ aktivni član) i lako vode u UB. Moderni C++ za svaki ima zamenu bez
 dodatne cene (`std::array`, `enum class`) ili sa malom cenom
 (`std::variant`). Stari oblici ostaju za rad sa C API-jem i starim kodom.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_array_variant`](exercises/z1_array_variant.cpp) | upotreba | std::array, std::variant i alias za pokazivač na funkciju (sekcije 3, 6, 7, 8) | — |
+| [`z2_niz_kao_parametar`](exercises/z2_niz_kao_parametar.cpp) | zašto | zašto C niz "zaboravi" veličinu kad ga proslediš (sekcije 2, 3) | `-DNAIVNO` |
+| [`z3_enum_class`](exercises/z3_enum_class.cpp) | zašto | zašto enum class (sekcija 4, EMC Item 10) | `-DNAIVNO`, `-DENUM_CLASS` |
+
 ## Zapažanja posle vežbe

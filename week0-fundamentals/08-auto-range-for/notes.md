@@ -359,4 +359,19 @@ jednom nauče, `auto` sprečava celu klasu bagova (neinicijalizovane
 promenljive, pogrešni tipovi, skrivene kopije). Izuzetak su proxy tipovi,
 kod kojih se tip mora napisati.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_structured_bindings`](exercises/z1_structured_bindings.cpp) | upotreba | auto, range-for i structured bindings (sekcije 1, 3, 7, 8) | — |
+| [`z2_range_for_kopija`](exercises/z2_range_for_kopija.cpp) | zašto | zašto "auto&" / "const auto&" u range-for (sekcija 7) | `-DNAIVNO` |
+| [`z3_auto_unsigned`](exercises/z3_auto_unsigned.cpp) | zašto | auto uzme TAČAN tip inicijalizatora, i kad je unsigned (sekcije 3, 6) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe

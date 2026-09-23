@@ -227,4 +227,19 @@ onog koji je čovek imao na umu (`bool` umesto `string`, template umesto
 `int`). Zato overload-e drži malobrojnim i jednoznačnim, a neželjene
 kombinacije zabrani sa `= delete`.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_overload_callback`](exercises/z1_overload_callback.cpp) | upotreba | overloading, podrazumevani argumenti, callback (sekcije 1, 2, 6, 7) | — |
+| [`z2_delete_konverzije`](exercises/z2_delete_konverzije.cpp) | zašto | zašto "= delete" na overload-u (sekcija 5, EMC Item 11) | `-DNAIVNO` |
+| [`z3_univerzalna_referenca`](exercises/z3_univerzalna_referenca.cpp) | zašto | zašto ne overload-ovati sa univerzalnom referencom (sekcija 4, EMC Item 26) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe

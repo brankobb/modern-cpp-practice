@@ -416,4 +416,19 @@ gde važi: na promenljive, parametre, member funkcije i iteratore.
 Kompajler proverava samo bitove objekta, a logičku konstantnost i
 thread-safety `mutable` stanja čuvaš ti.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_const_metode`](exercises/z1_const_metode.cpp) | upotreba | const metode, mutable keš i const/non-const par (sekcije 4, 5, 7) | — |
+| [`z2_const_zarazno`](exercises/z2_const_zarazno.cpp) | zašto | zašto const metode od samog početka (sekcije 3, 4) | `-DNAIVNO` |
+| [`z3_mutable_lambda`](exercises/z3_mutable_lambda.cpp) | zašto | zašto je operator() lambde podrazumevano const (sekcija 11) | `-DNAIVNO`, `-DMUTABLE` |
+
 ## Zapažanja posle vežbe

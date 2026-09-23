@@ -621,4 +621,19 @@ most vexing parse i daje konzistentan stil. Obavezno pazi na
 `std::initializer_list` konstruktore, jer oni menjaju ponašanje u odnosu na
 `()`. Kod klasa koje ih imaju (`std::vector`), `{}` i `()` nisu zamenljivi.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_uart_config`](exercises/z1_uart_config.cpp) | upotreba | inicijalizacija članova (sekcije 8, 9, 14) | — |
+| [`z2_narrowing_senzor`](exercises/z2_narrowing_senzor.cpp) | zašto | zašto {} zabranjuje narrowing (sekcija 6) | `-DNAIVNO`, `-DZAGRADE` |
+| [`z3_vector_zagrade`](exercises/z3_vector_zagrade.cpp) | zašto | () i {} kod vector-a nisu isto (sekcije 10, 11) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe

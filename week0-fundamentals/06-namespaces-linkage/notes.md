@@ -319,5 +319,20 @@ tačno jednu definiciju, osim `inline`, a `inline` danas znači upravo
 "definicija sme da bude u header-u". Većina grešaka iz ove lekcije ne
 postoji dok se ne doda drugi `.cpp` fajl.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_namespace_adl`](exercises/z1_namespace_adl.cpp) | upotreba | namespace, ADL, anonimni i inline namespace (sekcije 1, 3, 4, 6) | — |
+| [`z2_swap_adl`](exercises/z2_swap_adl.cpp) | zašto | zašto "using std::swap; swap(a, b);" (sekcija 3, EC++ Item 25) | `-DNAIVNO` |
+| [`z3_redosled_globalnih`](exercises/z3_redosled_globalnih.cpp) | zašto | zašto globalna ne sme da zavisi od globalne (sekcija 7, EC++ Item 4) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

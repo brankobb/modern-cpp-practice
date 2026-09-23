@@ -455,4 +455,19 @@ ni drugo. Oba mogu da **vise** kad objekat nestane, i to je najčešći izvor
 UB-a. Referencu koristi kad objekat mora da postoji, pokazivač kad je
 opciono, a vlasništvo prepusti pametnim pokazivačima.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_parametri`](exercises/z1_parametri.cpp) | upotreba | pokazivači, reference i opsezi (sekcije 3, 6, 10, 11) | — |
+| [`z2_pokazivac_u_vector`](exercises/z2_pokazivac_u_vector.cpp) | zašto | zašto pokazivač na element vector-a "ne drži" (sekcija 12) | `-DNAIVNO` |
+| [`z3_produzenje_zivota`](exercises/z3_produzenje_zivota.cpp) | zašto | const& produžava život privremenog, ali ne kroz funkciju (sekcija 8) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
