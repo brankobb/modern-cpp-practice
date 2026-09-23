@@ -23,7 +23,7 @@ i `[ptr.launder]`; *Effective Modern C++* **Item 18** i **Item 21**;
   da bi dokazao da deo 3 ne koristi heap.
 - `errors/` (e01–e03), `ub/` (u01–u03).
 - Deo "Buffer u rule of 0" iz starog plana je urađen u week1 s05
-  (sekcija 4), pa ga ovde nema.
+  (korak 4), pa ga ovde nema.
 
 ---
 
