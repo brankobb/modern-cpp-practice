@@ -193,5 +193,20 @@ i manji (tabele u read-only memoriji), a svaki UB i svaka pogrešna
 pretpostavka u tom delu postaju greška pri kompajliranju, umesto greške na
 terenu.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_crc_tabela`](exercises/z1_crc_tabela.cpp) | upotreba | constexpr funkcija, tabela pri kompajliranju, static_assert i if constexpr (sekcije 1, 4, 5, 6) | — |
+| [`z2_ub_pri_kompajliranju`](exercises/z2_ub_pri_kompajliranju.cpp) | zašto | zašto je constexpr i alat za hvatanje UB-a (sekcija 2) | `-DNAIVNO`, `-DCONSTEXPR` |
+| [`z3_raspored_registara`](exercises/z3_raspored_registara.cpp) | zašto | zašto static_assert za pretpostavke o rasporedu u memoriji (sekcija 6) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

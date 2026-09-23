@@ -177,5 +177,20 @@ skupi. Sve zamke su iste vrste: razlika između alocirane memorije
 (`capacity`) i postojećih elemenata (`size`), i pogledi (`initializer_list`,
 iteratori, `data()`) koji žive kraće nego što izgleda.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_vector_operacije`](exercises/z1_vector_operacije.cpp) | upotreba | erase-remove, insert, reserve i praćenje realokacija (sekcije 2, 3, 5) | — |
+| [`z2_reserve_resize`](exercises/z2_reserve_resize.cpp) | zašto | zašto reserve nije resize (sekcije 3, 7) | `-DNAIVNO`, `-DNAIVNO_ASAN` |
+| [`z3_erase_u_petlji`](exercises/z3_erase_u_petlji.cpp) | zašto | zašto erase(it) u petlji ne ide uz ++it (sekcija 5) | `-DNAIVNO`, `-DNAIVNO_DEBUG` |
+
 ## Zapažanja posle vežbe
 

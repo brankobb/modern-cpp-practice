@@ -379,5 +379,20 @@ podrazumevani konstruktor, kopiju i destruktor. Ti odlučuješ da li su
 dobri (`= default`), da li ih treba zabraniti (`= delete`), ili moraš da
 ih napišeš sam (rule of 3, week1).
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_racun`](exercises/z1_racun.cpp) | upotreba | klasa sa invarijantom, delegiranje, this i static (sekcije 1, 2, 5, 6, 9) | — |
+| [`z2_redosled_clanova`](exercises/z2_redosled_clanova.cpp) | zašto | zašto redosled u init listi ne odlučuje ništa (sekcija 2, "Redosled inicijalizacije", EC++ Item 4, C.47) | `-DNAIVNO` |
+| [`z3_explicit`](exercises/z3_explicit.cpp) | zašto | zašto explicit na konstruktoru sa jednim argumentom (sekcija 2, C.46) | `-DNAIVNO`, `-DEXPLICIT` |
+
 ## Zapažanja posle vežbe
 

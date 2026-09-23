@@ -213,5 +213,20 @@ pokazivač u bafer (`c_str()`, `data()`) važi samo do sledeće izmene.
 Stream-ovi i korisnički literali su način da se tekst i vrednosti sa
 jedinicama pretvaraju jedni u druge bez ručnog parsiranja.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_parsiranje_konfiguracije`](exercises/z1_parsiranje_konfiguracije.cpp) | upotreba | std::string, getline sa graničnikom, string streams i raw string (sekcije 2, 3, 5) | — |
+| [`z2_from_chars`](exercises/z2_from_chars.cpp) | zašto | zašto atoi (i stoi bez provere) nije parsiranje (sekcija 4) | `-DNAIVNO` |
+| [`z3_jedinice_literal`](exercises/z3_jedinice_literal.cpp) | zašto | zašto jedinice u tipu i korisnički literali (sekcija 6) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

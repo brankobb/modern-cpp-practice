@@ -299,5 +299,20 @@ preopteretiš, a ti biraš gde je funkcija (član ako menja levi operand ili
 jezik to traži, inače slobodna) i da li ponašanje odgovara onome što
 simbol obećava.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_razlomak`](exercises/z1_razlomak.cpp) | upotreba | aritmetički operatori, poređenje i ispis (sekcije 2, 5, 6, 11) | — |
+| [`z2_opseg_iterator`](exercises/z2_opseg_iterator.cpp) | upotreba | sopstveni iterator: *, ++, != i range-for; operator[] i operator() (sekcije 7, 8, 9) | — |
+| [`z3_strogo_manje`](exercises/z3_strogo_manje.cpp) | zašto | zašto operator< mora biti STROG (sekcija 5) | `-DNAIVNO`, `-DNAIVNO_SORT` |
+
 ## Zapažanja posle vežbe
 

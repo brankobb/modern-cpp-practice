@@ -274,5 +274,20 @@ ne mešaju, jer svaki drugačije vodi računa o memoriji (npr. broj elemenata
 ispred `new[]` niza). U modernom kodu te parove ne pišeš sam: memoriju drži
 `vector` ili `unique_ptr`, i oslobađa je kad izađe iz scope-a.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_new_i_blok`](exercises/z1_new_i_blok.cpp) | upotreba | new[]/delete[], unique_ptr<T[]> i 2D u jednom bloku (sekcije 5, 6, 7) | — |
+| [`z2_dinamicki_niz`](exercises/z2_dinamicki_niz.cpp) | upotreba | sopstveni rastući niz: šta std::vector radi za tebe (sekcija 5) | — |
+| [`z3_curenje_pri_izuzetku`](exercises/z3_curenje_pri_izuzetku.cpp) | zašto | zašto ručni new curi čim nešto baci izuzetak (sekcija 7, R.11) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

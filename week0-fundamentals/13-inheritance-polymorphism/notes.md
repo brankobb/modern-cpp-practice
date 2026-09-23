@@ -328,5 +328,20 @@ funkcije, i samo kad je objekat potpuno napravljen. Većina grešaka dolazi
 od kopiranja u baznu klasu (slicing), brisanja kroz baznu klasu bez
 virtual destruktora, i funkcija koje izgledaju kao override a nisu.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_oblici`](exercises/z1_oblici.cpp) | upotreba | interfejs, override, final, virtualni destruktor i clone() (sekcije 4, 5, 9, 12) | — |
+| [`z2_override`](exercises/z2_override.cpp) | zašto | zašto override (sekcija 4, EMC Item 12) | `-DNAIVNO`, `-DOVERRIDE` |
+| [`z3_slicing`](exercises/z3_slicing.cpp) | zašto | zašto se polimorfni objekti ne čuvaju po vrednosti (sekcija 8) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

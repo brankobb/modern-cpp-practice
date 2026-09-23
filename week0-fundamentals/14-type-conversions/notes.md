@@ -293,5 +293,20 @@ ostalo, a C-cast uradi bilo šta što prolazi. Sopstvena klasa ulazi u
 konverzije kroz konstruktor i operator konverzije, i oba treba da budu
 `explicit`, osim kad je konverzija zaista očigledna.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_cast_dynamic`](exercises/z1_cast_dynamic.cpp) | upotreba | static_cast, dynamic_cast i konverzija između tipova (sekcije 2, 4, 5, 7) | — |
+| [`z2_explicit_bool`](exercises/z2_explicit_bool.cpp) | zašto | zašto explicit operator bool (sekcija 6, C.164) | `-DNAIVNO`, `-DEXPLICIT` |
+| [`z3_provereni_narrow`](exercises/z3_provereni_narrow.cpp) | zašto | zašto static_cast nije provera (sekcija 8) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 
