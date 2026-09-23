@@ -4,6 +4,10 @@
 #                              sadrži "// EXPECT-GCC:" / "// EXPECT-CLANG:" tekst
 #   <lekcija>/ub/*.cpp      -- mora da se kompajlira, a ASan/UBSan pri
 #                              pokretanju mora da prijavi "// EXPECT-UB:" (regex)
+#   <lekcija>/runtime/*.cpp -- nije UB, ali program se prekine pri izvršavanju
+#                              (npr. std::terminate): mora da se kompajlira,
+#                              izađe sa greškom i ispiše "// EXPECT-RUN:" (regex);
+#                              bez sanitizera, pa se proverava i sa clang++
 # Opciono "// STD: c++20" u fajlu bira standard (podrazumevano c++17).
 # Opciono "// LINK: support/a.cpp support/b.cpp" (putanje relativno od fajla):
 #   fajl se kompajlira ZAJEDNO sa tim fajlovima i LINKUJE, pa greška sme da
@@ -107,6 +111,35 @@ for f in "$lesson"/ub/*.cpp; do
             echo "ok    $name [$cc]"
         else
             echo "FAIL  $name [$cc]: sanitizer nije prijavio \"$expect\""; fail=1
+        fi
+    done
+done
+
+for f in "$lesson"/runtime/*.cpp; do
+    [ -e "$f" ] || continue
+    name="runtime/$(basename "$f")"
+    std="$(header STD "$f")"; std="${std:-c++17}"
+    expect="$(header EXPECT-RUN "$f")"
+    only="$(header ONLY-CC "$f")"
+    for cc in "${compilers[@]}"; do
+        if [ -n "$only" ] && [ "$cc" != "$only" ]; then
+            echo "skip  $name [$cc]: slučaj važi samo za $only"
+            continue
+        fi
+        mapfile -t flags < <(strict_flags "$cc" "$std")
+        read -ra more <<<"$(header FLAGS "$f")"
+        flags+=("${more[@]}")
+        if ! "$cc" "${flags[@]}" -g -O0 "$f" -o "$tmp/run" 2>"$tmp/cc.log"; then
+            echo "FAIL  $name [$cc]: ne kompajlira se, a trebalo bi"
+            grep -m2 'error' "$tmp/cc.log"; fail=1
+            continue
+        fi
+        if out="$("$tmp/run" 2>&1)"; then
+            echo "FAIL  $name [$cc]: program se završio uspešno, a trebalo je da se prekine"; fail=1
+        elif grep -qE -- "$expect" <<<"$out"; then
+            echo "ok    $name [$cc]"
+        else
+            echo "FAIL  $name [$cc]: izlaz ne sadrži \"$expect\""; fail=1
         fi
     done
 done

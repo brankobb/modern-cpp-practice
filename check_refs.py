@@ -4,7 +4,8 @@
 Šta se proverava:
   lekcija NN            -> postoji week0-fundamentals/NN-*
   weekN sNN / sNN       -> postoji sesija sNN-* (week1 ili week2)
-  errors/eNN, ub/uNN    -> postoji fajl sa tim prefiksom u ciljnoj lekciji
+  errors/eNN, ub/uNN,
+  runtime/rNN           -> postoji fajl sa tim prefiksom u ciljnoj lekciji
   sekcija N, sekcije    -> ciljni notes.md ima naslov "# N."
   N, M, ... / N-M / N i M
   exercises/zN          -> postoji zadatak sa tim prefiksom
@@ -32,7 +33,7 @@ LESSON_RE = re.compile(
     r"|\|\s*(s?\d{2}),"                         # tabela "Mapa": | 03, sekcija 11 |
 )
 FILE_RE = re.compile(r"\b(main(?:_cpp20)?\.cpp)\b")
-CASE_RE = re.compile(r"\b(errors|ub)/([eu]\d{2})\b")
+CASE_RE = re.compile(r"\b(errors|ub|runtime)/([eur]\d{2})\b")
 EXERCISE_RE = re.compile(r"\bexercises/(z\d)\b")
 # Putanje fajlova: od korena repozitorijuma (./build.sh week0-.../main.cpp)
 # ili od lekcije (exercises/solutions/z1_ime.cpp).

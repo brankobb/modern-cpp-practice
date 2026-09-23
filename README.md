@@ -12,6 +12,7 @@ pokazivači, forwarding, rule of 0, Deo 2).
 | `main.cpp` | samo ispravni primeri, sa označenim izlazom; isti izlaz na g++ i clang, C++17 i C++20 |
 | `errors/` | kod koji NE SME da se kompajlira (u komentaru: zašto i kako ispravno) |
 | `ub/` | kod koji se kompajlira, a ASan/UBSan ga hvata pri pokretanju |
+| `runtime/` | kod koji se kompajlira, a program se prekine iako nije UB (npr. `std::terminate`) |
 | `exercises/` | tri zadatka: bar jedan "upotreba" (vežbaš jezik) i bar jedan "zašto" (prvo vidiš problem, pa ga ispraviš); rešenja u `exercises/solutions/` |
 
 Build i pokretanje jednog fajla preko `./build.sh <fajl.cpp>`: kompajlira sa
@@ -27,7 +28,7 @@ kompajleru (`-std=c++20`, `-DNAIVNO`, drugi `.cpp` fajl).
 Provere (bash; na Windows-u iz MSYS2 shell-a):
 
 ```
-./check_cases.sh week0-fundamentals/04-pointers-and-references   # errors/ i ub/ jedne lekcije
+./check_cases.sh week0-fundamentals/04-pointers-and-references   # errors/, ub/ i runtime/ jedne lekcije
 ./check_exercises.sh week0-fundamentals/04-pointers-and-references  # zadaci i rešenja (bez argumenta: sve)
 ./check_refs.py                                                   # reference između lekcija
 ```
@@ -167,6 +168,15 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 | [8](week2-modern-layer/s08-smart-pointers) | Pametni pokazivači (kurs 72–82) | `unique_ptr` i vlasništvo u parametrima; `shared_ptr` i kontrolni blok; make funkcije (brojanje alokacija); `weak_ptr`; ciklusi; deleteri; nizovi; `enable_shared_from_this`; `errors/` i `ub/` | EMC It. 18–22 |
 | [9](week2-modern-layer/s09-forwarding-lifetime) | Forwarding i lifetime zamke | forwarding vs rvalue referenca; reference collapsing; `std::forward` vs `std::move`; kada forwarding ne radi; `string_view`; invalidacija iteratora; lambda capture; `errors/` i `ub/` | EMC It. 24, 25, 28, 30–32 |
 | [10](week2-modern-layer/s10-uniqueptr-embedded) | Vežba | `exercise.cpp` (kostur) i `main.cpp` (rešenje): sopstveni `UniquePtr`; guard za prekide koji vraća prethodno stanje; `std::lock_guard` sa `SpinLock`; objekat bez heap-a (placement new, `alignas`, `std::launder`); `errors/` i `ub/` | — |
+
+## Deo 3: dodatne teme (`week3-advanced/`)
+
+Teme koje nadograđuju Delove 0–2: izuzeci, C++17 novine, šabloni... Isti
+format kao ostale lekcije; numeracija sesija se nastavlja (s11, s12...).
+
+| Ses. | Tema | Ključno | Izvor |
+|---|---|---|---|
+| [11](week3-advanced/s11-exceptions) | Izuzeci (kurs 114–119) | `throw`/`try`/`catch` i hijerarhija `std::exception`; redosled `catch` blokova; sopstveni tip izuzetka; stack unwinding; `throw;` vs `throw e;`; `std::nested_exception`; function-try-block, destruktor ne baca; `noexcept` specifikator i operator; `std::exception_ptr`; `errors/` i `runtime/` (`std::terminate`) | EC++ It. 8, 29; EMC It. 14; E.2, E.14–E.16 |
 
 ## Provera posle Dela 2
 
