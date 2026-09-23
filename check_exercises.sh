@@ -61,6 +61,13 @@ done
 
 header() { sed -n "s|^// $1: *||p" "$2"; }
 
+tbb_libs() { # cc fajl -> -ltbb ako fajl koristi <execution>, a libstdc++ izabere TBB
+    grep -q '#include <execution>' "$2" &&
+        echo '#include <execution>' | "$1" -std=c++17 -x c++ -dM -E - 2>/dev/null | grep -q _PSTL_PAR_BACKEND_TBB &&
+        echo -ltbb
+    return 0
+}
+
 flags_for() { # cc std san -> strogi flegovi kao build.sh, plus -Werror
     local flags=(-std="$2" -Wall -Wextra -Wshadow -pedantic-errors -Werror=vla -Werror -g -O0)
     [ "$1" = "clang++" ] && flags+=(-Werror=reorder-init-list)
@@ -103,15 +110,16 @@ for lesson in "${lessons[@]}"; do
                 tag="[$cc $std]"
                 mapfile -t flags < <(flags_for "$cc" "$std" "$san")
                 flags+=("${more[@]}")
+                mapfile -t libs < <(tbb_libs "$cc" "$f")
                 ok=1
                 # 1. zadatak, nerešen: kompajlira se bez upozorenja i radi čisto
-                if ! "$cc" "${flags[@]}" "$f" -o "$tmp/z" 2>"$tmp/cc.log"; then
+                if ! "$cc" "${flags[@]}" "$f" -o "$tmp/z" "${libs[@]}" 2>"$tmp/cc.log"; then
                     echo "FAIL  $name $tag: zadatak se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
                 elif ! "$tmp/z" >/dev/null 2>"$tmp/run.log"; then
                     echo "FAIL  $name $tag: zadatak pada pri pokretanju"; head -5 "$tmp/run.log"; ok=0
                 fi
                 # 2. rešenje: kompajlira se, radi čisto, izlaz = očekivani
-                if ! "$cc" "${flags[@]}" "$sol" -o "$tmp/r" 2>"$tmp/cc.log"; then
+                if ! "$cc" "${flags[@]}" "$sol" -o "$tmp/r" "${libs[@]}" 2>"$tmp/cc.log"; then
                     echo "FAIL  $name $tag: rešenje se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
                 elif ! out="$("$tmp/r" 2>"$tmp/run.log")"; then
                     echo "FAIL  $name $tag: rešenje pada pri pokretanju"; head -5 "$tmp/run.log"; ok=0
@@ -134,7 +142,7 @@ for lesson in "${lessons[@]}"; do
                 while read -r macro regex; do
                     [ -n "$macro" ] || continue
                     [ "${has_san[$cc $san]}" = 1 ] || continue
-                    if ! "$cc" "${demo_flags[@]}" -D"$macro" "$f" -o "$tmp/d" 2>"$tmp/cc.log"; then
+                    if ! "$cc" "${demo_flags[@]}" -D"$macro" "$f" -o "$tmp/d" "${libs[@]}" 2>"$tmp/cc.log"; then
                         echo "FAIL  $name $tag: -D$macro se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
                     elif ! grep -qE -- "$regex" <<<"$("$tmp/d" 2>&1)"; then
                         echo "FAIL  $name $tag: -D$macro: sanitizer nije prijavio \"$regex\""; ok=0
@@ -142,7 +150,7 @@ for lesson in "${lessons[@]}"; do
                 done < <(header DEMO-UB "$f")
                 while read -r macro regex; do
                     [ -n "$macro" ] || continue
-                    if ! "$cc" "${demo_flags[@]}" -D"$macro" "$f" -o "$tmp/d" 2>"$tmp/cc.log"; then
+                    if ! "$cc" "${demo_flags[@]}" -D"$macro" "$f" -o "$tmp/d" "${libs[@]}" 2>"$tmp/cc.log"; then
                         echo "FAIL  $name $tag: -D$macro se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
                     elif ! out="$("$tmp/d" 2>&1)"; then
                         echo "FAIL  $name $tag: -D$macro pada pri pokretanju"; ok=0

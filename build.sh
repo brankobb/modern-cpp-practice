@@ -22,9 +22,17 @@ for a in "$@"; do
 done
 out="$(mktemp -u /tmp/mcpp-XXXXXX)"
 
+# Paralelni algoritmi (<execution>, s24): kad libstdc++ nađe TBB zaglavlja,
+# koristi TBB i mora da se linkuje sa -ltbb; bez TBB-a radi sekvencijalno.
+libs=()
+if grep -q '#include <execution>' "$src"; then
+    defs="$(echo '#include <execution>' | g++ -std=c++17 -x c++ -dM -E - 2>/dev/null || true)"
+    if grep -q _PSTL_PAR_BACKEND_TBB <<<"$defs"; then libs=(-ltbb); fi
+fi
+
 g++ -std=c++17 -Wall -Wextra -Wshadow -pedantic-errors -Werror=vla -g -O0 \
     "${sanitize[@]}" -fno-omit-frame-pointer \
-    "$src" -o "$out" ${args[@]+"${args[@]}"}
+    "$src" -o "$out" ${args[@]+"${args[@]}"} ${libs[@]+"${libs[@]}"}
 
 "$out"
 rm -f "$out"

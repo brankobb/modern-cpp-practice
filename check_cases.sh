@@ -43,6 +43,13 @@ strict_flags() { # isti strogi flegovi kao build.sh / build.ps1
 
 header() { sed -n "s|^// $1: *||p" "$2"; }
 
+tbb_libs() { # cc fajl -> -ltbb ako fajl koristi <execution>, a libstdc++ izabere TBB
+    grep -q '#include <execution>' "$2" &&
+        echo '#include <execution>' | "$1" -std=c++17 -x c++ -dM -E - 2>/dev/null | grep -q _PSTL_PAR_BACKEND_TBB &&
+        echo -ltbb
+    return 0
+}
+
 link_files() { # "// LINK:" fajlovi, sa putanjom relativnom od fajla
     local x
     for x in $(header LINK "$1"); do printf '%s\n' "$(dirname "$1")/$x"; done
@@ -104,8 +111,9 @@ for f in "$lesson"/ub/*.cpp; do
         read -ra more <<<"$(header FLAGS "$f")"
         flags+=("${more[@]}")
         mapfile -t extra < <(link_files "$f")
+        mapfile -t libs < <(tbb_libs "$cc" "$f")
         if ! "$cc" "${flags[@]}" -g -O0 "${san[@]}" -fno-omit-frame-pointer \
-                "$f" "${extra[@]}" -o "$tmp/ub" 2>"$tmp/cc.log"; then
+                "$f" "${extra[@]}" -o "$tmp/ub" "${libs[@]}" 2>"$tmp/cc.log"; then
             echo "FAIL  $name [$cc]: ne kompajlira se, a trebalo bi"
             grep -m2 'error' "$tmp/cc.log"; fail=1
             continue
@@ -133,7 +141,8 @@ for f in "$lesson"/runtime/*.cpp; do
         mapfile -t flags < <(strict_flags "$cc" "$std")
         read -ra more <<<"$(header FLAGS "$f")"
         flags+=("${more[@]}")
-        if ! "$cc" "${flags[@]}" -g -O0 "$f" -o "$tmp/run" 2>"$tmp/cc.log"; then
+        mapfile -t libs < <(tbb_libs "$cc" "$f")
+        if ! "$cc" "${flags[@]}" -g -O0 "$f" -o "$tmp/run" "${libs[@]}" 2>"$tmp/cc.log"; then
             echo "FAIL  $name [$cc]: ne kompajlira se, a trebalo bi"
             grep -m2 'error' "$tmp/cc.log"; fail=1
             continue
