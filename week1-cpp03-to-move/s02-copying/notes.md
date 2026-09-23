@@ -171,5 +171,20 @@ resurs: tada dva objekta dele isti resurs i oba ga oslobađaju. Rešenje je
 ili ručna duboka kopija (rule of 3), ili zabrana kopije, ili, najbolje,
 članovi koji se sami ispravno kopiraju (rule of 0).
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_rule_of_three`](exercises/z1_rule_of_three.cpp) | upotreba | rule of 3: duboka kopija, copy-and-swap, destruktor (sekcija 4) | — |
+| [`z2_kopiraj_sve_delove`](exercises/z2_kopiraj_sve_delove.cpp) | zašto | zašto ručna kopija mora da kopira i baznu klasu (sekcija 5, EC++ Item 12) | `-DNAIVNO` |
+| [`z3_referenca_clan`](exercises/z3_referenca_clan.cpp) | zašto | zašto član-referenca ukida dodelu (sekcija 3) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

@@ -1,0 +1,39 @@
+// Rešenje zadatka z3_kraj_programa.
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+struct Logger {
+    std::vector<std::string> linije;
+    void log(const std::string& s) {
+        linije.push_back(s);
+        std::cout << "log: " << s << '\n';
+    }
+    ~Logger() { std::cout << "~Logger (" << linije.size() << " linija)\n"; }
+};
+
+Logger& logger() {
+    static Logger l;
+    return l;
+}
+
+// Ako Uredjaj koristi logger() samo u destruktoru (nije dobro): Logger
+// nastane kasnije (u main-u), pa se uništi ranije, a destruktor Uredjaja
+// piše u uništen objekat.
+// Treba ovako: objekat koji će ti trebati u destruktoru, dohvati već u
+// konstruktoru. Njegova konstrukcija se tada završi pre tvoje, pa se
+// uništava posle tvoje.
+//
+// Korak 3: "static Logger* l = new Logger;" se nikad ne uništava, pa je
+// uvek dostupan (i iz destruktora drugih static objekata). Cena: destruktor
+// Logger-a se nikad ne pozove -- ako bi trebalo da isprazni bafer u fajl,
+// to se ne desi.
+struct Uredjaj {
+    Uredjaj() { logger().log("uredjaj upaljen"); }
+    ~Uredjaj() { logger().log("uredjaj ugasen"); }
+};
+
+Uredjaj uredjaj;
+
+int main() { logger().log("main"); }

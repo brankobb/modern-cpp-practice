@@ -195,5 +195,20 @@ sebe, bez `try`/`catch` na svakom koraku. Preostalo je samo da operacije
 koje menjaju stanje rade "sa strane" pa zamene (strong garancija), i da
 destruktori nikad ne bacaju.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_datoteka_raii`](exercises/z1_datoteka_raii.cpp) | upotreba | RAII omotač, unique_ptr sa deleter-om i scope guard (sekcije 1, 6) | — |
+| [`z2_lock_unlock`](exercises/z2_lock_unlock.cpp) | zašto | zašto lock_guard, a ne lock() ... unlock() (sekcije 1, 2) | `-DNAIVNO` |
+| [`z3_jaka_garancija`](exercises/z3_jaka_garancija.cpp) | zašto | zašto "sve ili ništa" (strong guarantee, sekcija 4, EC++ Item 29) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

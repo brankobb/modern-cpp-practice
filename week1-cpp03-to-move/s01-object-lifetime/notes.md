@@ -161,5 +161,20 @@ pravljenja: u bloku, u nizu, u klasi i posle `main`. Kad konstruktor ne
 uspe, uništi se samo ono što je već napravljeno. Sve greške u ovoj sesiji
 su isti problem: adresa objekta nadživi sam objekat.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_redosled_traga`](exercises/z1_redosled_traga.cpp) | upotreba | redosled pravljenja i uništavanja (sekcije 2, 3) | — |
+| [`z2_izuzetak_u_konstruktoru`](exercises/z2_izuzetak_u_konstruktoru.cpp) | zašto | zašto destruktor ne čisti za konstruktorom koji je bacio (sekcija 4) | `-DNAIVNO` |
+| [`z3_kraj_programa`](exercises/z3_kraj_programa.cpp) | zašto | zašto je redosled uništavanja static objekata bitan (sekcija 5) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

@@ -209,5 +209,20 @@ to eksplicitno kažeš sa `std::move`, koji je samo cast. Tipovi koji drže
 resurs preko pokazivača dobijaju move u O(1), a svi ostali isto što i
 kopiju.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_move_bafer`](exercises/z1_move_bafer.cpp) | upotreba | move konstruktor i move dodela (sekcije 4, 6) | — |
+| [`z2_imenovana_rvalue`](exercises/z2_imenovana_rvalue.cpp) | zašto | zašto parametar T&& unutar funkcije treba std::move (sekcija 5) | `-DNAIVNO` |
+| [`z3_move_const`](exercises/z3_move_const.cpp) | zašto | zašto std::move na const objektu tiho kopira (sekcija 3, EMC Item 23) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 
