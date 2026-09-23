@@ -118,6 +118,11 @@ def paragraphs(lines, is_md):
         else:
             m = re.match(r"\s*//(.*)", line)
             if m:
+                # "Rešenje: exercises/..." u zaglavlju zadatka se odnosi na
+                # lekciju fajla, ne na lekciju pomenutu u naslovu iznad.
+                if m.group(1).strip().startswith("Rešenje:") and cur:
+                    groups.append(cur)
+                    cur = []
                 cur.append((i, m.group(1)))
             else:
                 if cur:
