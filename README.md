@@ -1,25 +1,79 @@
 # modern-cpp-practice
 
-Plan vežbe: od C++03 temelja (životni vek objekta, kopiranje, RAII) do move semantike
-i modernog sloja (smart pointeri, forwarding, rule of 0). 10 sesija, ~2h svaka.
+Plan vežbe: od osnova jezika (Deo 0), preko C++03 temelja (životni vek
+objekta, kopiranje, RAII) i move semantike (Deo 1), do modernog sloja (pametni
+pokazivači, forwarding, rule of 0, Deo 2).
 
-Svaka sesija ima svoj folder: `notes.md` (sažetak iz izvora, pisan pre koda) i
-`main.cpp` (vežba). Build/pokretanje preko `./build.sh <fajl.cpp>` — kompajlira sa
+## Kako je lekcija organizovana
+
+| Fajl / folder | Šta je |
+|---|---|
+| `notes.md` | objašnjenje po standardu: ✅ ispravno, ❌ greška, ⚠️ zamka; EMC / EC++ / Core Guidelines; na kraju "Pravilo za praksu", tabela vežbi i prazno "Zapažanja posle vežbe" za tvoje beleške |
+| `main.cpp` | samo ispravni primeri, sa označenim izlazom; isti izlaz na g++ i clang, C++17 i C++20 |
+| `errors/` | kod koji NE SME da se kompajlira (u komentaru: zašto i kako ispravno) |
+| `ub/` | kod koji se kompajlira, a ASan/UBSan ga hvata pri pokretanju |
+| `exercises/` | tri zadatka: bar jedan "upotreba" (vežbaš jezik) i bar jedan "zašto" (prvo vidiš problem, pa ga ispraviš); rešenja u `exercises/solutions/` |
+
+Build i pokretanje jednog fajla preko `./build.sh <fajl.cpp>`: kompajlira sa
 AddressSanitizer + UndefinedBehaviorSanitizer i `-pedantic-errors` (kod koji
-standard zabranjuje je uvek greška, ne samo warning).
+standard zabranjuje je uvek greška, ne samo warning). Dodatni argumenti idu
+kompajleru (`-std=c++20`, `-DNAIVNO`, drugi `.cpp` fajl).
 
 ```
 ./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
+./build.sh week0-fundamentals/03-uniform-init/exercises/z2_narrowing_senzor.cpp -DNAIVNO
 ```
 
-Lekcije koje imaju `errors/` (kod koji ne sme da se kompajlira) i `ub/` (kod
-koji ASan/UBSan mora da uhvati pri pokretanju) proveravaju se sa:
+Provere (bash; na Windows-u iz MSYS2 shell-a):
 
 ```
-./check_cases.sh week0-fundamentals/04-pointers-and-references
+./check_cases.sh week0-fundamentals/04-pointers-and-references   # errors/ i ub/ jedne lekcije
+./check_exercises.sh week0-fundamentals/04-pointers-and-references  # zadaci i rešenja (bez argumenta: sve)
+./check_refs.py                                                   # reference između lekcija
 ```
 
-**Windows:** koristi `build.ps1` (isti flegovi). Treba ti MinGW-w64 g++ na
+`check_exercises.sh` gradi svaki zadatak i rešenje sa g++ i clang++, u C++17
+i C++20, sa `-Werror`: zadatak mora da se kompajlira i nerešen, izlaz rešenja
+mora da bude tačno blok OČEKIVANI IZLAZ iz zadatka, a demonstracije problema
+(`-DNAIVNO` i sl.) moraju da pokažu ono što tekst tvrdi.
+
+## Kako raditi zadatak
+
+1. Pročitaj korake u komentaru na vrhu fajla.
+2. Zadatak "zašto": prvo pokreni sa makroom iz koraka 1 (npr. `-DNAIVNO`) i
+   pogledaj problem (pogrešan izlaz, ASan izveštaj ili grešku kompajlera).
+   Objasni sebi ZAŠTO se to desilo, pre nego što pišeš ispravku.
+3. Piši kod u `#else` grani / na mestu `TODO`, otkomentariši test u
+   `main()` i uporedi izlaz sa blokom OČEKIVANI IZLAZ na dnu fajla.
+4. Tek onda otvori `exercises/solutions/` i uporedi pristup, ne samo izlaz.
+
+## Realan plan
+
+Prvobitni plan ("10 sesija, ~2h svaka") je pisan pre nego što je dodat
+Deo 0 i pre nego što je svaka lekcija dobila `errors/`, `ub/` i vežbe.
+Procena sada, za lekciju sa svim delovima:
+
+| Deo lekcije | Otprilike |
+|---|---|
+| `notes.md` + pokretanje `main.cpp` | 1–1.5 h |
+| `errors/` i `ub/` (pročitaj, pokreni, objasni) | 0.5–1 h |
+| tri zadatka iz `exercises/` | 1.5–2.5 h |
+
+To je 3–5 sati po lekciji, dakle dva sedenja po ~2h. Ukupno: 15 lekcija u
+Delu 0 (03–17) + 8 sesija u Delovima 1 i 2 (s05 i s10 su same po sebi
+vežbe) ≈ 25 lekcija ≈ 50 sedenja. Uz 5 sedenja nedeljno, to je oko 10
+nedelja, a ne dve. Predlog:
+
+- tempo, ne datum: lekcija je gotova kad svi zadaci rade i kad umeš da
+  objasniš svaki "zašto" zadatak bez gledanja u rešenje;
+- ono što već znaš preleti: pročitaj "Pravilo za praksu" i uradi samo "zašto"
+  zadatke; ako prođu bez muke, idi dalje;
+- posle svakih 4–5 lekcija jedno sedenje za ponavljanje (tvoje beleške iz
+  "Zapažanja posle vežbe").
+
+## Windows (MSYS2 clang64) i razlike
+
+Koristi `build.ps1` (isti flegovi). Treba ti MinGW-w64 g++ na
 PATH-u — najlakše preko [MSYS2](https://www.msys2.org/)
 (`pacman -S mingw-w64-ucrt-x86_64-gcc`, pa dodaj `ucrt64/bin` u PATH) ili
 [w64devkit](https://github.com/skeeto/w64devkit).
@@ -38,10 +92,32 @@ i pokreni sa `.\build.ps1 <fajl> -Compiler clang++`.
 .\build.ps1 week1-cpp03-to-move\s01-object-lifetime\main.cpp
 ```
 
-## Nedelja 0: fundamentals audit
+Sve u ovom repozitorijumu je provereno na Linux-u: g++ 13 i clang 18, oba
+sa **libstdc++** (GNU standardna biblioteka). MSYS2 clang64 koristi
+**libc++** (LLVM standardna biblioteka) i linker lld, pa ponešto može da
+izgleda drugačije. Šta verovatno izgleda drugačije (ovde NIJE provereno
+na Windows-u):
+
+- `-D_GLIBCXX_ASSERTIONS`, `-D_GLIBCXX_SANITIZE_VECTOR` i `-D_GLIBCXX_DEBUG`
+  postoje samo u libstdc++. U libc++ ne rade ništa, pa demonstracije koje ih
+  koriste (lekcija 17: sekcija 7 i zadaci z2, z3) tamo izgledaju drugačije;
+- LeakSanitizer (curenje memorije: lekcija 10 z3, s01 z2, s08 z2) na
+  Windows-u ASan ne podržava, pa tamo curenje vidiš samo po brojaču živih
+  objekata koji zadaci ispisuju;
+- tekstovi poruka (`what()` izuzetaka, imena iz `typeid`, poruke
+  kompajlera) i neke nespecifikovane stvari (stanje moved-from stringa,
+  koliko puta `vector` raste) mogu da se razlikuju;
+- skripte za proveru su bash -- pokreći ih iz MSYS2 shell-a.
+
+**Molba:** kad pokreneš lekciju na Windows-u i vidiš razliku u odnosu na
+ono što piše u `notes.md` ili u bloku OČEKIVANI IZLAZ, zapiši je u
+"Zapažanja posle vežbe" te lekcije (šta, sa kojim kompajlerom i flegovima)
+i javi -- to ide u lekciju kao proverena razlika.
+
+## Deo 0: osnove (fundamentals audit)
 
 Brz audit osnova (gotchas/edge-case fokus, ne tutorial od nule) — most ka
-Nedelji 1. Grupisano po istoj logici kao kurs čiji je redosled analiziran:
+Delu 1. Grupisano po istoj logici kao kurs čiji je redosled analiziran:
 tipovi/I-O/funkcije prvo, pa debugging dok su greške sveže, pa uniform
 init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 
@@ -58,7 +134,7 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 | [09](week0-fundamentals/09-function-advanced) | Funkcije (EMC It. 11/26, EC++ It. 37) — overloading i overload resolution, overload po vrsti reference, `= delete`, podrazumevani argumenti, pokazivači na funkcije i `std::function`; pogrešni slučajevi u `errors/` i `ub/` |
 | [10](week0-fundamentals/10-dynamic-memory) | Dinamička memorija (EC++ It. 16, EMC It. 21) — `malloc`/`free` vs `new`/`delete`, neuspela alokacija, `new[]`/`delete[]` i zašto se oblici ne mešaju, 2D nizovi na četiri načina, `make_unique`/`vector`; pogrešni slučajevi u `errors/` i `ub/` |
 
-### OOP bridge (pre Nedelje 1)
+### OOP bridge (pre Dela 1)
 
 Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 
@@ -72,7 +148,7 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 | [16](week0-fundamentals/16-constexpr) | `constexpr` (kurs 91, EMC It. 15) — sme vs mora pri kompajliranju, UB u konstantnom izrazu je greška, literal tipovi, tabele u `.rodata`, `if constexpr`, `static_assert`; C++20 `consteval`/`constinit` u `main_cpp20.cpp`; pogrešni slučajevi u `errors/` i `ub/` |
 | [17](week0-fundamentals/17-vector-initializer-list) | `std::vector` i `std::initializer_list` (kurs 92, 93) — pravljenje, size vs capacity, reserve vs resize, pristup i izmene, `initializer_list` (const elementi, životni vek niza), šta ASan ne vidi i `-D_GLIBCXX_ASSERTIONS`; pogrešni slučajevi u `errors/` i `ub/` |
 
-## Nedelja 1 (28.9 – 4.10): od C++03 temelja do move semantike
+## Deo 1: od C++03 temelja do move semantike
 
 | Ses. | Tema | Ključno | Izvor |
 |---|---|---|---|
@@ -82,7 +158,7 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 | [4](week1-cpp03-to-move/s04-move-semantics) | Move semantika (kurs 53–55, 58) | kategorije vrednosti; vezivanje referenci; `std::move` je cast; move ctor/dodela; imenovana `T&&` je lvalue; move na `const` kopira; moved-from stanje; kad move nije jeftin; `errors/` i `ub/` | EMC It. 23, 25, 29 |
 | [5](week1-cpp03-to-move/s05-buffer-exercise) | Vežba `Buffer` (kurs 56) | `exercise.cpp` (kostur) i `main.cpp` (rešenje): rule of 3 → 5 → 0; merenje kopija/move-ova; `noexcept` i realokacija `vector`-a; `errors/` i `ub/` | C.20, C.21, C.66 |
 
-## Nedelja 2 (5.10 – 11.10): moderni sloj
+## Deo 2: moderni sloj
 
 | Ses. | Tema | Ključno | Izvor |
 |---|---|---|---|
@@ -92,9 +168,10 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 | [9](week2-modern-layer/s09-forwarding-lifetime) | Forwarding i lifetime zamke | forwarding vs rvalue referenca; reference collapsing; `std::forward` vs `std::move`; kada forwarding ne radi; `string_view`; invalidacija iteratora; lambda capture; `errors/` i `ub/` | EMC It. 24, 25, 28, 30–32 |
 | [10](week2-modern-layer/s10-uniqueptr-embedded) | Vežba | `exercise.cpp` (kostur) i `main.cpp` (rešenje): sopstveni `UniquePtr`; guard za prekide koji vraća prethodno stanje; `std::lock_guard` sa `SpinLock`; objekat bez heap-a (placement new, `alignas`, `std::launder`); `errors/` i `ub/` | — |
 
-## Provera 11.10
+## Provera posle Dela 2
 
-Odgovori naglas, oko 2 minuta po pitanju. Zapiši odgovore u [ANSWERS.md](ANSWERS.md) pre nego što ih izgovoriš.
+Kad završiš s10 (ne na određeni datum). Odgovori naglas, oko 2 minuta po
+pitanju. Zapiši odgovore u [ANSWERS.md](ANSWERS.md) pre nego što ih izgovoriš.
 
 1. Šta kompajler generiše ako deklarišeš samo destruktor?
 2. Zašto `std::move` sam po sebi ništa ne pomera?
@@ -104,5 +181,6 @@ Odgovori naglas, oko 2 minuta po pitanju. Zapiši odgovore u [ANSWERS.md](ANSWER
 6. Kako copy-and-swap daje strong garanciju?
 7. Kako izgleda RAII bez heap-a u embedded kodu?
 
-Ako sigurno odgovoriš na bar 5 pitanja, prelaziš na STL. U suprotnom, prve dve sesije
-sledeće nedelje idu na ponavljanje.
+Ako sigurno odgovoriš na bar 5 pitanja, prelaziš na STL. U suprotnom, prva dva
+sedenja posle toga idu na ponavljanje: "zašto" zadaci iz week1 i week2, bez
+gledanja u rešenja.

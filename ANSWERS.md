@@ -1,4 +1,4 @@
-# Provera 11.10 — odgovori
+# Provera posle Dela 2 — odgovori
 
 Piši odgovore ovde pre nego što ih izgovoriš naglas. Cilj: ~2 minuta po pitanju.
 
