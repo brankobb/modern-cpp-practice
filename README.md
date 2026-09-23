@@ -110,6 +110,10 @@ na Windows-u):
   objekata koji zadaci ispisuju;
 - ThreadSanitizer (`--tsan`, s19 i s20) ne postoji za Windows; data race
   primere pokreni u WSL-u;
+- paralelni algoritmi (s24) sa g++ rade paralelno samo uz instaliran TBB,
+  i tada traže `-ltbb` (`build.sh` ga dodaje sam, `build.ps1` ne -- dodaj
+  ga kao dodatni argument; ime biblioteke u MSYS2 može da se razlikuje);
+  bez TBB-a rade sekvencijalno, sa istim izlazom;
 - tekstovi poruka (`what()` izuzetaka, imena iz `typeid`, poruke
   kompajlera) i neke nespecifikovane stvari (stanje moved-from stringa,
   koliko puta `vector` raste) mogu da se razlikuju;
@@ -194,6 +198,7 @@ format kao ostale lekcije; numeracija sesija se nastavlja od 11.
 | [21](week3-advanced/s21-cpp17-templates) | C++17 novine za šablone (kurs 216–223) | CTAD (standardni tipovi, sopstveni deduction guide, agregat u C++17, zamke: kopija umesto kontejnera kontejnera, string literal kao `const char*`); fold izrazi (četiri oblika, prazan paket, zarez, fold nad tipovima); `_v`/`_t` i kako su napravljeni; `if constexpr` (grana po tipu, `else`, rekurzija, `static_assert(false)`); `errors/` | *C++ Templates* (2. izd.), *C++17 -- The Complete Guide* |
 | [22](week3-advanced/s22-optional-variant-any) | `std::optional`, `std::variant`, `std::any` (kurs 224–230) | `optional` (pristup i provera, `emplace`/`in_place`, cena, lenja inicijalizacija, zamka `optional<bool>`); `variant` (`get`/`get_if`/`holds_alternative`, `monostate`, `visit` sa `Preopterecen`, isti povratni tip, mašina stanja, `valueless_by_exception`); `any` (`any_cast`, tačan tip, literal kao `const char*`, alokacija); `errors/`, `ub/`, `runtime/` | C.181, F.20; *C++17 -- The Complete Guide* |
 | [23](week3-advanced/s23-string-view-filesystem) | `std::string_view` i `std::filesystem` (kurs 231–236) | `string_view` (pogled bez kopije, izmerene alokacije, sečenje, nema `'\0'`, pogled koji visi, `from_chars`); `path` (`/`, delovi, leksičke operacije, navodnici pri ispisu); `directory_entry`, funkcije za direktorijume, izuzetak ili `error_code`, neodređen redosled; dozvole; `errors/`, `ub/`, `runtime/` | SL.str.2, SL.str.3; *C++17 -- The Complete Guide* |
+| [24](week3-advanced/s24-parallel-algorithms) | Paralelni algoritmi (kurs 237+) | politike `seq`/`par`/`par_unseq`/`unseq`; `reduce`, `transform_reduce`, `inclusive_scan`/`exclusive_scan`; deljeno stanje bez data race-a (izmereni izgubljeni zbirovi), `atomic` i njegova cena; `reduce` i asocijativnost, `for_each(par)` vraća `void`, izuzetak → `terminate`; TBB u libstdc++ (`-ltbb`, tihi sekvencijalni rad bez njega), izmereno ubrzanje i usporenje; `errors/`, `runtime/` | CP.2, Per.6; *C++17 -- The Complete Guide* |
 
 ## Provera posle Dela 2
 
