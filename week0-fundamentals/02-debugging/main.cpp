@@ -1,40 +1,53 @@
+#include <cassert>
+#include <cstddef>
 #include <iostream>
+#include <vector>
 
-// Namerni bug: off-by-one upis van granica niza.
-// NE gledaj odmah kod -- kompajliraj ručno sa -g -fsanitize=address,
-// pokreni pod gdb, i:
-//   1) uhvati ASan izveštaj -- na kojoj liniji je overflow?
-//   2) postavi breakpoint na tu liniju, `watch i` da vidiš kad i dostigne
-//      problematičnu vrednost
-//   3) `bt` da vidiš call stack u trenutku pucanja
+// Debugging -- program za vežbu sa gdb-om (notes.md, sekcije 2 i 3) i
+// ISPRAVNI primeri assert/static_assert (sekcija 7). Kompajlira se bez
+// upozorenja i radi bez ASan/UBSan prijava (g++ 13 i clang 18, C++17 i
+// C++20). Brojevi redova u notes.md se odnose na OVAJ fajl.
+// POGREŠNI slučajevi (bagovi za hvatanje):
+//   ub/      -- ASan/UBSan izveštaji iz sekcija 4-6
+//   errors/  -- static_assert i -Werror
+// Za gdb, build ručno (build.sh briše izvršni fajl posle pokretanja):
+//   g++ -std=c++17 -g -O0 week0-fundamentals/02-debugging/main.cpp -o dbg
+//   gdb ./dbg
 
-void fillBuffer(int* buf, int size) {
-    // Ako koristiš i <= size u petlji koja pristupa buf[i] (NIJE DOBRO)
-    // jer validni indeksi niza veličine size su 0..size-1 -- i == size je
-    // JEDAN PREKO granice (off-by-one), pišeš u memoriju koja ne pripada
-    // nizu.
-    // Treba da koristiš i < size (striktno manje) kad iteriraš preko SVIH
-    // elemenata niza -- ovo je jedna od najčešćih grešaka u C/C++ kodu.
-    // Možeš i koristiti range-based for (for (int& x : arr)) ili
-    // std::array/std::vector sa .size() kad god je moguće -- eliminiše
-    // ovu klasu bagova u korenu jer nema ručnog indeksiranja.
-    for (int i = 0; i <= size; ++i) { // BUG: treba < ne <=
-        buf[i] = i * i;
+// ---------------------------------------------------------------- 2
+int zbir(const std::vector<int>& v) {
+    int s = 0;
+    for (std::size_t i = 0; i < v.size(); ++i) {
+        s += v[i];
     }
+    return s;
+}
+
+double prosek(const std::vector<int>& v) {
+    int s = zbir(v);
+    return static_cast<double>(s) / static_cast<double>(v.size());
+}
+
+// ---------------------------------------------------------------- 7
+// static_assert: provera pri KOMPAJLIRANJU -- ako ne važi, nema programa
+// (errors/e01). Za pretpostavke o tipovima i platformi.
+static_assert(sizeof(int) >= 4, "kod pretpostavlja bar 32-bitni int");
+
+// assert: provera pri IZVRŠAVANJU, samo u debug build-u. Sa -DNDEBUG ceo
+// izraz nestaje -- zato u njemu nikad nema bočnih efekata (zadatak z2).
+double prosekSaProverom(const std::vector<int>& v) {
+    assert(!v.empty() && "prosek praznog niza nema smisla");
+    return prosek(v);
 }
 
 int main() {
-    // unitbuf -- auto-flush posle svake cout operacije, da ispis ne
-    // ostane zaglavljen u baferu ako program pukne pre nego što se
-    // isprazni (bitno kad je stdout preusmeren u fajl, ne terminal).
-    std::cout.setf(std::ios::unitbuf);
-
-    const int n = 5;
-    int buffer[n];
-    fillBuffer(buffer, n);
-
-    for (int i = 0; i < n; ++i) {
-        std::cout << buffer[i] << " ";
-    }
-    std::cout << "\n";
+    std::vector<int> ocitavanja{10, 20, 30, 40};
+    double p = prosek(ocitavanja);
+    std::cout << "prosek: " << p << '\n';
+    std::cout << "prosek sa proverom: " << prosekSaProverom(ocitavanja) << '\n';
+#ifdef NDEBUG
+    std::cout << "NDEBUG: assert je isključen\n";
+#else
+    std::cout << "assert je uključen\n";
+#endif
 }

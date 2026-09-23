@@ -59,9 +59,9 @@ Procena sada, za lekciju sa svim delovima:
 | `errors/` i `ub/` (pročitaj, pokreni, objasni) | 0.5–1 h |
 | tri zadatka iz `exercises/` | 1.5–2.5 h |
 
-To je 3–5 sati po lekciji, dakle dva sedenja po ~2h. Ukupno: 15 lekcija u
-Delu 0 (03–17) + 8 sesija u Delovima 1 i 2 (s05 i s10 su same po sebi
-vežbe) ≈ 25 lekcija ≈ 50 sedenja. Uz 5 sedenja nedeljno, to je oko 10
+To je 3–5 sati po lekciji, dakle dva sedenja po ~2h. Ukupno: 17 lekcija u
+Delu 0 (01–17) + 8 sesija u Delovima 1 i 2 (s05 i s10 su same po sebi
+vežbe) ≈ 27 lekcija ≈ 54 sedenja. Uz 5 sedenja nedeljno, to je 10–11
 nedelja, a ne dve. Predlog:
 
 - tempo, ne datum: lekcija je gotova kad svi zadaci rade i kad umeš da
@@ -124,7 +124,7 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 | Fold. | Tema |
 |---|---|
 | [01](week0-fundamentals/01-types-io-functions) | Primitivni tipovi, I/O, funkcije (kurs 14–17, ES.100–106, F.20) — veličine i `<cstdint>`, `char` i bajtovi, promocije i signed/unsigned, prekoračenje (signed UB, unsigned modulo), deljenje, pokretni zarez, stanje stream-a i `>>` pa `getline`, manipulatori, `[[nodiscard]]`, izlazak bez `return`-a, redosled argumenata; pogrešni slučajevi u `errors/` i `ub/` |
-| [02](week0-fundamentals/02-debugging) | Debugging (gdb umesto VS) — namerni buffer overflow, uhvati ga breakpoint-om i ASan-om |
+| [02](week0-fundamentals/02-debugging) | Debugging (kurs 18) — debug build, gdb (breakpoint, `next`/`step`/`finish`, uslovni breakpoint, `watch`, `bt` posle pada) sa stvarnim transkriptima, čitanje ASan izveštaja (tri steka, "freed by"/"allocated by"), UBSan nastavlja posle greške, `assert` vs `static_assert` i `NDEBUG`, `-Werror`; bagovi za vežbu u `ub/`, `errors/` |
 | [03](week0-fundamentals/03-uniform-init) | Inicijalizacija (kompletno, EMC It. 7) — default/value/direct/copy/list init, narrowing, initializer_list prioritet, agregati, C++20 designated; pogrešni slučajevi u `errors/` |
 | [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletno, EMC It. 8, EC++ It. 16/20/21) — `nullptr`, aritmetika, `void*`, `const`, vezivanje referenci i životni vek, prosleđivanje/vraćanje, vlasništvo; pogrešni slučajevi u `errors/` i `ub/` |
 | [05](week0-fundamentals/05-compound-types) | Složeni tipovi (EMC It. 9/10) — podela tipova, C nizovi i `std::array`, `enum` vs `enum class`, `union` i `std::variant`, `using` vs `typedef`, funkcijski tipovi; pogrešni slučajevi u `errors/` i `ub/` |

@@ -61,7 +61,9 @@ for f in "$lesson"/errors/*.cpp; do
         if [ "${#extra[@]}" -gt 0 ]; then
             mode=(-o "$tmp/link" "${extra[@]}")   # kompajliraj i linkuj
         else
-            mode=(-fsyntax-only)
+            # -c, ne -fsyntax-only: neka upozorenja (npr. -Wreturn-type u
+            # g++) nastaju tek u kasnijoj fazi kompajliranja.
+            mode=(-c -o "$tmp/obj.o")
         fi
         if out="$("$cc" "${flags[@]}" "${mode[@]}" "$f" 2>&1)"; then
             echo "FAIL  $name [$cc]: kompajliralo se, a ne bi smelo"; fail=1
