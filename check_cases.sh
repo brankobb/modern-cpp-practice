@@ -16,6 +16,8 @@
 #   drugi kompajler odbije već pri kompajliranju); ostali se preskaču.
 # Opciono "// FLAGS: -fsanitize=float-cast-overflow": dodatni flegovi za taj
 #   fajl (npr. sanitizer koji -fsanitize=undefined ne uključuje).
+# Opciono "// SANITIZER: thread" u ub/ fajlu: ThreadSanitizer umesto
+#   ASan/UBSan (data race, redosled zaključavanja); ne mogu zajedno.
 # Usage: ./check_cases.sh week0-fundamentals/04-pointers-and-references
 set -u
 
@@ -86,21 +88,23 @@ for f in "$lesson"/ub/*.cpp; do
     std="$(header STD "$f")"; std="${std:-c++17}"
     expect="$(header EXPECT-UB "$f")"
     only="$(header ONLY-CC "$f")"
+    san=(-fsanitize=address,undefined); san_name="ASan/UBSan"
+    [ "$(header SANITIZER "$f")" = thread ] && { san=(-fsanitize=thread); san_name="TSan"; }
     for cc in "${compilers[@]}"; do
         if [ -n "$only" ] && [ "$cc" != "$only" ]; then
             echo "skip  $name [$cc]: slučaj važi samo za $only"
             continue
         fi
         # Sanitizer runtime nije uvek instaliran za svaki kompajler -- proveri.
-        if ! echo 'int main(){}' | "$cc" -x c++ -fsanitize=address,undefined - -o "$tmp/probe" >/dev/null 2>&1; then
-            echo "skip  $name [$cc]: nema ASan/UBSan runtime za ovaj kompajler"
+        if ! echo 'int main(){}' | "$cc" -x c++ "${san[@]}" - -o "$tmp/probe" >/dev/null 2>&1; then
+            echo "skip  $name [$cc]: nema $san_name runtime za ovaj kompajler"
             continue
         fi
         mapfile -t flags < <(strict_flags "$cc" "$std")
         read -ra more <<<"$(header FLAGS "$f")"
         flags+=("${more[@]}")
         mapfile -t extra < <(link_files "$f")
-        if ! "$cc" "${flags[@]}" -g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer \
+        if ! "$cc" "${flags[@]}" -g -O0 "${san[@]}" -fno-omit-frame-pointer \
                 "$f" "${extra[@]}" -o "$tmp/ub" 2>"$tmp/cc.log"; then
             echo "FAIL  $name [$cc]: ne kompajlira se, a trebalo bi"
             grep -m2 'error' "$tmp/cc.log"; fail=1

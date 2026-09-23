@@ -11,6 +11,8 @@
 #   // VRSTA: upotreba | zašto   -- lekcija mora da ima bar jedan od oba
 #   // STD: c++20                -- samo taj standard (podrazumevano oba)
 #   // FLAGS: ...                -- dodatni flegovi za sve build-ove
+#   // SANITIZER: thread         -- ThreadSanitizer umesto ASan/UBSan za sve
+#                                   build-ove tog zadatka (i za DEMO-UB)
 #   // DEMO-ERR: MAKRO regex     -- sa -DMAKRO zadatak NE SME da se kompajlira,
 #                                   a poruka mora da odgovara regex-u (oba
 #                                   kompajlera, pa regex pokriva obe poruke)
@@ -42,22 +44,33 @@ for cc in g++ clang++; do
     command -v "$cc" >/dev/null 2>&1 && compilers+=("$cc")
 done
 
-declare -A has_san
+declare -A has_san   # ključ: "kompajler asan" ili "kompajler thread"
 for cc in "${compilers[@]}"; do
     if echo 'int main(){}' | "$cc" -x c++ -fsanitize=address,undefined - -o "$tmp/probe" >/dev/null 2>&1; then
-        has_san[$cc]=1
+        has_san[$cc asan]=1
     else
-        has_san[$cc]=0
+        has_san[$cc asan]=0
         echo "napomena: $cc nema ASan/UBSan runtime -- gradi se bez sanitizera, DEMO-UB se preskače"
+    fi
+    if echo 'int main(){}' | "$cc" -x c++ -fsanitize=thread - -o "$tmp/probe" >/dev/null 2>&1; then
+        has_san[$cc thread]=1
+    else
+        has_san[$cc thread]=0
     fi
 done
 
 header() { sed -n "s|^// $1: *||p" "$2"; }
 
-flags_for() { # cc std -> strogi flegovi kao build.sh, plus -Werror
+flags_for() { # cc std san -> strogi flegovi kao build.sh, plus -Werror
     local flags=(-std="$2" -Wall -Wextra -Wshadow -pedantic-errors -Werror=vla -Werror -g -O0)
     [ "$1" = "clang++" ] && flags+=(-Werror=reorder-init-list)
-    [ "${has_san[$1]}" = 1 ] && flags+=(-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer)
+    if [ "${has_san[$1 $3]}" = 1 ]; then
+        if [ "$3" = thread ]; then
+            flags+=(-fsanitize=thread -fno-omit-frame-pointer)
+        else
+            flags+=(-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer)
+        fi
+    fi
     printf '%s\n' "${flags[@]}"
 }
 
@@ -78,11 +91,17 @@ for lesson in "${lessons[@]}"; do
         std_hdr="$(header STD "$f")"
         stds=(c++17 c++20); [ -n "$std_hdr" ] && stds=("$std_hdr")
         read -ra more <<<"$(header FLAGS "$f")"
+        san=asan; [ "$(header SANITIZER "$f")" = thread ] && san=thread
+        if [ "$san" = thread ]; then
+            for cc in "${compilers[@]}"; do
+                [ "${has_san[$cc thread]}" = 1 ] || echo "napomena: $cc nema TSan runtime -- $name se gradi bez sanitizera, DEMO-UB se preskače"
+            done
+        fi
 
         for cc in "${compilers[@]}"; do
             for std in "${stds[@]}"; do
                 tag="[$cc $std]"
-                mapfile -t flags < <(flags_for "$cc" "$std")
+                mapfile -t flags < <(flags_for "$cc" "$std" "$san")
                 flags+=("${more[@]}")
                 ok=1
                 # 1. zadatak, nerešen: kompajlira se bez upozorenja i radi čisto
@@ -114,7 +133,7 @@ for lesson in "${lessons[@]}"; do
                 for x in "${flags[@]}"; do [ "$x" = -Werror ] || demo_flags+=("$x"); done
                 while read -r macro regex; do
                     [ -n "$macro" ] || continue
-                    [ "${has_san[$cc]}" = 1 ] || continue
+                    [ "${has_san[$cc $san]}" = 1 ] || continue
                     if ! "$cc" "${demo_flags[@]}" -D"$macro" "$f" -o "$tmp/d" 2>"$tmp/cc.log"; then
                         echo "FAIL  $name $tag: -D$macro se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
                     elif ! grep -qE -- "$regex" <<<"$("$tmp/d" 2>&1)"; then
