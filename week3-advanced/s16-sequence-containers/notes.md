@@ -142,12 +142,13 @@ Svi sekvencijalni kontejneri: `begin`/`end`, `size`/`empty` (osim
 `forward_list::size`), konstruktor iz opsega (`std::deque<int> d(v.begin(),
 v.end())`), `front`, `insert`, `erase`, `clear`, `swap`.
 
-**Invalidacija** (`[container.reqmts]` i opisi kontejnera):
+**Invalidacija** -- šta prestaje da važi posle operacije
+(`[container.reqmts]` i opisi kontejnera):
 
 | | dodavanje na kraj | dodavanje na početak | umetanje u sredinu | brisanje |
 |---|---|---|---|---|
 | `vector` | sve, ako je rast; inače ništa | — | od mesta umetanja nadalje (sve, ako je rast) | od mesta brisanja nadalje |
-| `deque` | iteratori da, reference **ne** | iteratori da, reference **ne** | sve | na krajevima samo obrisani; u sredini sve |
+| `deque` | svi iteratori; reference **ostaju** | svi iteratori; reference **ostaju** | sve | na krajevima samo obrisani; u sredini sve |
 | `list`, `forward_list` | ništa | ništa | ništa | samo obrisani |
 
 **Složenost:**
