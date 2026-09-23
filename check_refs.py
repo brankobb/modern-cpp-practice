@@ -92,7 +92,8 @@ def section_numbers(text):
 def paragraphs(lines, is_md):
     """Delovi teksta u kojima se reference traže zajedno.
 
-    .md: pasusi (između praznih redova; red tabele je poseban pasus).
+    .md: pasusi (između praznih redova); svaka stavka liste i svaki red
+    tabele su poseban deo.
     .cpp: uzastopni komentari (bez "//"), i svaki red koda posebno.
     Vraća (tekst, funkcija pozicija -> broj reda).
     """
@@ -108,6 +109,10 @@ def paragraphs(lines, is_md):
                 if line.startswith("|"):
                     groups.append([(i, line)])
                 continue
+            # Nova stavka liste počinje novi deo teksta.
+            if re.match(r"\s*(?:[-*]|\d+\.) ", line) and cur:
+                groups.append(cur)
+                cur = []
             cur.append((i, line))
         else:
             m = re.match(r"\s*//(.*)", line)

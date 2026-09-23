@@ -123,7 +123,7 @@ init/pokazivači/reference/const/auto pre nego što uđeš u klase.
 
 | Fold. | Tema |
 |---|---|
-| [01](week0-fundamentals/01-types-io-functions) | Primitivni tipovi, I/O, funkcije — overflow, integer promotion, cin fail state |
+| [01](week0-fundamentals/01-types-io-functions) | Primitivni tipovi, I/O, funkcije (kurs 14–17, ES.100–106, F.20) — veličine i `<cstdint>`, `char` i bajtovi, promocije i signed/unsigned, prekoračenje (signed UB, unsigned modulo), deljenje, pokretni zarez, stanje stream-a i `>>` pa `getline`, manipulatori, `[[nodiscard]]`, izlazak bez `return`-a, redosled argumenata; pogrešni slučajevi u `errors/` i `ub/` |
 | [02](week0-fundamentals/02-debugging) | Debugging (gdb umesto VS) — namerni buffer overflow, uhvati ga breakpoint-om i ASan-om |
 | [03](week0-fundamentals/03-uniform-init) | Inicijalizacija (kompletno, EMC It. 7) — default/value/direct/copy/list init, narrowing, initializer_list prioritet, agregati, C++20 designated; pogrešni slučajevi u `errors/` |
 | [04](week0-fundamentals/04-pointers-and-references) | Pokazivači i reference (kompletno, EMC It. 8, EC++ It. 16/20/21) — `nullptr`, aritmetika, `void*`, `const`, vezivanje referenci i životni vek, prosleđivanje/vraćanje, vlasništvo; pogrešni slučajevi u `errors/` i `ub/` |
