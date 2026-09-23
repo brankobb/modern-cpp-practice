@@ -172,7 +172,7 @@ Week1 pretpostavlja da već znaš da praviš klase — ovo popunjava tu rupu.
 ## Deo 3: dodatne teme (`week3-advanced/`)
 
 Teme koje nadograđuju Delove 0–2: izuzeci, C++17 novine, šabloni... Isti
-format kao ostale lekcije; numeracija sesija se nastavlja (s11, s12...).
+format kao ostale lekcije; numeracija sesija se nastavlja od 11.
 
 | Ses. | Tema | Ključno | Izvor |
 |---|---|---|---|
