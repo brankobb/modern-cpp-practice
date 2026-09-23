@@ -177,6 +177,8 @@ format kao ostale lekcije; numeracija sesija se nastavlja od 11.
 | Ses. | Tema | Ključno | Izvor |
 |---|---|---|---|
 | [11](week3-advanced/s11-exceptions) | Izuzeci (kurs 114–119) | `throw`/`try`/`catch` i hijerarhija `std::exception`; redosled `catch` blokova; sopstveni tip izuzetka; stack unwinding; `throw;` vs `throw e;`; `std::nested_exception`; function-try-block, destruktor ne baca; `noexcept` specifikator i operator; `std::exception_ptr`; `errors/` i `runtime/` (`std::terminate`) | EC++ It. 8, 29; EMC It. 14; E.2, E.14–E.16 |
+| [12](week3-advanced/s12-function-templates) | Funkcijski šabloni (kurs 130–137) | instancijacija i zašto šablon ide u header (greška linkera); dedukcija bez konverzija, eksplicitni i podrazumevani argumenti; two-phase lookup; eksplicitna specijalizacija vs overload (zašto overload); ne-tipski parametri i `auto`; `errors/` | EMC It. 1; T.144 |
+| [13](week3-advanced/s13-class-templates-traits) | Klasni šabloni, variadic, traits (kurs 138–150) | savršeno prosleđivanje + variadic; paketi, rekurzija i fold izrazi; klasni šabloni, lenja instancijacija, `typename`, CTAD i deduction guide; potpuna i delimična specijalizacija klase; alias šabloni; type traits i sopstveni trait; `static_assert`; `errors/` | EMC It. 9; T.43, T.100, T.150 |
 
 ## Provera posle Dela 2
 
