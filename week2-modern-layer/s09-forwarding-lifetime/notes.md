@@ -185,5 +185,20 @@ move, bez dupliranja funkcija. Druga polovina sesije je ista greška u
 tri oblika: `string_view`, iterator i lambda sa `[&]` ne poseduju ono na
 šta pokazuju, pa žive samo dok živi vlasnik.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_savrseno_prosledjivanje`](exercises/z1_savrseno_prosledjivanje.cpp) | upotreba | forwarding reference, std::forward i variadic template (sekcije 1, 3) | — |
+| [`z2_move_na_forwarding`](exercises/z2_move_na_forwarding.cpp) | zašto | zašto std::forward, a ne std::move, na forwarding referenci (sekcije 1, 3, EMC Item 25) | `-DNAIVNO` |
+| [`z3_lambda_referenca`](exercises/z3_lambda_referenca.cpp) | zašto | zašto [&] u lambdi koja nadživi funkciju visi (sekcija 7, EMC Item 31) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

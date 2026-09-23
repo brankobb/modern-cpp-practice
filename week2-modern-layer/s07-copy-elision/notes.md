@@ -141,5 +141,20 @@ Kad elizija nije moguća, lokalne promenljive i parametri se na `return`
 pomeraju sami. Zato je vraćanje po vrednosti jeftino, a ručni
 `std::move` u `return`-u može samo da šteti.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_parametri_i_povratak`](exercises/z1_parametri_i_povratak.cpp) | upotreba | vraćanje po vrednosti, sink parametar, emplace_back (sekcije 1, 3, 4) | — |
+| [`z2_return_std_move`](exercises/z2_return_std_move.cpp) | zašto | zašto NE pisati return std::move(lokalna) (sekcije 1, 2) | `-DNAIVNO` |
+| [`z3_const_lokalna`](exercises/z3_const_lokalna.cpp) | zašto | zašto lokalna koju vraćaš ne treba da bude const (sekcija 2) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

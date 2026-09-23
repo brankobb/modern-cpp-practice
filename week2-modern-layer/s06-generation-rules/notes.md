@@ -204,5 +204,20 @@ sam. Deklarisan destruktor ili kopija tiho ukida move, a deklarisan move
 briše kopiju. Najsigurnije je ili ne deklarisati nijednu, ili deklarisati
 svih pet. `noexcept` na move-u nije ukras: bez njega `std::vector` kopira.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_predvidi_traitove`](exercises/z1_predvidi_traitove.cpp) | upotreba | pročitaj tabelu generisanja preko type traits (sekcija 1) | — |
+| [`z2_destruktor_ukida_move`](exercises/z2_destruktor_ukida_move.cpp) | zašto | zašto "samo dodajem destruktor za log" menja performanse (sekcija 2) | `-DNAIVNO` |
+| [`z3_noexcept_vector`](exercises/z3_noexcept_vector.cpp) | zašto | zašto move konstruktor treba noexcept (sekcija 4, EMC Item 14) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 

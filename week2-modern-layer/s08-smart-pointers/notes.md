@@ -237,5 +237,20 @@ podrazumevani izbor, `shared_ptr` plaća kontrolni blok i atomske
 brojače za deljeno vlasništvo, a `weak_ptr` posmatra bez vlasništva i
 razbija cikluse. Sirov pokazivač i referenca ostaju za posmatrače.
 
+## Vežbe
+
+Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
+se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
+zakomentarisani u `main()`, a na dnu je blok OČEKIVANI IZLAZ. Zadaci
+"zašto" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
+`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./check_exercises.sh <lekcija>`.
+
+| Zadatak | Vrsta | Tema | Demonstracija problema |
+|---|---|---|---|
+| [`z1_vlasnistvo`](exercises/z1_vlasnistvo.cpp) | upotreba | unique_ptr, shared_ptr i weak_ptr po nameni (sekcije 1-4) | — |
+| [`z2_kruzna_referenca`](exercises/z2_kruzna_referenca.cpp) | zašto | zašto weak_ptr za "pokazivač nazad" (sekcija 5) | `-DNAIVNO` |
+| [`z3_shared_from_this`](exercises/z3_shared_from_this.cpp) | zašto | zašto enable_shared_from_this, a ne shared_ptr(this) (sekcija 8) | `-DNAIVNO` |
+
 ## Zapažanja posle vežbe
 
