@@ -11,18 +11,21 @@ pokazivači, forwarding, rule of 0, Deo 2).
 | `notes.md` | objašnjenje po standardu: ✅ ispravno, ❌ greška, ⚠️ zamka; EMC / EC++ / Core Guidelines; na kraju "Pravilo za praksu", tabela vežbi i prazno "Zapažanja posle vežbe" za tvoje beleške |
 | `main.cpp` | samo ispravni primeri, sa označenim izlazom; isti izlaz na g++ i clang, C++17 i C++20 |
 | `errors/` | kod koji NE SME da se kompajlira (u komentaru: zašto i kako ispravno) |
-| `ub/` | kod koji se kompajlira, a ASan/UBSan ga hvata pri pokretanju |
+| `ub/` | kod koji se kompajlira, a ASan/UBSan (ili ThreadSanitizer, za niti) ga hvata pri pokretanju |
 | `runtime/` | kod koji se kompajlira, a program se prekine iako nije UB (npr. `std::terminate`) |
 | `exercises/` | tri zadatka: bar jedan "upotreba" (vežbaš jezik) i bar jedan "zašto" (prvo vidiš problem, pa ga ispraviš); rešenja u `exercises/solutions/` |
 
 Build i pokretanje jednog fajla preko `./build.sh <fajl.cpp>`: kompajlira sa
 AddressSanitizer + UndefinedBehaviorSanitizer i `-pedantic-errors` (kod koji
 standard zabranjuje je uvek greška, ne samo warning). Dodatni argumenti idu
-kompajleru (`-std=c++20`, `-DNAIVNO`, drugi `.cpp` fajl).
+kompajleru (`-std=c++20`, `-DNAIVNO`, drugi `.cpp` fajl). Za programe sa
+nitima (s19, s20) `--tsan` gradi sa ThreadSanitizer-om umesto ASan/UBSan
+(data race i redosled zaključavanja; TSan i ASan ne mogu u isti build).
 
 ```
 ./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
 ./build.sh week0-fundamentals/03-uniform-init/exercises/z2_narrowing_senzor.cpp -DNAIVNO
+./build.sh week3-advanced/s19-threads/main.cpp --tsan
 ```
 
 Provere (bash; na Windows-u iz MSYS2 shell-a):
@@ -105,6 +108,8 @@ na Windows-u):
 - LeakSanitizer (curenje memorije: lekcija 10 z3, s01 z2, s08 z2) na
   Windows-u ASan ne podržava, pa tamo curenje vidiš samo po brojaču živih
   objekata koji zadaci ispisuju;
+- ThreadSanitizer (`--tsan`, s19 i s20) ne postoji za Windows; data race
+  primere pokreni u WSL-u;
 - tekstovi poruka (`what()` izuzetaka, imena iz `typeid`, poruke
   kompajlera) i neke nespecifikovane stvari (stanje moved-from stringa,
   koliko puta `vector` raste) mogu da se razlikuju;
@@ -184,6 +189,8 @@ format kao ostale lekcije; numeracija sesija se nastavlja od 11.
 | [16](week3-advanced/s16-sequence-containers) | Sekvencijalni kontejneri (kurs 166–171) | kontejneri, iteratori i algoritmi; kategorije iteratora; `array`, `vector` (rast, alokacije), `deque` (stabilne reference), `list`/`forward_list` (čvorovi, `splice`); tabele invalidacije i složenosti; izbor kontejnera; `errors/` i `ub/` | Effective STL It. 1; SL.con.1, SL.con.2 |
 | [17](week3-advanced/s17-associative-containers) | Asocijativni i neuređeni kontejneri (kurs 172–178) | `set`/`multiset` (insert, bound-ovi, erase svih vs jednog); poredak i ekvivalencija; `map`/`multimap` (`[]` ubacuje, `at`, `find`, `insert_or_assign`, `try_emplace`, `equal_range`); heš tabela, bucket-i, rehash; `std::hash` i sopstveni heš, cena lošeg heša; C++17 `extract`/`merge`; `errors/` i `ub/` | Effective STL It. 19, 22, 24 |
 | [18](week3-advanced/s18-algorithms) | Složenost, algoritmi, izmene kontejnera u C++11 (kurs 179–187) | veliko O izmereno brojanjem poređenja; `find`/`count_if`/`all_of`/`minmax_element`/`accumulate`; `copy_if` + `back_inserter`, `transform`, erase-remove, `unique`; `sort`/`stable_sort`/`partial_sort`/`nth_element`, `lower_bound`/`equal_range`, `merge`, `set_intersection`; C++11/17: `emplace_back`, `cbegin`, `std::size`, `shrink_to_fit`; STL projekat kao vežba; `errors/` i `ub/` | Effective STL It. 30, 31, 32, 43 |
+| [19](week3-advanced/s19-threads) | Niti, `std::mutex`, `lock_guard` (kurs 189–195) | `std::thread` (funkcija, lambda, funktor, metoda), `join`/`detach`/`joinable`, move-only; argumenti se kopiraju, `std::ref`; rezultat kroz reference i `join` kao sinhronizacija; data race, `mutex`, `try_lock`; `lock_guard`, `scoped_lock` protiv deadlock-a, `unique_lock`; `this_thread`; `errors/`, `ub/` (ThreadSanitizer), `runtime/` | EMC It. 37; CP.2, CP.20–CP.31 |
+| [20](week3-advanced/s20-async-futures) | `std::async`, `std::future`, `std::promise` (kurs 196–201) | `async` vraća `future`, `get` jednom, `shared_future`; politike `async`/`deferred`/podrazumevana; `wait_for`/`wait_until` i `future_status`; destruktor future-a iz `async`-a čeka (`[[nodiscard]]`); `promise`, `promise<void>` kao signal, broken promise, `packaged_task`; izuzeci kroz `get()` i `set_exception`; `errors/`, `ub/`, `runtime/` | EMC It. 35, 36, 38, 39; CP.4, CP.60, CP.61 |
 
 ## Provera posle Dela 2
 
