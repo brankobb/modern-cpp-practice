@@ -1,4 +1,4 @@
-// EXPECT-UB: member call on null pointer of type 'struct string'
+// EXPECT-UB: member call on null pointer of type '(struct string|std::basic_string<char>)'
 // UB: get_if vraća nullptr kad variant ne drži traženi tip -- to je
 // njegova svrha. Ovde se rezultat koristi bez provere.
 // Ispravno: if (auto* s = std::get_if<std::string>(&v)) { ... s->size() ... }

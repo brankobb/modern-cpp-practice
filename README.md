@@ -4,6 +4,29 @@ Plan vežbe: od osnova jezika (Deo 0), preko C++03 temelja (životni vek
 objekta, kopiranje, RAII) i move semantike (Deo 1), do modernog sloja (pametni
 pokazivači, forwarding, rule of 0, Deo 2).
 
+## Postavljanje (Linux ili WSL)
+
+Sve je provereno na **Ubuntu 24.04**: g++ 13 i clang 18 (libstdc++). Na
+Windows-u je najbliže tome WSL sa Ubuntu 24.04 (PowerShell:
+`wsl --install -d Ubuntu-24.04`; ako je instalirano više verzija,
+`wsl --list --verbose` pa `wsl --set-default Ubuntu-24.04`).
+
+```
+sudo apt update
+sudo apt install -y g++ clang libclang-rt-18-dev libtbb-dev python3 git
+```
+
+- `libclang-rt-18-dev`: ASan/UBSan/TSan za clang (bez njega skripte
+  preskaču clang za `ub/` i grade vežbe bez sanitizera);
+- `libtbb-dev`: da paralelni algoritmi (s24) zaista rade paralelno;
+- `python3`: za `check_refs.py`.
+
+Repozitorijum kloniraj unutar Linux fajl sistema (`~/...`), ne u
+`/mnt/c/...`: Windows git može da pretvori krajeve linija u CRLF, i onda
+bash skripte ne rade (a `/mnt/c` je i sporiji). Ubuntu 22.04 ima g++ 11 i
+clang 14 -- stariji kompajleri, pa poruke i ponašanje mogu da se razlikuju
+od onog što piše u lekcijama.
+
 ## Kako je lekcija organizovana
 
 | Fajl / folder | Šta je |

@@ -1,4 +1,4 @@
-// EXPECT-UB: index 3 out of bounds for type 'int \[3\]'
+// EXPECT-UB: index 3 out of bounds for type '(const )?int ?\[3\]'
 // POGREŠNO: constexpr funkcija pozvana pri izvršavanju sa indeksom van niza.
 // Zašto: pri kompajliranju at(3) je greška (errors/e02), pri izvršavanju
 //   tihi UB. UBSan (-fsanitize=bounds) ga hvata jer je veličina niza poznata.

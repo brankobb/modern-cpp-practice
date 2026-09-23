@@ -1,4 +1,4 @@
-// EXPECT-UB: member access within null pointer of type 'struct Dog'
+// EXPECT-UB: member access within null pointer of type '(struct )?Dog'
 // POGREŠNO: rezultat dynamic_cast<Dog*> se koristi bez provere.
 // Zašto: kad objekat nije Dog, dynamic_cast vrati nullptr. To je cela
 //   poenta: pitanje "da li je ovo Dog?" ima odgovor "ne". Ako se odgovor ne

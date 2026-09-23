@@ -1,4 +1,4 @@
-// EXPECT-UB: member access within null pointer of type 'const struct Senzor'
+// EXPECT-UB: member access within null pointer of type 'const (struct )?Senzor'
 // BAG za vežbu (notes.md, sekcija 4): nadji() vraća nullptr za nepoznat ID,
 // a pozivalac ne proverava. UBSan prijavi pristup članu kroz null
 // pokazivač (i nastavi -- pa zatim ASan prijavi SEGV). Bez sanitizera:

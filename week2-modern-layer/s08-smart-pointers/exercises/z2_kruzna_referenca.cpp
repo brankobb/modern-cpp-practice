@@ -34,12 +34,17 @@ struct Cvor {
 };
 
 int main() {
-    {
+    // Tri stabla, a ne jedno: LeakSanitizer je konzervativan -- zaostala
+    // kopija pokazivača na steku (od već uništenog shared_ptr-a) može da
+    // mu "sakrije" poslednje stablo. Sa clang-om se to dešava otprilike u
+    // pola pokretanja; prva dva stabla prijavi uvek (provereno). Isto radi
+    // ub/u01_ciklus_shared_ptr.
+    for (int i = 0; i < 3; ++i) {
         auto koren = std::make_shared<Cvor>("koren");
         auto dete = std::make_shared<Cvor>("dete");
         dete->roditelj = koren;
         koren->deca.push_back(dete);
-        std::cout << "koren use_count: " << koren.use_count() << '\n';
+        if (i == 0) std::cout << "koren use_count: " << koren.use_count() << '\n';
     }
     std::cout << "kraj bloka\n";
 }

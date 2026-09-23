@@ -1,4 +1,4 @@
-// EXPECT-UB: SEGV on unknown address 0x0+ 
+// EXPECT-UB: SEGV on unknown address
 // UB: poziv kroz null pokazivač na funkciju -- tipičan "callback koji niko
 // nije registrovao".
 // Ispravno: if (callback) callback(); -- ili std::function, koji za prazan

@@ -1,5 +1,5 @@
 // VRSTA: zašto
-// DEMO-UB: NAIVNO heap-buffer-overflow
+// DEMO-UB: NAIVNO heap-buffer-overflow|addition of unsigned offset to 0x[0-9a-f]+ overflowed
 //
 // Zadatak 3 -- auto uzme TAČAN tip inicijalizatora, i kad je unsigned
 // (sekcije 3, 6)
@@ -12,7 +12,9 @@
 //   "auto i = v.size() - 1" je std::size_t (unsigned), pa je "i >= 0"
 //   UVEK tačno. Posle i = 0 dolazi --i = 18446744073709551615, a v[i]
 //   čita ispred početka niza (adresa se "okrene"): ASan prijavi
-//   heap-buffer-overflow. g++ upozori (-Wtype-limits: "comparison of
+//   heap-buffer-overflow. (Sa clang-om UBSan to uhvati korak ranije, već
+//   pri računanju adrese u operator[]: "addition of unsigned offset ...
+//   overflowed".) g++ upozori (-Wtype-limits: "comparison of
 //   unsigned expression in '>= 0' is always true"), clang sa -Wall
 //   -Wextra ćuti.
 //   Šta bi se desilo za PRAZAN vektor, već pri prvom v.size() - 1?
