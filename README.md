@@ -216,6 +216,7 @@ Lambde, `std::function` i `std::bind`.
 |---|---|---|---|
 | [30](5-funkcije-kao-vrednosti/30-lambde) | Lambda izrazi | callback: pokazivač na funkciju → funkcijski objekat → lambda; closure tip iznutra (`sizeof`, jedinstven tip, konverzija u pokazivač, `constexpr`); capture po vrednosti/referenci, `[=]`/`[&]`, globalne se ne zarobljavaju; `this`, `[*this]` i zamka `[=]` u metodi; init capture i move-only; generičke lambde, `std::function`, IIFE; `errors/` i `ub/` | kurs 151–159; EMC It. 31, 32, 34; F.50–F.54 |
 | [31](5-funkcije-kao-vrednosti/31-function-i-bind) | `std::function` i `std::bind` | `std::function` kao jedan tip za sve callback-ove, prazan i `bad_function_call`, konverzije, metode i `std::invoke`, cena (32 B, heap za veliko stanje); `std::bind` sa placeholder-ima, metode, `std::ref`, `std::mem_fn`; zamke bind-a (kopira, računa odmah, ignoriše višak) i zašto lambda; `errors/`, `ub/`, `runtime/` | kurs 161–165; EMC It. 5, 34; T.49 |
+| [ZV](5-funkcije-kao-vrednosti/zavrsna-vezba) | **Završna vežba:** sistem događaja | dispečer sa `std::function` pretplatama, lambde sa različitim capture-ima, filteri, lanac obrade (`std::bind` i lambda), logger koji hvata `this` i odjavljuje se u destruktoru, odjava usred objave; spaja lekcije 30–31 | — |
 
 ## Deo 6: pametni pokazivači (`6-pametni-pokazivaci/`)
 
