@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Proverava VEŽBE lekcija, sa g++ i clang++ (šta je instalirano), C++17 i C++20.
-#   <lekcija>/exercises/zN_ime.cpp            -- zadatak: mora da se kompajlira
+#   <lekcija>/exercises/exN_ime.cpp           -- zadatak: mora da se kompajlira
 #                                                i radi i ovakav, nerešen
-#   <lekcija>/exercises/solutions/zN_ime.cpp  -- rešenje: izlaz mora da bude
-#                                                tačno blok "OČEKIVANI IZLAZ"
+#   <lekcija>/exercises/solutions/exN_ime.cpp -- rešenje: izlaz mora da bude
+#                                                tačno blok "EXPECTED OUTPUT"
 #                                                iz zadatka
 # Oba fajla: strogi flegovi + -Werror, pod ASan/UBSan (gde ima runtime-a).
 #
 # Zaglavlja u fajlu zadatka:
-#   // VRSTA: upotreba | zašto   -- lekcija mora da ima bar jedan od oba
+#   // KIND: usage | why       -- lekcija mora da ima bar jedan od oba
 #   // STD: c++20                -- samo taj standard (podrazumevano oba)
 #   // FLAGS: ...                -- dodatni flegovi za sve build-ove
 #   // SANITIZER: thread         -- ThreadSanitizer umesto ASan/UBSan za sve
@@ -23,20 +23,20 @@
 #   DEMO-UB i DEMO-OUT se grade BEZ -Werror: loš kod sme da izazove
 #   upozorenje (i to je deo lekcije), ali mora da se kompajlira.
 # Blok očekivanog izlaza, na kraju fajla zadatka:
-#   /* OČEKIVANI IZLAZ
+#   /* EXPECTED OUTPUT
 #   ...
 #   */
-# Završna vežba dela (<deo>/zavrsna-vezba/): zadatak.cpp (kostur, sa blokom
-# OČEKIVANI IZLAZ i istim zaglavljima) i resenje.cpp; pravilo o vrstama
-# zadataka za nju ne važi.
-# Usage: ./check_exercises.sh [<folder lekcije ili zavrsna-vezba>...]   (bez argumenata: sve)
+# Završna vežba dela (<deo>/capstone/): task.cpp (kostur, sa blokom
+# EXPECTED OUTPUT i istim zaglavljima) i solution.cpp; pravilo o KIND
+# zadacima za nju ne važi.
+# Usage: ./check_exercises.sh [<lesson or capstone folder>...]   (no arguments: all)
 set -u
 cd "$(dirname "$0")"
 
 lessons=("$@")
 if [ ${#lessons[@]} -eq 0 ]; then
     mapfile -t lessons < <({ find . -path '*/exercises' -type d -printf '%h\n'
-                             find . -type d -name zavrsna-vezba; } | sed 's|^\./||' | sort)
+                             find . -type d -name capstone; } | sed 's|^\./||' | sort)
 fi
 
 fail=0
@@ -54,7 +54,7 @@ for cc in "${compilers[@]}"; do
         has_san[$cc asan]=1
     else
         has_san[$cc asan]=0
-        echo "napomena: $cc nema ASan/UBSan runtime -- gradi se bez sanitizera, DEMO-UB se preskače"
+        echo "note: $cc has no ASan/UBSan runtime -- building without sanitizers, DEMO-UB skipped"
     fi
     if echo 'int main(){}' | "$cc" -x c++ -fsanitize=thread - -o "$tmp/probe" >/dev/null 2>&1; then
         has_san[$cc thread]=1
@@ -85,17 +85,17 @@ flags_for() { # cc std san -> strogi flegovi kao build.sh, plus -Werror
     printf '%s\n' "${flags[@]}"
 }
 
-expected_output() { sed -n '/^\/\* OČEKIVANI IZLAZ/,/^\*\//p' "$1" | sed '1d;$d'; }
+expected_output() { sed -n '/^\/\* EXPECTED OUTPUT/,/^\*\//p' "$1" | sed '1d;$d'; }
 
 for lesson in "${lessons[@]}"; do
     lesson="${lesson%/}"
     echo "== $lesson"
     kinds=""
     pairs=()
-    zavrsna=0
-    if [ "$(basename "$lesson")" = zavrsna-vezba ]; then
-        zavrsna=1
-        pairs=("$lesson/zadatak.cpp|$lesson/resenje.cpp")
+    capstone=0
+    if [ "$(basename "$lesson")" = capstone ]; then
+        capstone=1
+        pairs=("$lesson/task.cpp|$lesson/solution.cpp")
     else
         for f in "$lesson"/exercises/*.cpp; do
             [ -e "$f" ] && pairs+=("$f|$lesson/exercises/solutions/$(basename "$f")")
@@ -104,19 +104,19 @@ for lesson in "${lessons[@]}"; do
     for pair in ${pairs[@]+"${pairs[@]}"}; do
         f="${pair%%|*}"
         sol="${pair#*|}"
-        if [ ! -e "$f" ]; then echo "FAIL  $f ne postoji"; fail=1; continue; fi
+        if [ ! -e "$f" ]; then echo "FAIL  $f does not exist"; fail=1; continue; fi
         name="$(basename "$f")"
-        kinds+=" $(header VRSTA "$f")"
-        if [ ! -e "$sol" ]; then echo "FAIL  $name: nema rešenja $sol"; fail=1; continue; fi
+        kinds+=" $(header KIND "$f")"
+        if [ ! -e "$sol" ]; then echo "FAIL  $name: no solution $sol"; fail=1; continue; fi
         expect="$(expected_output "$f")"
-        if [ -z "$expect" ]; then echo "FAIL  $name: nema bloka OČEKIVANI IZLAZ"; fail=1; fi
+        if [ -z "$expect" ]; then echo "FAIL  $name: no EXPECTED OUTPUT block"; fail=1; fi
         std_hdr="$(header STD "$f")"
         stds=(c++17 c++20); [ -n "$std_hdr" ] && stds=("$std_hdr")
         read -ra more <<<"$(header FLAGS "$f")"
         san=asan; [ "$(header SANITIZER "$f")" = thread ] && san=thread
         if [ "$san" = thread ]; then
             for cc in "${compilers[@]}"; do
-                [ "${has_san[$cc thread]}" = 1 ] || echo "napomena: $cc nema TSan runtime -- $name se gradi bez sanitizera, DEMO-UB se preskače"
+                [ "${has_san[$cc thread]}" = 1 ] || echo "note: $cc has no TSan runtime -- $name built without sanitizers, DEMO-UB skipped"
             done
         fi
 
@@ -129,26 +129,26 @@ for lesson in "${lessons[@]}"; do
                 ok=1
                 # 1. zadatak, nerešen: kompajlira se bez upozorenja i radi čisto
                 if ! "$cc" "${flags[@]}" "$f" -o "$tmp/z" "${libs[@]}" 2>"$tmp/cc.log"; then
-                    echo "FAIL  $name $tag: zadatak se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
+                    echo "FAIL  $name $tag: task does not compile"; head -5 "$tmp/cc.log"; ok=0
                 elif ! "$tmp/z" >/dev/null 2>"$tmp/run.log"; then
-                    echo "FAIL  $name $tag: zadatak pada pri pokretanju"; head -5 "$tmp/run.log"; ok=0
+                    echo "FAIL  $name $tag: task fails at run time"; head -5 "$tmp/run.log"; ok=0
                 fi
                 # 2. rešenje: kompajlira se, radi čisto, izlaz = očekivani
                 if ! "$cc" "${flags[@]}" "$sol" -o "$tmp/r" "${libs[@]}" 2>"$tmp/cc.log"; then
-                    echo "FAIL  $name $tag: rešenje se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
+                    echo "FAIL  $name $tag: solution does not compile"; head -5 "$tmp/cc.log"; ok=0
                 elif ! out="$("$tmp/r" 2>"$tmp/run.log")"; then
-                    echo "FAIL  $name $tag: rešenje pada pri pokretanju"; head -5 "$tmp/run.log"; ok=0
+                    echo "FAIL  $name $tag: solution fails at run time"; head -5 "$tmp/run.log"; ok=0
                 elif [ "$out" != "$expect" ]; then
-                    echo "FAIL  $name $tag: izlaz rešenja se razlikuje od OČEKIVANI IZLAZ:"
+                    echo "FAIL  $name $tag: solution output differs from EXPECTED OUTPUT:"
                     diff <(echo "$expect") <(echo "$out") | head -10; ok=0
                 fi
                 # 3. demonstracije problema
                 while read -r macro regex; do
                     [ -n "$macro" ] || continue
                     if out="$("$cc" "${flags[@]}" -D"$macro" -fsyntax-only "$f" 2>&1)"; then
-                        echo "FAIL  $name $tag: -D$macro se kompajlira, a ne bi smelo"; ok=0
+                        echo "FAIL  $name $tag: -D$macro compiles, but must not"; ok=0
                     elif ! grep -qE -- "$regex" <<<"$out"; then
-                        echo "FAIL  $name $tag: -D$macro pada, ali ne sa \"$regex\":"
+                        echo "FAIL  $name $tag: -D$macro fails, but not with \"$regex\":"
                         grep -m2 'error' <<<"$out"; ok=0
                     fi
                 done < <(header DEMO-ERR "$f")
@@ -158,27 +158,27 @@ for lesson in "${lessons[@]}"; do
                     [ -n "$macro" ] || continue
                     [ "${has_san[$cc $san]}" = 1 ] || continue
                     if ! "$cc" "${demo_flags[@]}" -D"$macro" "$f" -o "$tmp/d" "${libs[@]}" 2>"$tmp/cc.log"; then
-                        echo "FAIL  $name $tag: -D$macro se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
+                        echo "FAIL  $name $tag: -D$macro does not compile"; head -5 "$tmp/cc.log"; ok=0
                     elif ! grep -qE -- "$regex" <<<"$("$tmp/d" 2>&1)"; then
-                        echo "FAIL  $name $tag: -D$macro: sanitizer nije prijavio \"$regex\""; ok=0
+                        echo "FAIL  $name $tag: -D$macro: sanitizer did not report \"$regex\""; ok=0
                     fi
                 done < <(header DEMO-UB "$f")
                 while read -r macro regex; do
                     [ -n "$macro" ] || continue
                     if ! "$cc" "${demo_flags[@]}" -D"$macro" "$f" -o "$tmp/d" "${libs[@]}" 2>"$tmp/cc.log"; then
-                        echo "FAIL  $name $tag: -D$macro se ne kompajlira"; head -5 "$tmp/cc.log"; ok=0
+                        echo "FAIL  $name $tag: -D$macro does not compile"; head -5 "$tmp/cc.log"; ok=0
                     elif ! out="$("$tmp/d" 2>&1)"; then
-                        echo "FAIL  $name $tag: -D$macro pada pri pokretanju"; ok=0
+                        echo "FAIL  $name $tag: -D$macro fails at run time"; ok=0
                     elif ! grep -qE -- "$regex" <<<"$out"; then
-                        echo "FAIL  $name $tag: -D$macro: izlaz ne sadrži \"$regex\""; ok=0
+                        echo "FAIL  $name $tag: -D$macro: output does not contain \"$regex\""; ok=0
                     fi
                 done < <(header DEMO-OUT "$f")
                 if [ "$ok" = 1 ]; then echo "ok    $name $tag"; else fail=1; fi
             done
         done
     done
-    if [ "$zavrsna" = 0 ] && [[ "$kinds" != *upotreba* || "$kinds" != *zašto* ]]; then
-        echo "FAIL  $lesson: treba bar jedan zadatak VRSTA: upotreba i bar jedan VRSTA: zašto"
+    if [ "$capstone" = 0 ] && [[ "$kinds" != *usage* || "$kinds" != *why* ]]; then
+        echo "FAIL  $lesson: needs at least one KIND: usage task and at least one KIND: why task"
         fail=1
     fi
 done

@@ -2,13 +2,13 @@
 """Proverava unakrsne reference u lekcijama (notes.md i .cpp fajlovi).
 
 Šta se proverava:
-  lekcija NN            -> postoji <deo>/NN-* (npr. 3-zivotni-vek-i-resursi/21-raii)
+  lekcija NN            -> postoji <deo>/NN-* (npr. 3-lifetime-and-resources/21-raii)
   lekcije NN, MM i KK   -> postoji svaka; raspon NN–MM: svaka između
   errors/eNN, ub/uNN,
   runtime/rNN           -> postoji fajl sa tim prefiksom u ciljnoj lekciji
   sekcija N, sekcije    -> ciljni notes.md ima naslov "# N."
   N, M, ... / N-M / N i M
-  exercises/zN          -> postoji zadatak sa tim prefiksom
+  exercises/exN         -> postoji zadatak sa tim prefiksom
   1-osnove.../fajl.cpp  -> fajl postoji (putanja od korena repozitorijuma)
   exercises/.../x.cpp   -> fajl postoji u ciljnoj lekciji
 
@@ -18,8 +18,8 @@ red tabele "| 03, sekcija 11 |"); ako je nema, to je lekcija u kojoj je
 fajl. "main.cpp, sekcija N" se proverava prema redovima "// ----- N" u
 main.cpp, a ne prema notes.md.
 
-Proverava sve lekcije, završne vežbe delova (<deo>/zavrsna-vezba) i README.md.
-Usage: ./check_refs.py            (izlaz 1 ako ima pokvarenih referenci)
+Proverava sve lekcije, završne vežbe delova (<deo>/capstone) i README.md.
+Usage: ./check_refs.py            (exit 1 if any reference is broken)
 """
 import os
 import re
@@ -33,9 +33,9 @@ LESSON_RE = re.compile(
 )
 FILE_RE = re.compile(r"\b(main(?:_cpp20)?\.cpp)\b")
 CASE_RE = re.compile(r"\b(errors|ub|runtime)/([eur]\d{2})\b")
-EXERCISE_RE = re.compile(r"\bexercises/(z\d)\b")
+EXERCISE_RE = re.compile(r"\bexercises/(ex\d)\b")
 # Putanje fajlova: od korena repozitorijuma (./build.sh week0-.../main.cpp)
-# ili od lekcije (exercises/solutions/z1_ime.cpp).
+# ili od lekcije (exercises/solutions/ex1_ime.cpp).
 ROOT_PATH_RE = re.compile(r"(?<![\w/.])([1-9]-[\w-]+/[\w./-]+\.(?:cpp|h|md))")
 LESSON_PATH_RE = re.compile(r"(?<![\w/.])(exercises/(?:solutions/)?\w+\.cpp)")
 SECTION_RE = re.compile(r"\b(?i:sekcij[aeiu]) (\d+(?:\s*(?:,|-|–|\bi\b)\s*\d+)*)")
@@ -169,9 +169,9 @@ def check_paragraph(text, line_of, rel, ldir, lessons, head_cache, problems, sta
         tags = lesson_numbers(m.group(1)) if m.group(1) else [m.group(2)]
         lesson_marks.append((m.start(), tags[-1]))   # dalje reference se odnose na poslednju
         for tag in tags:
-            stats["lekcija"] += 1
+            stats["lesson"] += 1
             if tag not in lessons:
-                problems.append(f"{rel}:{line_of(m.start())}: nema lekcije {tag} ('{m.group(0)}')")
+                problems.append(f"{rel}:{line_of(m.start())}: no lesson {tag} ('{m.group(0)}')")
     file_marks = [(m.start(), m.group(1)) for m in FILE_RE.finditer(text)]
     ends = [m.start() for m in SENTENCE_END.finditer(text)]
 
@@ -200,7 +200,7 @@ def check_paragraph(text, line_of, rel, ldir, lessons, head_cache, problems, sta
         sub = os.path.join(tdir, m.group(1))
         names = os.listdir(sub) if os.path.isdir(sub) else []
         if not any(n.startswith(m.group(2) + "_") for n in names):
-            problems.append(f"{rel}:{line_of(m.start())}: nema {m.group(1)}/{m.group(2)} u "
+            problems.append(f"{rel}:{line_of(m.start())}: no {m.group(1)}/{m.group(2)} in "
                             f"{os.path.relpath(tdir, ROOT)}")
 
     for m in EXERCISE_RE.finditer(text):
@@ -211,20 +211,20 @@ def check_paragraph(text, line_of, rel, ldir, lessons, head_cache, problems, sta
         sub = os.path.join(tdir, "exercises")
         names = os.listdir(sub) if os.path.isdir(sub) else []
         if not any(n.startswith(m.group(1) + "_") for n in names):
-            problems.append(f"{rel}:{line_of(m.start())}: nema exercises/{m.group(1)}")
+            problems.append(f"{rel}:{line_of(m.start())}: no exercises/{m.group(1)}")
 
     for m in ROOT_PATH_RE.finditer(text):
-        stats["putanja"] += 1
+        stats["path"] += 1
         if not os.path.exists(os.path.join(ROOT, m.group(1))):
-            problems.append(f"{rel}:{line_of(m.start())}: nema fajla {m.group(1)}")
+            problems.append(f"{rel}:{line_of(m.start())}: no file {m.group(1)}")
 
     for m in LESSON_PATH_RE.finditer(text):
         tdir, _ = target(m.start())
         if tdir is None:
             continue
-        stats["putanja"] += 1
+        stats["path"] += 1
         if not os.path.exists(os.path.join(tdir, m.group(1))):
-            problems.append(f"{rel}:{line_of(m.start())}: nema fajla {m.group(1)} u "
+            problems.append(f"{rel}:{line_of(m.start())}: no file {m.group(1)} in "
                             f"{os.path.relpath(tdir, ROOT)}")
 
     for m in SECTION_RE.finditer(text):
@@ -235,9 +235,9 @@ def check_paragraph(text, line_of, rel, ldir, lessons, head_cache, problems, sta
         if src not in head_cache:
             head_cache[src] = code_sections(src) if fname else headings(src)
         for n in section_numbers(m.group(1)):
-            stats["sekcija"] += 1
+            stats["section"] += 1
             if n not in head_cache[src]:
-                problems.append(f"{rel}:{line_of(m.start())}: nema sekcije {n} u "
+                problems.append(f"{rel}:{line_of(m.start())}: no section {n} in "
                                 f"{os.path.relpath(src, ROOT)} ('{m.group(0).strip()}')")
 
 
@@ -258,12 +258,12 @@ def main():
     lessons = lesson_dirs()
     head_cache = {}
     problems = []
-    stats = {"lekcija": 0, "errors/ub": 0, "exercises": 0, "sekcija": 0, "putanja": 0}
+    stats = {"lesson": 0, "errors/ub": 0, "exercises": 0, "section": 0, "path": 0}
 
-    # Lekcije i završne vežbe delova (<deo>/zavrsna-vezba, bez broja).
+    # Lekcije i završne vežbe delova (<deo>/capstone, bez broja).
     dirs = list(lessons.values())
     for part in sorted(os.listdir(ROOT)):
-        z = os.path.join(ROOT, part, "zavrsna-vezba")
+        z = os.path.join(ROOT, part, "capstone")
         if re.match(r"\d-", part) and os.path.isdir(z):
             dirs.append(z)
     for ldir in dirs:
@@ -288,8 +288,8 @@ def main():
 
     for p in problems:
         print(p)
-    print("provereno: " + ", ".join(f"{k} {v}" for k, v in stats.items()))
-    print(f"{len(problems)} problema" if problems else "sve reference su ispravne")
+    print("checked: " + ", ".join(f"{k} {v}" for k, v in stats.items()))
+    print(f"{len(problems)} problems" if problems else "all references are valid")
     return 1 if problems else 0
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Compile and run a single exercise with ASan + UBSan.
-# Usage: ./build.sh 3-zivotni-vek-i-resursi/19-zivotni-vek-objekta/main.cpp
-#        ./build.sh <fajl>.cpp --tsan   -- ThreadSanitizer umesto ASan+UBSan
+# Usage: ./build.sh 3-lifetime-and-resources/19-object-lifetime/main.cpp
+#        ./build.sh <file>.cpp --tsan   -- ThreadSanitizer umesto ASan+UBSan
 #        (za niti; TSan i ASan ne mogu zajedno)
 # -pedantic-errors: code the standard calls ill-formed is always an error,
 # e.g. g++ otherwise only warns on narrowing from a variable inside {}.

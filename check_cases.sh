@@ -18,11 +18,11 @@
 #   fajl (npr. sanitizer koji -fsanitize=undefined ne uključuje).
 # Opciono "// SANITIZER: thread" u ub/ fajlu: ThreadSanitizer umesto
 #   ASan/UBSan (data race, redosled zaključavanja); ne mogu zajedno.
-# Usage: ./check_cases.sh 1-osnove-jezika/04-pokazivaci-i-reference
+# Usage: ./check_cases.sh 1-language-basics/04-pointers-and-references
 set -u
 
 if [ $# -ne 1 ] || [ ! -d "$1" ]; then
-    echo "Usage: $0 <folder lekcije>" >&2
+    echo "Usage: $0 <lesson folder>" >&2
     exit 2
 fi
 lesson="$1"
@@ -62,7 +62,7 @@ for f in "$lesson"/errors/*.cpp; do
     only="$(header ONLY-CC "$f")"
     for cc in "${compilers[@]}"; do
         if [ -n "$only" ] && [ "$cc" != "$only" ]; then
-            echo "skip  $name [$cc]: slučaj važi samo za $only"
+            echo "skip  $name [$cc]: case applies only to $only"
             continue
         fi
         key=GCC; [ "$cc" = "clang++" ] && key=CLANG
@@ -79,9 +79,9 @@ for f in "$lesson"/errors/*.cpp; do
             mode=(-c -o "$tmp/obj.o")
         fi
         if out="$("$cc" "${flags[@]}" "${mode[@]}" "$f" 2>&1)"; then
-            echo "FAIL  $name [$cc]: kompajliralo se, a ne bi smelo"; fail=1
+            echo "FAIL  $name [$cc]: compiled, but must not"; fail=1
         elif ! grep -qF -- "$expect" <<<"$out"; then
-            echo "FAIL  $name [$cc]: pada, ali ne iz očekivanog razloga (\"$expect\"):"
+            echo "FAIL  $name [$cc]: fails, but not for the expected reason (\"$expect\"):"
             grep -m2 -E 'error|multiple definition|undefined reference' <<<"$out"; fail=1
         else
             echo "ok    $name [$cc]"
@@ -99,12 +99,12 @@ for f in "$lesson"/ub/*.cpp; do
     [ "$(header SANITIZER "$f")" = thread ] && { san=(-fsanitize=thread); san_name="TSan"; }
     for cc in "${compilers[@]}"; do
         if [ -n "$only" ] && [ "$cc" != "$only" ]; then
-            echo "skip  $name [$cc]: slučaj važi samo za $only"
+            echo "skip  $name [$cc]: case applies only to $only"
             continue
         fi
         # Sanitizer runtime nije uvek instaliran za svaki kompajler -- proveri.
         if ! echo 'int main(){}' | "$cc" -x c++ "${san[@]}" - -o "$tmp/probe" >/dev/null 2>&1; then
-            echo "skip  $name [$cc]: nema $san_name runtime za ovaj kompajler"
+            echo "skip  $name [$cc]: no $san_name runtime for this compiler"
             continue
         fi
         mapfile -t flags < <(strict_flags "$cc" "$std")
@@ -114,7 +114,7 @@ for f in "$lesson"/ub/*.cpp; do
         mapfile -t libs < <(tbb_libs "$cc" "$f")
         if ! "$cc" "${flags[@]}" -g -O0 "${san[@]}" -fno-omit-frame-pointer \
                 "$f" "${extra[@]}" -o "$tmp/ub" "${libs[@]}" 2>"$tmp/cc.log"; then
-            echo "FAIL  $name [$cc]: ne kompajlira se, a trebalo bi"
+            echo "FAIL  $name [$cc]: does not compile, but should"
             grep -m2 'error' "$tmp/cc.log"; fail=1
             continue
         fi
@@ -122,7 +122,7 @@ for f in "$lesson"/ub/*.cpp; do
         if grep -qE -- "$expect" <<<"$out"; then
             echo "ok    $name [$cc]"
         else
-            echo "FAIL  $name [$cc]: sanitizer nije prijavio \"$expect\""; fail=1
+            echo "FAIL  $name [$cc]: sanitizer did not report \"$expect\""; fail=1
         fi
     done
 done
@@ -135,7 +135,7 @@ for f in "$lesson"/runtime/*.cpp; do
     only="$(header ONLY-CC "$f")"
     for cc in "${compilers[@]}"; do
         if [ -n "$only" ] && [ "$cc" != "$only" ]; then
-            echo "skip  $name [$cc]: slučaj važi samo za $only"
+            echo "skip  $name [$cc]: case applies only to $only"
             continue
         fi
         mapfile -t flags < <(strict_flags "$cc" "$std")
@@ -143,16 +143,16 @@ for f in "$lesson"/runtime/*.cpp; do
         flags+=("${more[@]}")
         mapfile -t libs < <(tbb_libs "$cc" "$f")
         if ! "$cc" "${flags[@]}" -g -O0 "$f" -o "$tmp/run" "${libs[@]}" 2>"$tmp/cc.log"; then
-            echo "FAIL  $name [$cc]: ne kompajlira se, a trebalo bi"
+            echo "FAIL  $name [$cc]: does not compile, but should"
             grep -m2 'error' "$tmp/cc.log"; fail=1
             continue
         fi
         if out="$("$tmp/run" 2>&1)"; then
-            echo "FAIL  $name [$cc]: program se završio uspešno, a trebalo je da se prekine"; fail=1
+            echo "FAIL  $name [$cc]: program exited successfully, but should have aborted"; fail=1
         elif grep -qE -- "$expect" <<<"$out"; then
             echo "ok    $name [$cc]"
         else
-            echo "FAIL  $name [$cc]: izlaz ne sadrži \"$expect\""; fail=1
+            echo "FAIL  $name [$cc]: output does not contain \"$expect\""; fail=1
         fi
     done
 done
