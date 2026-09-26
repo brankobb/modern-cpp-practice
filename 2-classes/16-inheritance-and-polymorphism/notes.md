@@ -79,7 +79,7 @@ class Logger     { void log(int); void log(const std::string&); };
 class FileLogger : public Logger { void log(double); };
 
 fileLogger.log(5);            // FileLogger::log(double)! int -> double
-fileLogger.log("tekst"s);     // ❌ ne kompajlira se (errors/e08)
+fileLogger.log("text"s);      // ❌ ne kompajlira se (errors/e08)
 ```
 
 Traženje imena staje u **prvom** scope-u gde nađe ime (`FileLogger`), pa
@@ -152,7 +152,7 @@ prijavi string koji `~Label` nije oslobodio.
 # 6. Virtual poziv u konstruktoru (EC++ Item 9)
 
 ```
-u Widget(): Widget::kind; posle konstrukcije: Button::kind(OK)
+in Widget(): Widget::kind; after construction: Button::kind(OK)
 ```
 
 Dok se pravi bazni deo, objekat **jeste** bazna klasa. Izvedeni deo još
@@ -292,7 +292,7 @@ void Sink::log(const std::string& m) const { ... }   // pure virtual SME da ima 
   Base::~Base()`).
 - **Pure virtual funkcija sa telom:** izvedena klasa mora da je
   nadjača, ali može da pozove podrazumevano ponašanje eksplicitno
-  (`Sink::log(m)`). Test: `[console] [podrazumevano] poruka`.
+  (`Sink::log(m)`). Test: `[console] [default] message`.
 - **Interfejs** (samo pure virtual funkcije i virtual destruktor, bez
   podataka) je najčistiji oblik nasleđivanja: višestruko nasleđivanje
   od interfejsa nema problem dijamanta (sekcija 10), a C++ Core
@@ -339,7 +339,7 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_oblici`](exercises/ex1_oblici.cpp) | usage | interfejs, override, final, virtualni destruktor i clone() (sekcije 4, 5, 9, 12) | — |
+| [`ex1_shapes`](exercises/ex1_shapes.cpp) | usage | interfejs, override, final, virtualni destruktor i clone() (sekcije 4, 5, 9, 12) | — |
 | [`ex2_override`](exercises/ex2_override.cpp) | why | zašto override (sekcija 4, EMC Item 12) | `-DNAIVE`, `-DOVERRIDE` |
 | [`ex3_slicing`](exercises/ex3_slicing.cpp) | why | zašto se polimorfni objekti ne čuvaju po vrednosti (sekcija 8) | `-DNAIVE` |
 

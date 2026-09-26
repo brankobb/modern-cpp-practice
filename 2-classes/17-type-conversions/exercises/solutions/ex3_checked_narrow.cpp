@@ -1,10 +1,10 @@
-// Rešenje zadatka ex3_provereni_narrow.
+// Rešenje zadatka ex3_checked_narrow.
 
 #include <iostream>
 #include <limits>
 #include <stdexcept>
 
-long izKonfiguracije() { return 100000; }
+long fromConfig() { return 100000; }
 
 // Ako pišeš static_cast<short>(v) za vrednost spolja (nije dobro): van
 // opsega se tiho dobije druga vrednost (za double van opsega je čak UB,
@@ -19,7 +19,7 @@ To narrow(From v) {
 }
 
 template <typename To, typename From>
-void probaj(From v) {
+void tryNarrow(From v) {
     try {
         To r = narrow<To>(v);   // prvo konverzija: ako baci, ništa nije ispisano
         std::cout << v << " -> " << r << '\n';
@@ -29,11 +29,11 @@ void probaj(From v) {
 }
 
 int main() {
-    probaj<short>(1234L);
-    probaj<short>(izKonfiguracije());
-    probaj<short>(static_cast<long>(std::numeric_limits<short>::max()));
-    probaj<short>(static_cast<long>(std::numeric_limits<short>::max()) + 1);
-    probaj<unsigned>(-1);
-    probaj<int>(3.0);
-    probaj<int>(3.5);
+    tryNarrow<short>(1234L);
+    tryNarrow<short>(fromConfig());
+    tryNarrow<short>(static_cast<long>(std::numeric_limits<short>::max()));
+    tryNarrow<short>(static_cast<long>(std::numeric_limits<short>::max()) + 1);
+    tryNarrow<unsigned>(-1);
+    tryNarrow<int>(3.0);
+    tryNarrow<int>(3.5);
 }

@@ -1,6 +1,6 @@
 // EXPECT-UB: stack-use-after-scope
 // POGREŠNO: član-referenca vezan za privremeni objekat.
-// Zašto: Greeter g("Ana") napravi privremeni std::string iz "Ana" i veže
+// Zašto: Greeter g("Ann") napravi privremeni std::string iz "Ann" i veže
 //   name_ za njega. Privremeni nestaje na kraju te linije, a name_ ostaje
 //   da pokazuje na njega. Pravilo o produženju života (lekcija 04,
 //   sekcija 8) ne važi za reference koje se vežu kroz konstruktor.
@@ -13,13 +13,13 @@
 class Greeter {
 public:
     explicit Greeter(const std::string& name) : name_(name) {}
-    void greet() const { std::printf("Zdravo, %s\n", name_.c_str()); }
+    void greet() const { std::printf("Hello, %s\n", name_.c_str()); }
 
 private:
     const std::string& name_;
 };
 
 int main() {
-    Greeter g("Ana");
+    Greeter g("Ann");
     g.greet();
 }

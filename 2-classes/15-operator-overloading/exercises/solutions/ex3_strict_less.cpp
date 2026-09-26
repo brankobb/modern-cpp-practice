@@ -1,4 +1,4 @@
-// Rešenje zadatka ex3_strogo_manje.
+// Rešenje zadatka ex3_strict_less.
 
 #include <algorithm>
 #include <iostream>
@@ -6,7 +6,7 @@
 #include <tuple>
 #include <vector>
 
-struct Verzija {
+struct Version {
     int major;
     int minor;
 };
@@ -15,15 +15,15 @@ struct Verzija {
 // prepoznaje jednake elemente, a std::sort čita van niza (UB).
 // Treba ovako: std::tie pravi tuple referenci, a tuple-ov operator< je
 // leksikografski i strog -- ispravan i za tri, četiri... polja.
-bool operator<(const Verzija& a, const Verzija& b) {
+bool operator<(const Version& a, const Version& b) {
     return std::tie(a.major, a.minor) < std::tie(b.major, b.minor);
 }
 
 int main() {
-    std::set<Verzija> s{{1, 2}, {1, 2}, {2, 0}};
-    std::cout << "velicina: " << s.size() << ", count({1, 2}): " << s.count({1, 2}) << '\n';
-    std::vector<Verzija> v(40, Verzija{1, 1});
+    std::set<Version> s{{1, 2}, {1, 2}, {2, 0}};
+    std::cout << "size: " << s.size() << ", count({1, 2}): " << s.count({1, 2}) << '\n';
+    std::vector<Version> v(40, Version{1, 1});
     v.push_back({0, 9});
     std::sort(v.begin(), v.end());
-    std::cout << "prvi: " << v.front().major << '.' << v.front().minor << '\n';
+    std::cout << "first: " << v.front().major << '.' << v.front().minor << '\n';
 }

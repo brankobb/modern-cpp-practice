@@ -162,7 +162,7 @@ struct Version {
 | `= default` za poređenje u C++17 | ❌ ne postoji (`errors/e07`) |
 
 `weak_ordering` se koristi kad su vrednosti **ekvivalentne** a nisu iste,
-npr. `Username("Ana")` i `Username("ANA")` kod poređenja bez obzira na
+npr. `Username("Ann")` i `Username("ANN")` kod poređenja bez obzira na
 velika i mala slova.
 
 ---
@@ -310,9 +310,9 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_razlomak`](exercises/ex1_razlomak.cpp) | usage | aritmetički operatori, poređenje i ispis (sekcije 2, 5, 6, 11) | — |
-| [`ex2_opseg_iterator`](exercises/ex2_opseg_iterator.cpp) | usage | sopstveni iterator: *, ++, != i range-for; operator[] i operator() (sekcije 7, 8, 9) | — |
-| [`ex3_strogo_manje`](exercises/ex3_strogo_manje.cpp) | why | zašto operator< mora biti STROG (sekcija 5) | `-DNAIVE`, `-DNAIVE_SORT` |
+| [`ex1_fraction`](exercises/ex1_fraction.cpp) | usage | aritmetički operatori, poređenje i ispis (sekcije 2, 5, 6, 11) | — |
+| [`ex2_range_iterator`](exercises/ex2_range_iterator.cpp) | usage | sopstveni iterator: *, ++, != i range-for; operator[] i operator() (sekcije 7, 8, 9) | — |
+| [`ex3_strict_less`](exercises/ex3_strict_less.cpp) | why | zašto operator< mora biti STROG (sekcija 5) | `-DNAIVE`, `-DNAIVE_SORT` |
 
 ## Zapažanja posle vežbe
 

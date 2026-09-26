@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-struct Senzor {
-    virtual ~Senzor() = default;
-    virtual double ocitaj() const {
-        std::cout << "Senzor::ocitaj -- podrazumevano\n";
+struct Sensor {
+    virtual ~Sensor() = default;
+    virtual double read() const {
+        std::cout << "Sensor::read -- default\n";
         return 0.0;
     }
 };
@@ -15,19 +15,19 @@ struct Senzor {
 // Treba ovako: override na SVAKOJ funkciji koja nadjačava (C.128). Potpis
 // koji se ne poklapa postaje greška pri kompajliranju. virtual se u
 // izvedenoj klasi ne piše -- override ga podrazumeva.
-struct TermoSenzor : Senzor {
-    double ocitaj() const override {
-        std::cout << "TermoSenzor::ocitaj\n";
+struct ThermoSensor : Sensor {
+    double read() const override {
+        std::cout << "ThermoSensor::read\n";
         return 21.5;
     }
 };
 
-void izvestaj(const Senzor& s) {
-    double v = s.ocitaj();   // prvo očitaj (ocitaj() i sam ispisuje), pa ispiši
-    std::cout << "vrednost: " << v << '\n';
+void report(const Sensor& s) {
+    double v = s.read();   // prvo očitaj (read() i sam ispisuje), pa ispiši
+    std::cout << "value: " << v << '\n';
 }
 
 int main() {
-    TermoSenzor t;
-    izvestaj(t);
+    ThermoSensor t;
+    report(t);
 }

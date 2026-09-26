@@ -17,7 +17,7 @@ public:
 };
 class SafeDog : public SafeAnimal {
 public:
-    std::string speak() const override { return "Av!"; }
+    std::string speak() const override { return "Woof!"; }
 };
 std::string byValue(SafeAnimal a) { return a.speak(); }
 int main() {

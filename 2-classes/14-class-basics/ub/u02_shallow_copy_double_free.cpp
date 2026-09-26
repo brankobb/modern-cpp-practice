@@ -22,7 +22,7 @@ private:
 };
 
 int main() {
-    Name a("Ana");
+    Name a("Ann");
     {
         Name b = a;
         std::printf("%s\n", b.c_str());

@@ -23,7 +23,7 @@ Očekuj 2–3 sedenja.
 
 | Korak | Šta radiš | Lekcija |
 |---|---|---|
-| 1 | `Razlika` i `Temperatura`: dva tipa, pa `Temperatura + Temperatura` ne može ni da se napiše | lekcija 15, sekcije 2, 3 i 5 |
+| 1 | `Delta` i `Temperature`: dva tipa, pa `Temperature + Temperature` ne može ni da se napiše | lekcija 15, sekcije 2, 3 i 5 |
 | 1 | invarijanta preko privatnog konstruktora i fabričkih funkcija; `explicit` konstruktor | lekcija 14, sekcije 1 i 2; lekcija 17, sekcija 5 |
 | 1 | `operator<<` koji ne menja podešavanja tuđeg stream-a | lekcija 15, sekcija 6 |
 | 2 | apstraktna bazna klasa, `virtual`/`override`/`final`, virtual destruktor, zabranjeno kopiranje | lekcija 16, sekcije 4, 5, 8 i 12 |
@@ -36,29 +36,29 @@ Očekuj 2–3 sedenja.
 - ✅ **Tip čuva značenje.** Temperatura i razlika temperatura su različite
   stvari (kao tačka i vektor): `20 °C + 5 K` ima smisla, `20 °C + 5 °C`
   nema. Sa dva tipa to kompajler proverava umesto tebe. Probaj u `main`:
-  `Temperatura::izCelzijusa(1) + Temperatura::izCelzijusa(2)` se ne
-  kompajlira (g++: `no match for 'operator+'`), `Razlika r = 2.0;` isto
-  ne (`explicit`), a ni `Temperatura t{20.0};` (privatan konstruktor) --
+  `Temperature::fromCelsius(1) + Temperature::fromCelsius(2)` se ne
+  kompajlira (g++: `no match for 'operator+'`), `Delta r = 2.0;` isto
+  ne (`explicit`), a ni `Temperature t{20.0};` (privatan konstruktor) --
   provereno na g++ i clang-u.
 - ⚠️ **`operator<<` i stanje stream-a.** `out << std::fixed << std::setprecision(1)`
   unutar operatora ostaje na stream-u i posle njega, pa sledeći broj koji
   pozivalac ispiše ima jednu decimalu, a da on to nije tražio. U prvoj
   verziji rešenja se baš to desilo: kelvin je ispisan kao 296.6 umesto
   296.65. Zato formatiranje ide u lokalni `std::ostringstream`.
-- ⚠️ `std::vector<Senzor*>` ovde **ne poseduje** senzore; oni su na steku
+- ⚠️ `std::vector<Sensor*>` ovde **ne poseduje** senzore; oni su na steku
   u `main`-u i žive duže od vektora. Vlasništvo preko pokazivača dolazi u
-  delu 6 (`std::unique_ptr<Senzor>`).
+  delu 6 (`std::unique_ptr<Sensor>`).
 - ⚠️ Poređenje `double` sa `==` je tačno samo za vrednosti koje su
   izračunate istim putem (ovde: ista vrednost iz iste fabrike). Za
   izmerene vrednosti poređenje ide sa tolerancijom.
 
 ## Posle rešenja
 
-1. Šta bi se promenilo da `Temperatura` čuva kelvine umesto °C? Koje bi
+1. Šta bi se promenilo da `Temperature` čuva kelvine umesto °C? Koje bi
    vrednosti tada ispale "ružne" pri ispisu, i zašto?
-2. Zašto je `KalibrisaniSenzor` `final`? Šta bi značilo nasleđivanje od
+2. Zašto je `CalibratedSensor` `final`? Šta bi značilo nasleđivanje od
    njega?
-3. Kako bi `izCelzijusa` javila grešku za -300 °C kad bi mogla da koristi
+3. Kako bi `fromCelsius` javila grešku za -300 °C kad bi mogla da koristi
    izuzetke (lekcija 18)?
 
 ## Zapažanja posle vežbe

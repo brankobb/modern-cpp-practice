@@ -41,7 +41,7 @@ private:
 };
 
 void s01_classAndStruct() {
-    std::cout << "-- 1. class vs struct, enkapsulacija --\n";
+    std::cout << "-- 1. class vs struct, encapsulation --\n";
     Point p{1, 2}; // struct bez invarijante: agregat, direktan pristup je u redu
     std::cout << "  Point{1, 2}: x=" << p.x << " y=" << p.y << "\n";
 
@@ -53,7 +53,7 @@ void s01_classAndStruct() {
     b.deposit(10);
     std::cout << std::boolalpha << "  deposit(100), withdraw(30)=" << ok << ", withdraw(500)=" << tooMuch
               << " -> balance=" << a.balance() << "\n";
-    std::cout << "  a.richerThan(b)=" << a.richerThan(b) << "  <- čita b.balance_, iako je private\n"
+    std::cout << "  a.richerThan(b)=" << a.richerThan(b) << "  <- reads b.balance_, even though it is private\n"
               << std::noboolalpha;
 }
 
@@ -77,7 +77,7 @@ public:
         : id_(id), location_(location), readings_(readings) {}
 
     void read() { ++readings_; }
-    std::string describe() const { return "senzor " + std::to_string(id_) + " @ " + location_; }
+    std::string describe() const { return "sensor " + std::to_string(id_) + " @ " + location_; }
 
 private:
     const int id_;          // const član: samo kroz init listu
@@ -98,7 +98,7 @@ private:
 };
 
 void s02_constructors() {
-    std::cout << "-- 2. konstruktori i init lista --\n";
+    std::cout << "-- 2. constructors and the init list --\n";
     Temperature zero;           // podrazumevani konstruktor
     Temperature warm(21.5);     // Temperature warm = 21.5; ne radi zbog explicit (lekcija 03, errors/e06)
     Temperature cold{-3.0};
@@ -106,13 +106,13 @@ void s02_constructors() {
     // Temperature bad(); -- NIJE objekat nego deklaracija funkcije (most vexing parse, lekcija 03)
 
     int readings = 0;
-    Sensor s(7, "kuhinja", readings);
+    Sensor s(7, "kitchen", readings);
     s.read();
     s.read();
-    std::cout << "  " << s.describe() << ", readings=" << readings << " (član je referenca na spoljni brojač)\n";
+    std::cout << "  " << s.describe() << ", readings=" << readings << " (the member is a reference to an outside counter)\n";
 
-    Label label("Ana");
-    std::cout << "  Label: " << label.decorated() << "  <- text_ je deklarisan pre decorated_\n";
+    Label label("Ann");
+    std::cout << "  Label: " << label.decorated() << "  <- text_ is declared before decorated_\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -136,8 +136,8 @@ private:
 };
 
 void s03_destructor() {
-    std::cout << "-- 3. destruktor i redosled --\n";
-    std::cout << "  lokalne promenljive: ";
+    std::cout << "-- 3. destructor and order --\n";
+    std::cout << "  local variables: ";
     {
         Noisy first("a");
         Noisy second("b");
@@ -162,11 +162,11 @@ public:
 private:
     int width_ = 800;             // NSDMI (C++11): podrazumevana vrednost u deklaraciji
     int height_{600};             // može i sa {}, ali NE sa (): int height_(600); (lekcija 03, errors/e09)
-    std::string title_ = "bez naslova";
+    std::string title_ = "untitled";
 };
 
 void s04_memberInitializers() {
-    std::cout << "-- 4. podrazumevane vrednosti članova (NSDMI) --\n";
+    std::cout << "-- 4. default member values (NSDMI) --\n";
     Window a;
     Window b(1024);
     std::cout << "  Window()=" << a.describe() << "  Window(1024)=" << b.describe() << "\n";
@@ -180,7 +180,7 @@ public:
         return *this;
     }
     int total() const {
-        static_assert(std::is_same_v<decltype(this), const Builder*>, "u const funkciji this je const Builder*");
+        static_assert(std::is_same_v<decltype(this), const Builder*>, "in a const function this is const Builder*");
         return total_;
     }
 
@@ -207,7 +207,7 @@ void s05_this() {
     BrokenBuilder broken;
     broken.add(1).add(2).add(3); // add(2) i add(3) menjaju privremene kopije
     std::cout << "  Builder& add():      total=" << good.total() << "\n";
-    std::cout << "  BrokenBuilder add(): total=" << broken.total() << "  <- samo prvi add je promenio objekat\n";
+    std::cout << "  BrokenBuilder add(): total=" << broken.total() << "  <- only the first add changed the object\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -230,16 +230,16 @@ private:
 };
 
 void s06_staticMembers() {
-    std::cout << "-- 6. static članovi --\n";
-    std::cout << "  pre: alive=" << Connection::alive() << " (static postoji i bez ijednog objekta)\n";
+    std::cout << "-- 6. static members --\n";
+    std::cout << "  before: alive=" << Connection::alive() << " (a static exists even with no objects)\n";
     {
         Connection a;
         Connection b;
         Connection c;
-        std::cout << "  unutra: alive=" << Connection::alive() << ", c.id()=" << c.id()
+        std::cout << "  inside: alive=" << Connection::alive() << ", c.id()=" << c.id()
                   << ", max=" << Connection::kMaxConnections << "\n";
     }
-    std::cout << "  posle: alive=" << Connection::alive() << "\n";
+    std::cout << "  after: alive=" << Connection::alive() << "\n";
 }
 
 // ---------------------------------------------------------------- 7
@@ -253,11 +253,11 @@ private:
 };
 
 void s07_constMemberFunctions() {
-    std::cout << "-- 7. const member funkcije (detaljno u lekciji 09) --\n";
+    std::cout << "-- 7. const member functions (details in lesson 09) --\n";
     Inventory inv;
     inv.add(5);
     const Inventory& view = inv;
-    std::cout << "  preko const reference: view.count()=" << view.count() << " (view.add(1) se ne bi kompajliralo)\n";
+    std::cout << "  through a const reference: view.count()=" << view.count() << " (view.add(1) would not compile)\n";
 }
 
 // ---------------------------------------------------------------- 8
@@ -289,23 +289,23 @@ void takeByValue(Name n) { (void)n; }      // parametar po vrednosti -> copy kon
 void takeByRef(const Name& n) { (void)n; } // referenca -> bez kopije
 
 void s08_copyConstructor() {
-    std::cout << "-- 8. copy konstruktor --\n";
-    Name a("Ana");
+    std::cout << "-- 8. copy constructor --\n";
+    Name a("Ann");
     Name b = a;   // copy konstruktor (NIJE dodela: b tek nastaje)
     Name c(a);    // copy konstruktor
     takeByValue(a);
     takeByRef(a);
-    std::cout << "  Name b = a; Name c(a); takeByValue(a); takeByRef(a) -> kopija=" << Name::copies << "\n";
+    std::cout << "  Name b = a; Name c(a); takeByValue(a); takeByRef(a) -> copies=" << Name::copies << "\n";
     b.setFirst('I');
-    std::cout << "  posle b.setFirst('I'): a=" << a.c_str() << " b=" << b.c_str() << " c=" << c.c_str()
-              << "  <- duboka kopija, a se ne menja\n";
+    std::cout << "  after b.setFirst('I'): a=" << a.c_str() << " b=" << b.c_str() << " c=" << c.c_str()
+              << "  <- a deep copy, a does not change\n";
 }
 
 // ---------------------------------------------------------------- 9
 class Rect {
 public:
     Rect(int width, int height) : width_(width), height_(height) { // "glavni" konstruktor
-        if (width <= 0 || height <= 0) throw std::invalid_argument("dimenzije moraju biti > 0");
+        if (width <= 0 || height <= 0) throw std::invalid_argument("dimensions must be > 0");
     }
     Rect() : Rect(1, 1) {}                    // delegira: ista provera, bez ponavljanja koda
     explicit Rect(int side) : Rect(side, side) {}
@@ -318,10 +318,10 @@ private:
 
 class Tracked {
 public:
-    explicit Tracked(int v) : value_(v) { std::cout << "ciljni gotov "; }
+    explicit Tracked(int v) : value_(v) { std::cout << "target done "; }
     Tracked() : Tracked(0) { // posle ciljnog konstruktora objekat se smatra napravljenim
-        std::cout << "telo delegirajućeg baca ";
-        throw std::runtime_error("greška");
+        std::cout << "delegating body throws ";
+        throw std::runtime_error("error");
     }
     ~Tracked() { std::cout << "~Tracked(" << value_ << ") "; } // zato se destruktor POZIVA ako telo baci
 
@@ -330,7 +330,7 @@ private:
 };
 
 void s09_delegatingConstructors() {
-    std::cout << "-- 9. delegirajući konstruktori (C++11) --\n";
+    std::cout << "-- 9. delegating constructors (C++11) --\n";
     Rect unit;
     Rect square(3);
     Rect wide(4, 2);
@@ -344,7 +344,7 @@ void s09_delegatingConstructors() {
     try {
         Tracked t;
     } catch (const std::runtime_error&) {
-        std::cout << "| uhvaćen\n";
+        std::cout << "| caught\n";
     }
 }
 
@@ -374,7 +374,7 @@ void s10_defaultAndDelete() {
     std::cout << "-- 10. = default i = delete (C++11) --\n";
     Defaulted d{};
     std::cout << "  Defaulted{}.a=" << d.a << " (value-init -> 0)\n";
-    std::cout << std::boolalpha << "  trivijalan podrazumevani konstruktor: Defaulted="
+    std::cout << std::boolalpha << "  trivial default constructor: Defaulted="
               << std::is_trivially_default_constructible_v<Defaulted>
               << " UserProvided=" << std::is_trivially_default_constructible_v<UserProvided> << "\n";
     // UserProvided u{}; pa u.a -- čitanje neodređene vrednosti, zato se ovde ne ispisuje.
@@ -382,7 +382,7 @@ void s10_defaultAndDelete() {
     Token t;
     Token u(42);
     std::cout << "  Token()=" << t.value() << " Token(42)=" << u.value()
-              << ", kopiranje: " << std::is_copy_constructible_v<Token> << " (Token c = u; se ne kompajlira, errors/e08)\n"
+              << ", copyable: " << std::is_copy_constructible_v<Token> << " (Token c = u; does not compile, errors/e08)\n"
               << std::noboolalpha;
 }
 

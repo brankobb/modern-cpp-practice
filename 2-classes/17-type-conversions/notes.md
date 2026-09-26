@@ -152,7 +152,7 @@ konverzija **bez gubitka i očigledna** (`Rational(int)` u lekciji 15,
 `std::string(const char*)`).
 
 U jednom implicitnom nizu konverzija sme najviše **jedna korisnička**:
-`"Marko"` → `std::string` → `Name` je previše (lekcija 03, `errors/e08`).
+`"John"` → `std::string` → `Name` je previše (lekcija 03, `errors/e08`).
 
 ---
 
@@ -306,7 +306,7 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 |---|---|---|---|
 | [`ex1_cast_dynamic`](exercises/ex1_cast_dynamic.cpp) | usage | static_cast, dynamic_cast i konverzija između tipova (sekcije 2, 4, 5, 7) | — |
 | [`ex2_explicit_bool`](exercises/ex2_explicit_bool.cpp) | why | zašto explicit operator bool (sekcija 6, C.164) | `-DNAIVE`, `-DEXPLICIT` |
-| [`ex3_provereni_narrow`](exercises/ex3_provereni_narrow.cpp) | why | zašto static_cast nije provera (sekcija 8) | `-DNAIVE` |
+| [`ex3_checked_narrow`](exercises/ex3_checked_narrow.cpp) | why | zašto static_cast nije provera (sekcija 8) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

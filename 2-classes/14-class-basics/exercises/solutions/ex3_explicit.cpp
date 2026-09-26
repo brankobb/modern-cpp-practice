@@ -6,31 +6,31 @@
 #include <iostream>
 #include <vector>
 
-// Ako konstruktor Paket(std::size_t) nije explicit (nije dobro): svaki
-// broj se tiho pretvara u Paket, pa posalji(42) pošalje 42 prazna bajta.
-// Treba ovako: explicit -- veličina se zadaje samo vidljivo, Paket(42).
+// Ako konstruktor Packet(std::size_t) nije explicit (nije dobro): svaki
+// broj se tiho pretvara u Packet, pa send(42) pošalje 42 prazna bajta.
+// Treba ovako: explicit -- veličina se zadaje samo vidljivo, Packet(42).
 // Konstruktor iz liste bajtova ostaje implicitan, jer je tu konverzija
-// ono što se i misli: posalji({0x42}) je "paket sa bajtom 0x42".
-class Paket {
+// ono što se i misli: send({0x42}) je "paket sa bajtom 0x42".
+class Packet {
 public:
-    explicit Paket(std::size_t velicina) : bajtovi_(velicina) {}
-    Paket(std::initializer_list<unsigned char> b) : bajtovi_(b) {}
+    explicit Packet(std::size_t size) : bytes_(size) {}
+    Packet(std::initializer_list<unsigned char> b) : bytes_(b) {}
 
-    std::size_t velicina() const { return bajtovi_.size(); }
-    const std::vector<unsigned char>& bajtovi() const { return bajtovi_; }
+    std::size_t size() const { return bytes_.size(); }
+    const std::vector<unsigned char>& bytes() const { return bytes_; }
 
 private:
-    std::vector<unsigned char> bajtovi_;
+    std::vector<unsigned char> bytes_;
 };
 
-void posalji(const Paket& p) {
-    std::cout << "šaljem paket od " << p.velicina() << " bajta:" << std::hex << std::setfill('0');
-    for (unsigned char b : p.bajtovi()) std::cout << ' ' << std::setw(2) << int(b);
+void send(const Packet& p) {
+    std::cout << "sending packet of size " << p.size() << ':' << std::hex << std::setfill('0');
+    for (unsigned char b : p.bytes()) std::cout << ' ' << std::setw(2) << int(b);
     std::cout << std::dec << '\n';
 }
 
 int main() {
-    posalji(Paket(3));
-    posalji({0x42});
-    posalji({0x01, 0x02});
+    send(Packet(3));
+    send({0x42});
+    send({0x01, 0x02});
 }

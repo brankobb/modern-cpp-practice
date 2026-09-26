@@ -42,14 +42,14 @@ Money operator+(Money lhs, const Money& rhs) { // lhs po vrednosti: to je već k
 }
 
 void s01_basics() {
-    std::cout << "-- 1. operator je funkcija --\n";
+    std::cout << "-- 1. an operator is a function --\n";
     Money a(150);
     Money b(275);
     Money sum1 = a + b;           // kompajler to prevede u:
     Money sum2 = operator+(a, b); // isti poziv, napisan kao funkcija
     a += b;                       // a.operator+=(b)
     std::cout << "  a + b = " << sum1.cents() << ", operator+(a, b) = " << sum2.cents()
-              << ", posle a += b: a = " << a.cents() << "\n";
+              << ", after a += b: a = " << a.cents() << "\n";
 }
 
 // ---------------------------------------------------------------- 2
@@ -70,7 +70,7 @@ public:
 
 private:
     void normalize() {
-        if (den_ == 0) throw std::invalid_argument("imenilac je 0");
+        if (den_ == 0) throw std::invalid_argument("denominator is 0");
         if (den_ < 0) {
             num_ = -num_;
             den_ = -den_;
@@ -93,12 +93,12 @@ Rational operator*(Rational lhs, const Rational& rhs) {
 std::string str(const Rational& r) { return std::to_string(r.num()) + "/" + std::to_string(r.den()); }
 
 void s02_memberVsFree() {
-    std::cout << "-- 2. member vs slobodna funkcija (EC++ Item 24) --\n";
+    std::cout << "-- 2. member vs free function (EC++ Item 24) --\n";
     Rational third(1, 3);
     Rational a = third * 2; // Rational(2) pa operator*(third, Rational(2))
     Rational b = 2 * third; // radi SAMO zato što je operator* slobodna funkcija
     std::cout << "  third * 2 = " << str(a) << ", 2 * third = " << str(b)
-              << "  <- kao member, 2 * third se ne bi kompajliralo (errors/e03)\n";
+              << "  <- as a member, 2 * third would not compile (errors/e03)\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -120,7 +120,7 @@ private:
 };
 
 void s03_friend() {
-    std::cout << "-- 3. friend: slobodna funkcija sa pristupom private delu --\n";
+    std::cout << "-- 3. friend: a free function with access to the private part --\n";
     Temperature t(21.5);
     Temperature same(21.5);
     Temperature other(-3.0);
@@ -153,10 +153,10 @@ private:
 };
 
 void s04_assignment() {
-    std::cout << "-- 4. operator= (dodela) --\n";
-    Name a("Ana");
-    Name b("Bojan");
-    Name c("Ceca");
+    std::cout << "-- 4. operator= (assignment) --\n";
+    Name a("Ann");
+    Name b("Bob");
+    Name c("Cindy");
     a = b = c; // desno asocijativno: a = (b = c), zato = vraća referencu
     std::cout << "  a = b = c: a=" << a.c_str() << " b=" << b.c_str() << " c=" << c.c_str() << "\n";
     Name& alias = a;
@@ -182,10 +182,10 @@ bool operator<=(const Version& a, const Version& b) { return !(b < a); }
 bool operator>=(const Version& a, const Version& b) { return !(a < b); }
 
 void s05_comparison() {
-    std::cout << "-- 5. poređenje (C++17 način; C++20 u main_cpp20.cpp) --\n";
+    std::cout << "-- 5. comparison (the C++17 way; C++20 in main_cpp20.cpp) --\n";
     std::vector<Version> versions{{2, 0}, {1, 10}, {1, 2}};
     std::sort(versions.begin(), versions.end()); // koristi operator<
-    std::cout << "  sortirano:";
+    std::cout << "  sorted:";
     for (const Version& v : versions) std::cout << " " << v.major << "." << v.minor;
     std::cout << std::boolalpha << "\n  {1,2} < {1,10}: " << (Version{1, 2} < Version{1, 10})
               << ", {2,0} >= {1,10}: " << (Version{2, 0} >= Version{1, 10})
@@ -208,7 +208,7 @@ std::istream& operator>>(std::istream& is, Rational& r) {
 }
 
 void s06_streams() {
-    std::cout << "-- 6. operator<< i operator>> za stream --\n";
+    std::cout << "-- 6. operator<< and operator>> for streams --\n";
     std::istringstream good("6/8");
     std::istringstream bad("6x8");
     Rational r1;
@@ -216,7 +216,7 @@ void s06_streams() {
     good >> r1;
     bad >> r2;
     std::cout << std::boolalpha << "  \"6/8\" -> " << r1 << " (ok=" << !good.fail() << ")"
-              << ", \"6x8\" -> " << r2 << " (ok=" << !bad.fail() << ", vrednost nepromenjena)\n"
+              << ", \"6x8\" -> " << r2 << " (ok=" << !bad.fail() << ", value unchanged)\n"
               << std::noboolalpha;
 }
 
@@ -246,7 +246,7 @@ private:
 int sumFirstTwo(const Grid& g) { return g[0] + g[1]; } // poziva const verziju
 
 void s07_subscript() {
-    std::cout << "-- 7. operator[] (const i ne-const) --\n";
+    std::cout << "-- 7. operator[] (const and non-const) --\n";
     Grid g(2, 3);
     g[0] = 4;       // ne-const verzija vraća int&, pa može dodela
     g[1] = 5;
@@ -279,12 +279,12 @@ private:
 };
 
 void s08_increment() {
-    std::cout << "-- 8. ++ prefiks i postfiks --\n";
+    std::cout << "-- 8. ++ prefix and postfix --\n";
     Counter c;
     int pre = (++c).value();  // 1: vrednost posle uvećanja
     int post = (c++).value(); // 1: stara vrednost; c je sada 2
     std::cout << "  (++c).value()=" << pre << " (c++).value()=" << post << " c.value()=" << c.value()
-              << "  <- postfiks pravi kopiju, zato ++it u petljama\n";
+              << "  <- postfix makes a copy, hence ++it in loops\n";
 }
 
 // ---------------------------------------------------------------- 9
@@ -301,7 +301,7 @@ private:
 };
 
 void s09_callOperator() {
-    std::cout << "-- 9. operator(): funkcijski objekat --\n";
+    std::cout << "-- 9. operator(): a function object --\n";
     std::vector<std::string> words{"lambda", "c", "abc", "if"};
     ByLength byLength;
     std::string a = "ab";
@@ -310,9 +310,9 @@ void s09_callOperator() {
     std::cout << std::boolalpha << "  byLength(\"ab\", \"abc\")=" << shorter << ", byLength.calls()=" << byLength.calls()
               << std::noboolalpha;
     std::sort(words.begin(), words.end(), ByLength{}); // std::sort prima i objekat, kao lambdu
-    std::cout << ", sortirano po dužini:";
+    std::cout << ", sorted by length:";
     for (const std::string& w : words) std::cout << " " << w;
-    std::cout << "\n  lambda je upravo ovo: kompajler napravi klasu sa operator()\n";
+    std::cout << "\n  a lambda is exactly this: the compiler creates a class with operator()\n";
 }
 
 // ---------------------------------------------------------------- 10
@@ -341,14 +341,14 @@ private:
 };
 
 void s10_smartPointerOperators() {
-    std::cout << "-- 10. operator* i operator->: mali pametni pokazivač --\n";
+    std::cout << "-- 10. operator* and operator->: a small smart pointer --\n";
     ScopedPtr<Widget> ptr(new Widget);
     ptr->value = 20;      // operator->
     (*ptr).value += 1;    // operator*
     ScopedPtr<Widget> empty;
     std::cout << std::boolalpha << "  ptr->twice()=" << ptr->twice() << ", (*ptr).value=" << (*ptr).value
               << ", bool(ptr)=" << static_cast<bool>(ptr) << ", bool(empty)=" << static_cast<bool>(empty)
-              << "  (empty-> bi bio UB, ub/u03)\n" << std::noboolalpha;
+              << "  (empty-> would be UB, ub/u03)\n" << std::noboolalpha;
 } // ptr briše Widget ovde
 
 // ---------------------------------------------------------------- 11
@@ -368,14 +368,14 @@ Flag check(bool on, const char* name) {
 bool operator&&(const Flag& a, const Flag& b) { return a.on && b.on; }
 
 void s11_rules() {
-    std::cout << "-- 11. pravila: ne preopterećuj &&, || i , --\n";
+    std::cout << "-- 11. rules: do not overload &&, || and , --\n";
     evaluated = 0;
-    bool builtin = false && check(true, "desno").on; // ugrađeni &&: desna strana se ne računa
+    bool builtin = false && check(true, "right").on; // ugrađeni &&: desna strana se ne računa
     int afterBuiltin = evaluated;
     evaluated = 0;
-    bool custom = check(false, "levo") && check(true, "desno"); // naš &&: računaju se obe
-    std::cout << std::boolalpha << "  ugrađeni false && x: " << builtin << ", izračunato=" << afterBuiltin
-              << "; Flag && Flag: " << custom << ", izračunato=" << evaluated << "\n" << std::noboolalpha;
+    bool custom = check(false, "left") && check(true, "right"); // naš &&: računaju se obe
+    std::cout << std::boolalpha << "  built-in false && x: " << builtin << ", evaluated=" << afterBuiltin
+              << "; Flag && Flag: " << custom << ", evaluated=" << evaluated << "\n" << std::noboolalpha;
 }
 
 int main() {

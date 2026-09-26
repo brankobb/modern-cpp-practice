@@ -48,14 +48,14 @@ int totalBalance(const std::vector<const Account*>& accounts) {
 }
 
 void s01_basics() {
-    std::cout << "-- 1. public nasleđivanje: is-a --\n";
-    SavingsAccount savings("Ana", 10);
+    std::cout << "-- 1. public inheritance: is-a --\n";
+    SavingsAccount savings("Ann", 10);
     savings.deposit(1000);  // nasleđena funkcija
     savings.addInterest();  // sopstvena funkcija
-    Account plain("Bojan");
+    Account plain("Bob");
     plain.deposit(50);
     // SavingsAccount* se sam pretvara u Account* (izvedena -> bazna).
-    std::cout << "  " << savings.owner() << ": " << savings.balance() << ", ukupno preko const Account*: "
+    std::cout << "  " << savings.owner() << ": " << savings.balance() << ", total via const Account*: "
               << totalBalance({&savings, &plain}) << "\n";
 }
 
@@ -95,13 +95,13 @@ public:
 };
 
 void s02_constructionOrder() {
-    std::cout << "-- 2. redosled konstrukcije i destrukcije --\n";
+    std::cout << "-- 2. construction and destruction order --\n";
     std::cout << "  ";
     {
         Bike bike; // baza (sa svojim članovima) -> članovi izvedene -> telo izvedene
         std::cout << "| ";
     } // obrnuto: telo izvedene -> članovi izvedene -> baza
-    std::cout << "\n  Truck(6) preko using Vehicle::Vehicle: ";
+    std::cout << "\n  Truck(6) via using Vehicle::Vehicle: ";
     {
         Truck truck(6);
         std::cout << "wheels=" << truck.wheels() << " | ";
@@ -131,10 +131,10 @@ public:
 };
 
 void s03_nameHiding() {
-    std::cout << "-- 3. sakrivanje imena i using Base::f --\n";
+    std::cout << "-- 3. name hiding and using Base::f --\n";
     HidingLogger hiding;
     FileLogger file;
-    std::cout << "  HidingLogger.log(5) -> " << hiding.log(5) << "  <- int -> double, Logger::log(int) se ne vidi\n";
+    std::cout << "  HidingLogger.log(5) -> " << hiding.log(5) << "  <- int -> double, Logger::log(int) is not visible\n";
     std::cout << "  FileLogger.log(5)   -> " << file.log(5) << "\n";
     std::cout << "  FileLogger.log(\"x\") -> " << file.log(std::string("x")) << "\n";
 }
@@ -146,7 +146,7 @@ public:
     virtual double area() const = 0;            // pure virtual: Shape je apstraktna (errors/e02)
     virtual std::string name() const { return "Shape"; }
     std::string describe() const {               // nije virtual, ali poziva virtual funkcije
-        return name() + " povrsine " + std::to_string(static_cast<int>(area()));
+        return name() + " with area " + std::to_string(static_cast<int>(area()));
     }
 };
 
@@ -180,8 +180,8 @@ void s04_virtualDispatch() {
     }
     Circle c(1.0);
     const Shape& ref = c;
-    std::cout << "  kroz referencu: ref.name()=" << ref.name()
-              << ", kvalifikovano ref.Shape::name()=" << ref.Shape::name() << "  <- kvalifikacija isključuje virtual\n";
+    std::cout << "  through a reference: ref.name()=" << ref.name()
+              << ", qualified ref.Shape::name()=" << ref.Shape::name() << "  <- qualification turns off virtual dispatch\n";
 }
 
 // ---------------------------------------------------------------- 5
@@ -196,8 +196,8 @@ public:
 };
 
 void s05_virtualDestructor() {
-    std::cout << "-- 5. virtual destruktor --\n";
-    std::cout << "  delete kroz Resource*: ";
+    std::cout << "-- 5. virtual destructor --\n";
+    std::cout << "  delete through Resource*: ";
     Resource* r = new FileResource;
     delete r; // zbog virtual ~Resource() poziva se prvo ~FileResource (bez njega: ub/u01)
     std::cout << "\n";
@@ -206,10 +206,10 @@ void s05_virtualDestructor() {
 // ---------------------------------------------------------------- 6
 class Widget {
 public:
-    Widget() { std::cout << "u Widget(): " << kind() << "; "; } // tokom konstrukcije baze objekat JE Widget
+    Widget() { std::cout << "in Widget(): " << kind() << "; "; } // tokom konstrukcije baze objekat JE Widget
     virtual ~Widget() = default;
     virtual std::string kind() const { return "Widget::kind"; }
-    void show() const { std::cout << "posle konstrukcije: " << kind(); }
+    void show() const { std::cout << "after construction: " << kind(); }
 };
 
 class Button : public Widget {
@@ -222,11 +222,11 @@ private:
 };
 
 void s06_virtualInConstructor() {
-    std::cout << "-- 6. virtual poziv u konstruktoru (EC++ Item 9) --\n";
+    std::cout << "-- 6. virtual call in a constructor (EC++ Item 9) --\n";
     std::cout << "  ";
     Button b;
     b.show();
-    std::cout << "\n  <- u konstruktoru baze Button deo još ne postoji (label_ nije napravljen)\n";
+    std::cout << "\n  <- in the base constructor the Button part does not exist yet (label_ is not constructed)\n";
 }
 
 // ---------------------------------------------------------------- 7
@@ -276,9 +276,9 @@ struct Storable {
 struct Record : Printable, Storable {}; // dve polimorfne baze -> dva vptr-a
 
 void s07_vtable() {
-    std::cout << "-- 7. vptr i vtable (kurs 106-107) --\n";
+    std::cout << "-- 7. vptr and vtable (course 106-107) --\n";
     std::cout << "  sizeof(Plain)=" << sizeof(Plain) << " sizeof(WithVirtual)=" << sizeof(WithVirtual)
-              << "  <- skriveni pokazivač na tabelu virtual funkcija (+ poravnanje)\n";
+              << "  <- a hidden pointer to the table of virtual functions (+ padding)\n";
     (void)Plain{}.x();
     (void)WithVirtual{}.x();
 
@@ -286,13 +286,13 @@ void s07_vtable() {
     Machine m2;
     Robot r1;
     Robot r2;
-    std::cout << "  isti vptr: Machine/Machine=" << (vptrOf(&m1) == vptrOf(&m2) ? "da" : "ne")
-              << " Robot/Robot=" << (vptrOf(&r1) == vptrOf(&r2) ? "da" : "ne")
-              << " Machine/Robot=" << (vptrOf(&m1) == vptrOf(&r1) ? "da" : "ne") << "  <- jedna vtable po KLASI\n";
-    std::cout << "  dok se pravi Machine deo Robot-a, vptr pokazuje na vtable od Machine: "
-              << (vptrDuringBaseConstruction == vptrOf(&m1) ? "da" : "ne") << " (zato virtual u konstruktoru ide na bazu, sekcija 6)\n";
+    std::cout << "  same vptr: Machine/Machine=" << (vptrOf(&m1) == vptrOf(&m2) ? "yes" : "no")
+              << " Robot/Robot=" << (vptrOf(&r1) == vptrOf(&r2) ? "yes" : "no")
+              << " Machine/Robot=" << (vptrOf(&m1) == vptrOf(&r1) ? "yes" : "no") << "  <- one vtable per CLASS\n";
+    std::cout << "  while the Machine part of a Robot is built, vptr points to the Machine vtable: "
+              << (vptrDuringBaseConstruction == vptrOf(&m1) ? "yes" : "no") << " (that is why a virtual call in a constructor goes to the base, section 6)\n";
     std::cout << "  sizeof(Printable)=" << sizeof(Printable) << " sizeof(Record : Printable, Storable)=" << sizeof(Record)
-              << "  <- po jedan vptr za svaku polimorfnu bazu\n";
+              << "  <- one vptr for each polymorphic base\n";
 }
 
 // ---------------------------------------------------------------- 8
@@ -305,7 +305,7 @@ public:
 class Dog : public Animal {
 public:
     explicit Dog(std::string name) : name_(std::move(name)) {}
-    std::string speak() const override { return name_ + ": Av!"; }
+    std::string speak() const override { return name_ + ": Woof!"; }
 
 private:
     std::string name_; // ovaj podatak se gubi pri slicing-u
@@ -317,7 +317,7 @@ std::string byRef(const Animal& a) { return a.speak(); } // bez kopije: pravi ti
 void s08_slicing() {
     std::cout << "-- 8. slicing --\n";
     Dog rex("Rex");
-    std::cout << "  byValue(rex): " << byValue(rex) << "   <- odsečeno na Animal\n";
+    std::cout << "  byValue(rex): " << byValue(rex) << "   <- sliced down to Animal\n";
     std::cout << "  byRef(rex):   " << byRef(rex) << "\n";
 
     Animal copy = rex; // kopija u bazni objekat -- isto
@@ -358,7 +358,7 @@ private:
 };
 
 void s09_clone() {
-    std::cout << "-- 9. kopiranje polimorfnog objekta: clone() --\n";
+    std::cout << "-- 9. copying a polymorphic object: clone() --\n";
     std::unique_ptr<Document> original = std::make_unique<Report>("Q3");
     std::unique_ptr<Document> copy = original->clone(); // kopija PRAVOG tipa, bez slicing-a
     std::cout << "  original->clone()->kind() = " << copy->kind() << "\n";
@@ -381,21 +381,21 @@ struct Copier : Printer, Scanner {
 };
 
 void s10_multipleInheritance() {
-    std::cout << "-- 10. višestruko nasleđivanje i dijamant --\n";
+    std::cout << "-- 10. multiple inheritance and the diamond --\n";
     std::cout << "  ";
     Copier c;
-    std::cout << "| c.id_=" << c.id_ << " (jedan Device; bez virtual bi bila dva i c.id_ je dvosmisleno, errors/e12)\n";
+    std::cout << "| c.id_=" << c.id_ << " (one Device; without virtual there would be two and c.id_ would be ambiguous, errors/e12)\n";
 }
 
 // ---------------------------------------------------------------- 11
 class Engine {
 public:
-    std::string start() const { return "motor radi"; }
+    std::string start() const { return "engine running"; }
 };
 
 class Car { // kompozicija: Car IMA Engine (EC++ Item 38) -- obično bolje od private nasleđivanja
 public:
-    std::string drive() const { return engine_.start() + ", auto vozi"; }
+    std::string drive() const { return engine_.start() + ", car driving"; }
 
 private:
     Engine engine_;
@@ -403,15 +403,15 @@ private:
 
 class Scooter : private Engine { // private nasleđivanje: "implementirano pomoću" (EC++ Item 39)
 public:
-    std::string ride() const { return start() + ", trotinet vozi"; }
+    std::string ride() const { return start() + ", scooter riding"; }
 };
 
 void s11_compositionVsPrivate() {
-    std::cout << "-- 11. kompozicija vs private nasleđivanje --\n";
+    std::cout << "-- 11. composition vs private inheritance --\n";
     Car car;
     Scooter scooter;
     std::cout << "  Car::drive(): " << car.drive() << "; Scooter::ride(): " << scooter.ride()
-              << "  (Engine& e = scooter; se ne kompajlira, errors/e07)\n";
+              << "  (Engine& e = scooter; does not compile, errors/e07)\n";
 }
 
 // ---------------------------------------------------------------- 12
@@ -426,7 +426,7 @@ Sink::~Sink() = default; // MORA da postoji: izvedeni destruktor ga poziva (bez 
 
 // Pure virtual funkcija SME da ima telo: podrazumevano ponašanje koje
 // izvedena klasa mora eksplicitno da izabere.
-void Sink::log(const std::string& message) const { std::cout << "[podrazumevano] " << message; }
+void Sink::log(const std::string& message) const { std::cout << "[default] " << message; }
 
 class ConsoleSink : public Sink {
 public:
@@ -437,12 +437,12 @@ public:
 };
 
 void s12_abstractClasses() {
-    std::cout << "-- 12. apstraktne klase i interfejsi (kurs 112) --\n";
+    std::cout << "-- 12. abstract classes and interfaces (course 112) --\n";
     ConsoleSink console;
     const Sink& sink = console;
     std::cout << "  ";
-    sink.log("poruka");
-    std::cout << "\n  <- Sink ima pure virtual destruktor (sa definicijom) i pure virtual log (sa telom)\n";
+    sink.log("message");
+    std::cout << "\n  <- Sink has a pure virtual destructor (with a definition) and a pure virtual log (with a body)\n";
 }
 
 int main() {

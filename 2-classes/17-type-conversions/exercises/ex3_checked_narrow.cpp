@@ -1,14 +1,14 @@
 // KIND: why
-// DEMO-OUT: NAIVE kalibracija = -31072
+// DEMO-OUT: NAIVE calibration = -31072
 //
 // Zadatak 3 -- zašto static_cast nije provera (sekcija 8)
-// Rešenje: exercises/solutions/ex3_provereni_narrow.cpp
+// Rešenje: exercises/solutions/ex3_checked_narrow.cpp
 //
 // Vrednost kalibracije stiže spolja (konfiguracija) kao long, a registar
 // uređaja je short.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 2-classes/17-type-conversions/exercises/ex3_provereni_narrow.cpp -DNAIVE
+//     ./build.sh 2-classes/17-type-conversions/exercises/ex3_checked_narrow.cpp -DNAIVE
 //   100000 postane -31072. static_cast samo kaže kompajleru "znam šta
 //   radim" -- ne proverava opseg. (100000 - 2 * 65536 = -31072.)
 // Korak 2: u #else grani napiši
@@ -24,18 +24,18 @@
 #include <limits>
 #include <stdexcept>
 
-long izKonfiguracije() { return 100000; }
+long fromConfig() { return 100000; }
 
 #ifdef NAIVE
 int main() {
-    short kal = static_cast<short>(izKonfiguracije());
-    std::cout << "kalibracija = " << kal << '\n';
+    short cal = static_cast<short>(fromConfig());
+    std::cout << "calibration = " << cal << '\n';
 }
 #else
 // TODO korak 2
 
 // template <typename To, typename From>
-// void probaj(From v) {
+// void tryNarrow(From v) {
 //     try {
 //         To r = narrow<To>(v);   // prvo konverzija: ako baci, ništa nije ispisano
 //         std::cout << v << " -> " << r << '\n';
@@ -45,14 +45,14 @@ int main() {
 // }
 
 int main() {
-    // Korak 3 -- otkomentariši (i probaj() iznad):
-    // probaj<short>(1234L);
-    // probaj<short>(izKonfiguracije());
-    // probaj<short>(static_cast<long>(std::numeric_limits<short>::max()));
-    // probaj<short>(static_cast<long>(std::numeric_limits<short>::max()) + 1);
-    // probaj<unsigned>(-1);
-    // probaj<int>(3.0);
-    // probaj<int>(3.5);
+    // Korak 3 -- otkomentariši (i tryNarrow() iznad):
+    // tryNarrow<short>(1234L);
+    // tryNarrow<short>(fromConfig());
+    // tryNarrow<short>(static_cast<long>(std::numeric_limits<short>::max()));
+    // tryNarrow<short>(static_cast<long>(std::numeric_limits<short>::max()) + 1);
+    // tryNarrow<unsigned>(-1);
+    // tryNarrow<int>(3.0);
+    // tryNarrow<int>(3.5);
 }
 #endif
 

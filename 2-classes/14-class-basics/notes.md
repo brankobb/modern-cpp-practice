@@ -119,7 +119,7 @@ private:
 ```
 
 Ovde `decorated_` čita `text_` pre nego što je napravljen. Test:
-ispisuje `[]` umesto `[Ana]`. To je UB, ali ga **ni ASan ni UBSan ne
+ispisuje `[]` umesto `[Ann]`. To je UB, ali ga **ni ASan ni UBSan ne
 hvataju**. Jedina odbrana je upozorenje: g++ `-Wall` daje `-Wreorder`, a
 clang `-Wall` daje `-Wreorder-ctor`. ✅ Init listu piši istim redom kao
 deklaracije, i neka član ne zavisi od člana deklarisanog posle njega.
@@ -159,7 +159,7 @@ public:
 private:
     int width_ = 800;
     int height_{600};
-    std::string title_ = "bez naslova";
+    std::string title_ = "untitled";
 };
 ```
 
@@ -285,7 +285,7 @@ Pravila:
 - Objekat se smatra **napravljenim čim se ciljni konstruktor završi**.
   Ako telo delegirajućeg konstruktora posle toga baci izuzetak, destruktor
   **se poziva**. Kod običnog konstruktora koji baci, destruktor se ne
-  poziva. Test: `ciljni gotov telo delegirajućeg baca ~Tracked(0)`.
+  poziva. Test: `target done delegating body throws ~Tracked(0)`.
 
 ---
 
@@ -390,8 +390,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_racun`](exercises/ex1_racun.cpp) | usage | klasa sa invarijantom, delegiranje, this i static (sekcije 1, 2, 5, 6, 9) | — |
-| [`ex2_redosled_clanova`](exercises/ex2_redosled_clanova.cpp) | why | zašto redosled u init listi ne odlučuje ništa (sekcija 2, "Redosled inicijalizacije", EC++ Item 4, C.47) | `-DNAIVE` |
+| [`ex1_account`](exercises/ex1_account.cpp) | usage | klasa sa invarijantom, delegiranje, this i static (sekcije 1, 2, 5, 6, 9) | — |
+| [`ex2_member_order`](exercises/ex2_member_order.cpp) | why | zašto redosled u init listi ne odlučuje ništa (sekcija 2, "Redosled inicijalizacije", EC++ Item 4, C.47) | `-DNAIVE` |
 | [`ex3_explicit`](exercises/ex3_explicit.cpp) | why | zašto explicit na konstruktoru sa jednim argumentom (sekcija 2, C.46) | `-DNAIVE`, `-DEXPLICIT` |
 
 ## Zapažanja posle vežbe

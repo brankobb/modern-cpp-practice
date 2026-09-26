@@ -23,11 +23,11 @@
 
 // ---------------------------------------------------------------- 1
 void s01_implicitConversions() {
-    std::cout << "-- 1. implicitne (standardne) konverzije --\n";
+    std::cout << "-- 1. implicit (standard) conversions --\n";
     char a = 'a';
     char b = 'b';
     auto sum = a + b; // char + char -> int (integralna promocija, lekcija 01)
-    std::cout << "  'a' + 'b' je tipa int: " << (sizeof(sum) == sizeof(int) ? "da" : "ne") << ", vrednost " << sum << "\n";
+    std::cout << "  'a' + 'b' has type int: " << (sizeof(sum) == sizeof(int) ? "yes" : "no") << ", value " << sum << "\n";
 
     int i = 7;
     double d = i;                     // int -> double: bez gubitka
@@ -35,10 +35,10 @@ void s01_implicitConversions() {
     int truncated = static_cast<int>(pi);    // double -> int: odseca prema nuli
     int negative = static_cast<int>(-pi);
     std::cout << "  int 7 -> double " << d << "; static_cast<int>(3.99)=" << truncated
-              << " static_cast<int>(-3.99)=" << negative << "  <- odseca, ne zaokružuje\n";
+              << " static_cast<int>(-3.99)=" << negative << "  <- truncates, does not round\n";
 
     unsigned int wrapped = static_cast<unsigned int>(-1); // definisano: modulo 2^32
-    std::cout << "  static_cast<unsigned>(-1)=" << wrapped << "  <- zato je -1 < 1u netačno (-Wsign-compare)\n";
+    std::cout << "  static_cast<unsigned>(-1)=" << wrapped << "  <- that is why -1 < 1u is false (-Wsign-compare)\n";
 
     int* ptr = &i;
     int* none = nullptr;
@@ -60,14 +60,14 @@ struct Derived : Base {
 };
 
 void s02_staticCast() {
-    std::cout << "-- 2. static_cast: proverene konverzije pri kompajliranju --\n";
+    std::cout << "-- 2. static_cast: conversions checked at compile time --\n";
     int total = 7;
     int count = 2;
     double avg = static_cast<double>(total) / count; // bez cast-a: 7 / 2 = 3
     int green = static_cast<int>(Color::Green);       // enum class -> int (nema implicitne)
     Color blue = static_cast<Color>(4);               // int -> enum class
     std::cout << "  7 / 2 = " << total / count << ", static_cast<double>(7) / 2 = " << avg
-              << "; int(Color::Green)=" << green << ", Color(4)==Blue: " << (blue == Color::Blue ? "da" : "ne") << "\n";
+              << "; int(Color::Green)=" << green << ", Color(4)==Blue: " << (blue == Color::Blue ? "yes" : "no") << "\n";
 
     int value = 5;
     void* raw = &value;
@@ -77,16 +77,16 @@ void s02_staticCast() {
     Derived derived;
     Base* up = &derived;                          // izvedena -> bazna: implicitno
     Derived* down = static_cast<Derived*>(up);    // bazna -> izvedena: BEZ provere (lekcija 16, ub/u03)
-    std::cout << "  upcast implicitno, static_cast naniže (kad ZNAŠ tip): down->extra=" << down->extra << "\n";
+    std::cout << "  upcast implicitly, static_cast down (when you KNOW the type): down->extra=" << down->extra << "\n";
 }
 
 // ---------------------------------------------------------------- 3
 void s03_reinterpretCast() {
-    std::cout << "-- 3. reinterpret_cast i bajtovi objekta --\n";
+    std::cout << "-- 3. reinterpret_cast and the bytes of an object --\n";
     std::uint32_t word = 0x11223344;
     // unsigned char* (i std::byte*) sme da čita bajtove BILO KOG objekta.
     const unsigned char* bytes = reinterpret_cast<const unsigned char*>(&word);
-    std::cout << "  prvi bajt od 0x11223344: 0x" << std::hex << static_cast<int>(bytes[0]) << std::dec
+    std::cout << "  first byte of 0x11223344: 0x" << std::hex << static_cast<int>(bytes[0]) << std::dec
               << (bytes[0] == 0x44 ? " (little-endian)" : " (big-endian)") << "\n";
 
     int value = 9;
@@ -104,7 +104,7 @@ void s03_reinterpretCast() {
 #else
     std::uint32_t viaBitCast = viaMemcpy; // std::bit_cast postoji tek od C++20
 #endif
-    std::cout << "  bitovi 1.0f: memcpy=0x" << std::hex << viaMemcpy << " bit_cast=0x" << viaBitCast << std::dec << "\n";
+    std::cout << "  bits of 1.0f: memcpy=0x" << std::hex << viaMemcpy << " bit_cast=0x" << viaBitCast << std::dec << "\n";
 }
 
 // ---------------------------------------------------------------- 4
@@ -112,7 +112,7 @@ struct Animal {
     virtual ~Animal() = default; // dynamic_cast radi samo za polimorfne tipove (errors/e03)
 };
 struct Dog : Animal {
-    std::string bark() const { return "Av"; }
+    std::string bark() const { return "Woof"; }
 };
 struct Cat : Animal {};
 struct Pet {
@@ -122,26 +122,26 @@ struct HouseDog : Dog, Pet {};
 
 std::string describe(Animal& a) {
     if (Dog* dog = dynamic_cast<Dog*>(&a)) return "Dog: " + dog->bark(); // proveri rezultat! (ub/u01)
-    return "nije Dog";
+    return "not a Dog";
 }
 
 void s04_dynamicCast() {
-    std::cout << "-- 4. dynamic_cast: provera tipa pri izvršavanju --\n";
+    std::cout << "-- 4. dynamic_cast: type check at run time --\n";
     Dog dog;
     Cat cat;
-    std::cout << "  pokazivač: describe(dog)=" << describe(dog) << ", describe(cat)=" << describe(cat)
-              << " (nullptr umesto UB)\n";
+    std::cout << "  pointer: describe(dog)=" << describe(dog) << ", describe(cat)=" << describe(cat)
+              << " (nullptr instead of UB)\n";
     try {
         Animal& a = cat;
         Dog& d = dynamic_cast<Dog&>(a); // referenca ne može biti null -> izuzetak
         std::cout << d.bark();
     } catch (const std::bad_cast&) {
-        std::cout << "  referenca: dynamic_cast<Dog&>(cat) -> std::bad_cast\n";
+        std::cout << "  reference: dynamic_cast<Dog&>(cat) -> std::bad_cast\n";
     }
     HouseDog house;
     Animal& asAnimal = house;
     Pet* asPet = dynamic_cast<Pet*>(&asAnimal); // "cross-cast": iz jedne grane hijerarhije u drugu
-    std::cout << "  cross-cast Animal& -> Pet*: " << (asPet != nullptr ? "uspeo" : "nullptr") << "\n";
+    std::cout << "  cross-cast Animal& -> Pet*: " << (asPet != nullptr ? "succeeded" : "nullptr") << "\n";
 }
 
 // ---------------------------------------------------------------- 5
@@ -167,9 +167,9 @@ double twice(Meters m) { return 2 * m.value(); }
 int half(Percent p) { return p.value() / 2; }
 
 void s05_convertingConstructor() {
-    std::cout << "-- 5. konstruktor kao konverzija (primitivni -> korisnički tip) --\n";
-    std::cout << "  twice(Meters(5.0))=" << twice(Meters(5.0)) << "  (twice(5.0) se ne kompajlira, errors/e04)\n";
-    std::cout << "  half(50)=" << half(50) << "  <- 50 -> Percent(50) tiho, jer konstruktor nije explicit\n";
+    std::cout << "-- 5. a constructor as a conversion (built-in -> user type) --\n";
+    std::cout << "  twice(Meters(5.0))=" << twice(Meters(5.0)) << "  (twice(5.0) does not compile, errors/e04)\n";
+    std::cout << "  half(50)=" << half(50) << "  <- 50 -> Percent(50) silently, because the constructor is not explicit\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -195,14 +195,14 @@ private:
 };
 
 void s06_conversionOperator() {
-    std::cout << "-- 6. operator konverzije (korisnički -> primitivni tip) --\n";
+    std::cout << "-- 6. conversion operator (user type -> built-in) --\n";
     Fraction threeQuarters(3, 4);
     double asDouble = static_cast<double>(threeQuarters); // explicit: mora cast
     std::cout << "  static_cast<double>(Fraction(3, 4))=" << asDouble << "\n";
 
     Connection open(true);
     Connection closed(false);
-    std::cout << "  if (open): " << (open ? "otvorena" : "zatvorena") << ", !closed: " << (!closed ? "true" : "false")
+    std::cout << "  if (open): " << (open ? "open" : "closed") << ", !closed: " << (!closed ? "true" : "false")
               << ", open && !closed: " << ((open && !closed) ? "true" : "false") << "\n";
 }
 
@@ -225,7 +225,7 @@ private:
 };
 
 void s07_userToUser() {
-    std::cout << "-- 7. korisnički -> korisnički tip --\n";
+    std::cout << "-- 7. user type -> user type --\n";
     Fahrenheit boiling{212.0};
     Celsius c(boiling);
     std::cout << "  Celsius(Fahrenheit{212})=" << c.degrees() << "\n";
@@ -237,13 +237,13 @@ template <typename To, typename From>
 To narrow(From value) {
     To result = static_cast<To>(value);
     if (static_cast<From>(result) != value || ((result < To{}) != (value < From{}))) {
-        throw std::range_error("narrow: vrednost ne staje u ciljni tip");
+        throw std::range_error("narrow: the value does not fit the target type");
     }
     return result;
 }
 
 void s08_checkedNarrowing() {
-    std::cout << "-- 8. proverena konverzija brojeva --\n";
+    std::cout << "-- 8. checked numeric conversion --\n";
     std::cout << "  numeric_limits<short>: [" << std::numeric_limits<short>::min() << ", "
               << std::numeric_limits<short>::max() << "]\n";
     std::cout << "  narrow<short>(1000)=" << narrow<short>(1000);
@@ -257,7 +257,7 @@ void s08_checkedNarrowing() {
     } catch (const std::range_error&) {
         std::cout << ", narrow<unsigned>(-1) -> std::range_error";
     }
-    std::cout << "\n  (static_cast<short>(100000) bi tiho dao " << static_cast<short>(100000) << ")\n";
+    std::cout << "\n  (static_cast<short>(100000) would silently give " << static_cast<short>(100000) << ")\n";
 }
 
 // ---------------------------------------------------------------- 9
@@ -277,30 +277,30 @@ std::string readable(const std::type_info& info) {
 }
 
 void s09_typeid() {
-    std::cout << "-- 9. typeid i RTTI (kurs 110) --\n";
+    std::cout << "-- 9. typeid and RTTI (course 110) --\n";
     Dog dog;
     Animal& asAnimal = dog;
     Animal* pointer = &dog;
     PlainChild child;
     Plain& asPlain = child;
     std::cout << "  typeid(asAnimal).name()=\"" << typeid(asAnimal).name() << "\" -> " << readable(typeid(asAnimal))
-              << " (dinamički tip: Animal je polimorfan)\n";
-    std::cout << "  typeid(asPlain) -> " << readable(typeid(asPlain)) << " (statički tip: Plain nema virtual funkcija)\n";
+              << " (dynamic type: Animal is polymorphic)\n";
+    std::cout << "  typeid(asPlain) -> " << readable(typeid(asPlain)) << " (static type: Plain has no virtual functions)\n";
     std::cout << "  typeid(pointer) -> " << readable(typeid(pointer)) << ", typeid(*pointer) -> " << readable(typeid(*pointer))
               << "\n";
     std::cout << std::boolalpha << "  typeid(const int&) == typeid(int): " << (typeid(const int&) == typeid(int))
-              << " (const i referenca se ignorišu)\n";
+              << " (const and reference are ignored)\n";
 
     Puppy puppy;
     Animal& someAnimal = puppy;
     bool exactlyDog = typeid(someAnimal) == typeid(Dog);
     bool isADog = dynamic_cast<Dog*>(&someAnimal) != nullptr;
-    std::cout << "  Puppy kao Animal&: typeid == typeid(Dog): " << exactlyDog << ", dynamic_cast<Dog*>: " << (isADog ? "uspeo" : "nullptr")
-              << "  <- typeid pita TAČAN tip, dynamic_cast \"da li je vrsta\"\n" << std::noboolalpha;
+    std::cout << "  Puppy as Animal&: typeid == typeid(Dog): " << exactlyDog << ", dynamic_cast<Dog*>: " << (isADog ? "succeeded" : "nullptr")
+              << "  <- typeid asks for the EXACT type, dynamic_cast asks \"is it a kind of\"\n" << std::noboolalpha;
 
     Animal* none = nullptr;
     try {
-        std::cout << "  typeid(*nullptr polimorfnog tipa) -> ";
+        std::cout << "  typeid(*nullptr of a polymorphic type) -> ";
         std::cout << typeid(*none).name();
     } catch (const std::bad_typeid&) {
         std::cout << "std::bad_typeid\n";
@@ -309,7 +309,7 @@ void s09_typeid() {
     std::map<std::type_index, int> counts; // type_info se ne kopira; type_index je njegov omotač za kontejnere
     std::vector<Animal*> animals{&dog, &puppy, &dog};
     for (Animal* a : animals) ++counts[typeid(*a)];
-    std::cout << "  broj po tipu (map<type_index, int>): Dog=" << counts[typeid(Dog)] << " Puppy=" << counts[typeid(Puppy)] << "\n";
+    std::cout << "  count per type (map<type_index, int>): Dog=" << counts[typeid(Dog)] << " Puppy=" << counts[typeid(Puppy)] << "\n";
 }
 
 int main() {

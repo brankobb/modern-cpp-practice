@@ -6,35 +6,35 @@
 #include <vector>
 
 // Korak 1: cast na JEDAN operand pre deljenja, pa je deljenje u double.
-// static_cast<double>(zbir / n) bi bilo kasno -- celobrojno deljenje je već
+// static_cast<double>(sum / n) bi bilo kasno -- celobrojno deljenje je već
 // odseklo ostatak.
-double prosek(const std::vector<int>& v) {
+double average(const std::vector<int>& v) {
     if (v.empty()) return 0;
-    int zbir = 0;
-    for (int x : v) zbir += x;
-    return static_cast<double>(zbir) / static_cast<double>(v.size());
+    int sum = 0;
+    for (int x : v) sum += x;
+    return static_cast<double>(sum) / static_cast<double>(v.size());
 }
 
 // Korak 2: dynamic_cast radi samo za polimorfne tipove (errors/e03), i za
 // pokazivač vraća nullptr kad objekat nije tog tipa (za referencu baca
 // std::bad_cast).
-struct Poruka {
-    virtual ~Poruka() = default;
+struct Message {
+    virtual ~Message() = default;
 };
-struct Tekst : Poruka {
-    explicit Tekst(std::string s) : sadrzaj(std::move(s)) {}
-    std::string sadrzaj;
+struct Text : Message {
+    explicit Text(std::string s) : content(std::move(s)) {}
+    std::string content;
 };
-struct Komanda : Poruka {
-    explicit Komanda(int k) : kod(k) {}
-    int kod;
+struct Command : Message {
+    explicit Command(int c) : code(c) {}
+    int code;
 };
 
-void obradi(const Poruka& p) {
-    if (const auto* k = dynamic_cast<const Komanda*>(&p))
-        std::cout << "komanda " << k->kod << '\n';
+void handle(const Message& m) {
+    if (const auto* c = dynamic_cast<const Command*>(&m))
+        std::cout << "command " << c->code << '\n';
     else
-        std::cout << "nije komanda\n";
+        std::cout << "not a command\n";
 }
 
 // Korak 3: konverzija na jednom mestu (konstruktor odredišta), obe
@@ -53,14 +53,14 @@ private:
 };
 
 int main() {
-    std::cout << "prosek {3, 4}: " << prosek({3, 4}) << '\n';
-    std::cout << "prosek {}: " << prosek({}) << '\n';
+    std::cout << "average {3, 4}: " << average({3, 4}) << '\n';
+    std::cout << "average {}: " << average({}) << '\n';
 
-    Tekst t("zdravo");
-    Komanda k(7);
-    obradi(t);
-    obradi(k);
+    Text t("hello");
+    Command c(7);
+    handle(t);
+    handle(c);
 
-    Celsius c(Fahrenheit{212});
-    std::cout << "212 F = " << static_cast<double>(c) << " C\n";
+    Celsius deg(Fahrenheit{212});
+    std::cout << "212 F = " << static_cast<double>(deg) << " C\n";
 }

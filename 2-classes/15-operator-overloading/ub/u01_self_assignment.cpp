@@ -27,7 +27,7 @@ private:
 };
 
 int main() {
-    Name a("Ana");
+    Name a("Ann");
     Name& alias = a;
     a = alias;
     std::printf("%s\n", a.c_str());

@@ -28,7 +28,7 @@ void s01_defaultedSpaceship() {
     std::cout << "-- 1. auto operator<=>(const T&) const = default --\n";
     std::vector<Version> versions{{2, 0}, {1, 10}, {1, 2}};
     std::sort(versions.begin(), versions.end());
-    std::cout << "  sortirano:";
+    std::cout << "  sorted:";
     for (const Version& v : versions) std::cout << " " << v.major << "." << v.minor;
     Version a{1, 2};
     Version b{1, 10};
@@ -41,8 +41,8 @@ class Username {
 public:
     explicit Username(std::string s) : value_(std::move(s)) {}
 
-    // Sopstveni <=>: poređenje bez obzira na velika/mala slova. "Ana" i
-    // "ANA" su EKVIVALENTNI, ali nisu isti string -> weak_ordering.
+    // Sopstveni <=>: poređenje bez obzira na velika/mala slova. "Ann" i
+    // "ANN" su EKVIVALENTNI, ali nisu isti string -> weak_ordering.
     std::weak_ordering operator<=>(const Username& other) const {
         std::string a = lower(value_);
         std::string b = lower(other.value_);
@@ -61,12 +61,12 @@ private:
 };
 
 void s02_customSpaceship() {
-    std::cout << "-- 2. sopstveni <=> i poseban == --\n";
-    Username a("Ana");
-    Username upper("ANA");
-    Username b("bojan");
-    std::cout << std::boolalpha << "  Ana == ANA: " << (a == upper) << ", Ana < bojan: " << (a < b)
-              << ", ANA > bojan: " << (upper > b) << "\n" << std::noboolalpha;
+    std::cout << "-- 2. custom <=> and a separate == --\n";
+    Username a("Ann");
+    Username upper("ANN");
+    Username b("bob");
+    std::cout << std::boolalpha << "  Ann == ANN: " << (a == upper) << ", Ann < bob: " << (a < b)
+              << ", ANN > bob: " << (upper > b) << "\n" << std::noboolalpha;
 }
 
 // ---------------------------------------------------------------- 3
@@ -76,7 +76,7 @@ struct Meters {
 };
 
 void s03_rewrittenCandidates() {
-    std::cout << "-- 3. prepisani izrazi: != i obrnuti redosled dolaze sami --\n";
+    std::cout << "-- 3. rewritten expressions: != and reversed order come for free --\n";
     Meters m{5};
     // C++17: za svaki od ovih trebao je poseban operator (m == 5, 5 == m,
     // m != 5, 5 != m). C++20 prepiše: 5 == m -> m == 5, m != 5 -> !(m == 5).
@@ -90,9 +90,9 @@ void s04_partialOrdering() {
     double nan = std::nan("");
     std::partial_ordering r = 1.0 <=> nan;
     bool unordered = (r == std::partial_ordering::unordered);
-    std::cout << std::boolalpha << "  1.0 <=> NaN je unordered: " << unordered
+    std::cout << std::boolalpha << "  1.0 <=> NaN is unordered: " << unordered
               << "; 1.0 < NaN: " << (1.0 < nan) << ", 1.0 > NaN: " << (1.0 > nan) << ", 1.0 == NaN: " << (1.0 == nan)
-              << "\n  <- zato je <=> za strukturu sa double članom partial_ordering\n" << std::noboolalpha;
+              << "\n  <- that is why <=> for a struct with a double member is partial_ordering\n" << std::noboolalpha;
 }
 
 int main() {
