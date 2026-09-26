@@ -220,8 +220,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_move_bafer`](exercises/ex1_move_bafer.cpp) | usage | move konstruktor i move dodela (sekcije 4, 6) | — |
-| [`ex2_imenovana_rvalue`](exercises/ex2_imenovana_rvalue.cpp) | why | zašto parametar T&& unutar funkcije treba std::move (sekcija 5) | `-DNAIVE` |
+| [`ex1_move_buffer`](exercises/ex1_move_buffer.cpp) | usage | move konstruktor i move dodela (sekcije 4, 6) | — |
+| [`ex2_named_rvalue`](exercises/ex2_named_rvalue.cpp) | why | zašto parametar T&& unutar funkcije treba std::move (sekcija 5) | `-DNAIVE` |
 | [`ex3_move_const`](exercises/ex3_move_const.cpp) | why | zašto std::move na const objektu tiho kopira (sekcija 3, EMC Item 23) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

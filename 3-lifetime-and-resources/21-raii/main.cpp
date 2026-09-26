@@ -21,20 +21,20 @@
 class File {
 public:
     File() : handle_(std::tmpfile()) {
-        if (handle_ == nullptr) throw std::runtime_error("tmpfile nije uspeo");
-        std::cout << "[otvoren] ";
+        if (handle_ == nullptr) throw std::runtime_error("tmpfile failed");
+        std::cout << "[opened] ";
     }
     ~File() {
         if (handle_ != nullptr) {
             std::fclose(handle_); // destruktor ne baca: greška zatvaranja se ovde samo ignoriše
-            std::cout << "[zatvoren] ";
+            std::cout << "[closed] ";
         }
     }
     File(const File&) = delete; // dve kopije = dva fclose (errors/e01)
     File& operator=(const File&) = delete;
 
     void write(const std::string& text) {
-        if (std::fputs(text.c_str(), handle_) < 0) throw std::runtime_error("upis nije uspeo");
+        if (std::fputs(text.c_str(), handle_) < 0) throw std::runtime_error("write failed");
     }
 
 private:
@@ -42,17 +42,17 @@ private:
 };
 
 void processAndFail(File& file) {
-    file.write("prvi red\n");
-    throw std::runtime_error("obrada nije uspela");
+    file.write("first line\n");
+    throw std::runtime_error("processing failed");
 }
 
 void s01_raii() {
-    std::cout << "-- 1. RAII: resurs pripada objektu --\n  ";
+    std::cout << "-- 1. RAII: the resource belongs to an object --\n  ";
     try {
         File file;
         processAndFail(file); // izuzetak -> ~File se svejedno pozove
     } catch (const std::runtime_error& e) {
-        std::cout << "| uhvaćen: " << e.what() << "\n";
+        std::cout << "| caught: " << e.what() << "\n";
     }
 }
 
@@ -67,12 +67,12 @@ private:
 
 void inner() {
     Tracer c("inner");
-    throw std::runtime_error("iz inner");
+    throw std::runtime_error("from inner");
 }
 void middle() {
     Tracer b("middle");
     inner();
-    std::cout << "(ovo se ne izvrši) ";
+    std::cout << "(this never runs) ";
 }
 
 void s02_stackUnwinding() {
@@ -83,12 +83,12 @@ void s02_stackUnwinding() {
     } catch (const std::runtime_error&) {
         std::cout << "| catch\n";
     }
-    std::cout << "  <- izuzetak prolazi kroz funkcije i uništava njihove lokalne objekte, od najdublje\n";
+    std::cout << "  <- the exception passes through functions and destroys their locals, innermost first\n";
 }
 
 // ---------------------------------------------------------------- 3
 struct Config {
-    Config() { throw std::runtime_error("loš config"); }
+    Config() { throw std::runtime_error("bad config"); }
 };
 
 class Service { // resursi su u ČLANOVIMA koji se sami oslobađaju
@@ -101,11 +101,11 @@ private:
 };
 
 void s03_constructorFailure() {
-    std::cout << "-- 3. izuzetak u konstruktoru, resursi u članovima --\n";
+    std::cout << "-- 3. exception in a constructor, resources in members --\n";
     try {
         Service s;
     } catch (const std::runtime_error& e) {
-        std::cout << "  Service(): " << e.what() << " -- buffer_ oslobođen, nema curenja (sa new: ub/u01)\n";
+        std::cout << "  Service(): " << e.what() << " -- buffer_ freed, no leak (with new: ub/u01)\n";
     }
 }
 
@@ -114,7 +114,7 @@ struct Item {
     std::string name;
     Item(std::string n) : name(std::move(n)) {}
     Item(const Item& other) : name(other.name) {
-        if (name == "pokvaren") throw std::runtime_error("kopija nije uspela");
+        if (name == "broken") throw std::runtime_error("copy failed");
     }
     Item& operator=(const Item&) = default;
 };
@@ -142,7 +142,7 @@ public:
     std::string list() const {
         std::string out;
         for (const Item& item : items_) out += item.name + " ";
-        return out.empty() ? "(prazno)" : out;
+        return out.empty() ? "(empty)" : out;
     }
 
 private:
@@ -150,19 +150,19 @@ private:
 };
 
 void s04_guarantees() {
-    std::cout << "-- 4. garancije: basic, strong, nothrow --\n";
-    Inventory source{"jabuka", "pokvaren", "kruška"}; // kopija "pokvaren" baca
-    Inventory basic{"staro1", "staro2"};
-    Inventory strong{"staro1", "staro2"};
+    std::cout << "-- 4. guarantees: basic, strong, nothrow --\n";
+    Inventory source{"apple", "broken", "pear"}; // kopija "broken" baca
+    Inventory basic{"old1", "old2"};
+    Inventory strong{"old1", "old2"};
     try {
         basic.assignBasic(source);
     } catch (const std::runtime_error&) {
-        std::cout << "  basic posle izuzetka:  " << basic.list() << " <- ispravan, ali ni staro ni novo\n";
+        std::cout << "  basic after exception:  " << basic.list() << " <- valid, but neither old nor new\n";
     }
     try {
         strong.assignStrong(source);
     } catch (const std::runtime_error&) {
-        std::cout << "  strong posle izuzetka: " << strong.list() << " <- netaknut\n";
+        std::cout << "  strong after exception: " << strong.list() << " <- untouched\n";
     }
 }
 
@@ -173,7 +173,7 @@ public:
         try {
             close();
         } catch (const std::exception& e) {
-            std::cout << "  ~Connection progutao grešku: " << e.what() << "\n"; // zabeleži, ne bacaj dalje
+            std::cout << "  ~Connection swallowed an error: " << e.what() << "\n"; // zabeleži, ne bacaj dalje
         }
     }
     // Operacija koja može da ne uspe je posebna funkcija, pa pozivalac
@@ -181,7 +181,7 @@ public:
     void close() {
         if (closed_) return;
         closed_ = true;
-        throw std::runtime_error("mreža pala pri zatvaranju");
+        throw std::runtime_error("network down while closing");
     }
 
 private:
@@ -189,17 +189,17 @@ private:
 };
 
 void s05_destructorsDontThrow() {
-    std::cout << "-- 5. destruktor ne baca (EC++ Item 8) --\n";
+    std::cout << "-- 5. a destructor does not throw (EC++ Item 8) --\n";
     try {
         Connection explicitClose;
         explicitClose.close(); // pozivalac dobije izuzetak i odluči
     } catch (const std::runtime_error& e) {
-        std::cout << "  close() bacio: " << e.what() << "\n";
+        std::cout << "  close() threw: " << e.what() << "\n";
     }
     {
         Connection forgotten; // niko nije pozvao close(): destruktor to uradi i proguta grešku
     }
-    std::cout << "  (izuzetak iz destruktora bi pozvao std::terminate, ub/u02)\n";
+    std::cout << "  (an exception from a destructor would call std::terminate, ub/u02)\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -220,15 +220,15 @@ struct FileCloser { // deleter za unique_ptr: poziva se umesto delete
 };
 
 void s06_generalRaii() {
-    std::cout << "-- 6. RAII bez pisanja klase --\n";
+    std::cout << "-- 6. RAII without writing a class --\n";
     {
         // unique_ptr sa deleterom: destruktor pozove std::fclose (lekcija 32).
         std::unique_ptr<std::FILE, FileCloser> file(std::tmpfile());
-        std::cout << "  unique_ptr<FILE, FileCloser>: otvoren=" << (file != nullptr ? "da" : "ne") << "\n";
+        std::cout << "  unique_ptr<FILE, FileCloser>: open=" << (file != nullptr ? "yes" : "no") << "\n";
     }
     std::cout << "  ";
     try {
-        ScopeGuard guard([] { std::cout << "[guard: vraćam stanje] "; });
+        ScopeGuard guard([] { std::cout << "[guard: restoring state] "; });
         throw std::runtime_error("x");
     } catch (const std::runtime_error&) {
         std::cout << "| catch\n";

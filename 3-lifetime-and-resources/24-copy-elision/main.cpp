@@ -46,14 +46,14 @@ Logged makePessimized() {
 #pragma GCC diagnostic pop
 
 void s01_returnValue() {
-    std::cout << "-- 1. vraćanje po vrednosti --\n";
+    std::cout << "-- 1. returning by value --\n";
     std::cout << "  return Logged();            -> ";
     { Logged a = makePrvalue(); (void)a; }
     std::cout << "\n  Logged x; return x;         -> ";
     { Logged a = makeNamed(); (void)a; }
     std::cout << "\n  Logged x; return move(x);   -> ";
     { Logged a = makePessimized(); (void)a; }
-    std::cout << " <- -Wpessimizing-move (g++ i clang, -Wall)\n";
+    std::cout << " <- -Wpessimizing-move (g++ and clang, -Wall)\n";
     std::cout << "  Logged a = Logged(Logged(Logged())) -> ";
     { Logged a = Logged(Logged(Logged())); (void)a; } // prvalue se ne materijalizuje dok ne mora: jedan objekat
     std::cout << "\n";
@@ -75,18 +75,18 @@ struct Registry {
 };
 
 void s02_whenNoElision() {
-    std::cout << "-- 2. kad elizija nije moguća --\n";
-    std::cout << "  dve lokalne, vrati jednu    -> ";
+    std::cout << "-- 2. when elision is not possible --\n";
+    std::cout << "  two locals, return one      -> ";
     { Logged r = pickOne(true); (void)r; }
-    std::cout << "\n  parametar po vrednosti      -> ";
+    std::cout << "\n  by-value parameter          -> ";
     { Logged r = passThrough(Logged()); (void)r; }
-    std::cout << "\n  član objekta (reg.get())    -> ";
+    std::cout << "\n  object member (reg.get())   -> ";
     {
         Registry reg; // ctor za reg.current
         Logged r = reg.get();
         (void)r;
     }
-    std::cout << "\n  <- lokalna ili parametar: move bez std::move; sve ostalo: kopija\n";
+    std::cout << "\n  <- a local or a parameter: move without std::move; everything else: copy\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -98,9 +98,9 @@ struct Guarded {
 Guarded makeGuarded() { return Guarded{}; } // C++17: radi, jer nema privremenog objekta (u C++14 greška, errors/e01)
 
 void s03_guaranteedElision() {
-    std::cout << "-- 3. garantovana elizija: tip bez kopije i bez move-a --\n";
+    std::cout << "-- 3. guaranteed elision: a type with no copy and no move --\n";
     Guarded g = makeGuarded();
-    std::cout << "  Guarded (std::mutex član) vraćen po vrednosti: value=" << g.value << "\n";
+    std::cout << "  Guarded (std::mutex member) returned by value: value=" << g.value << "\n";
 }
 
 // ---------------------------------------------------------------- 4
@@ -119,7 +119,7 @@ private:
 };
 
 void s04_sinkParameters() {
-    std::cout << "-- 4. parametar koji se čuva (sink): po vrednosti ili dva overload-a --\n";
+    std::cout << "-- 4. a parameter that is stored (sink): by value or two overloads --\n";
     std::cout << "  Person p; Logged lvalue;  -> ";
     Person p;
     Logged lvalue;
@@ -131,7 +131,7 @@ void s04_sinkParameters() {
     p.setNameRef(lvalue);     // samo copy=
     std::cout << "\n  setNameRef(Logged())     -> ";
     p.setNameRef(Logged());   // ctor + move=
-    std::cout << "\n  <- po vrednosti: za lvalue jedan move više, ali jedna funkcija umesto dve\n";
+    std::cout << "\n  <- by value: one extra move for an lvalue, but one function instead of two\n";
 }
 
 // ---------------------------------------------------------------- 5

@@ -6,26 +6,26 @@
 #include <utility>
 #include <vector>
 
-struct Brojac {
-    int kopija = 0;
-    int pomeranja = 0;
-} brojac;
+struct Counter {
+    int copies = 0;
+    int moves = 0;
+} counter;
 
 // Ako move konstruktor nije noexcept (nije dobro): vector pri rastu kopira
 // sve elemente, jer samo tako može da zadrži jaku garanciju.
 // Treba ovako: noexcept na move operacijama (C.66). Obećanje mora da bude
 // tačno -- ako noexcept funkcija ipak baci, poziva se std::terminate.
-struct Uzorak {
-    std::string ime;
-    explicit Uzorak(std::string i) : ime(std::move(i)) {}
-    Uzorak(const Uzorak& o) : ime(o.ime) { ++brojac.kopija; }
-    Uzorak(Uzorak&& o) noexcept : ime(std::move(o.ime)) { ++brojac.pomeranja; }
+struct Sample {
+    std::string name;
+    explicit Sample(std::string n) : name(std::move(n)) {}
+    Sample(const Sample& o) : name(o.name) { ++counter.copies; }
+    Sample(Sample&& o) noexcept : name(std::move(o.name)) { ++counter.moves; }
 };
-static_assert(std::is_nothrow_move_constructible_v<Uzorak>);
+static_assert(std::is_nothrow_move_constructible_v<Sample>);
 
 int main() {
-    std::vector<Uzorak> v;
-    for (int i = 0; i < 20; ++i) v.emplace_back("uzorak-" + std::to_string(i));
-    std::cout << "kopija pri rastu: " << brojac.kopija << '\n';
-    std::cout << "pomeranja pri rastu: " << (brojac.pomeranja > 0 ? "da" : "ne") << '\n';
+    std::vector<Sample> v;
+    for (int i = 0; i < 20; ++i) v.emplace_back("sample-" + std::to_string(i));
+    std::cout << "copies during growth: " << counter.copies << '\n';
+    std::cout << "moves during growth: " << (counter.moves > 0 ? "yes" : "no") << '\n';
 }

@@ -40,7 +40,7 @@ i move (lekcija 22).
 | **thread** | `thread_local` | pri pokretanju niti | na kraju niti |
 
 Iz ispisa: `global()` se pojavi pre prve linije `main`-a, a
-`~static-lokalni() ~global()` posle poslednje.
+`~static-local() ~global()` posle poslednje.
 
 **`static` lokalna promenljiva:**
 
@@ -56,7 +56,7 @@ Iz ispisa: `global()` se pojavi pre prve linije `main`-a, a
 ```
 a() b() | ~b() ~a()                    // blok: obrnutim redom
 x0() x1() x2() | ~x2() ~x1() ~x0()     // niz: od poslednjeg elementa
-Engine-baza() pump() filter() Engine-telo | ~Engine-telo ~filter() ~pump() ~Engine-baza()
+Engine-base() pump() filter() Engine-body | ~Engine-body ~filter() ~pump() ~Engine-base()
 ```
 
 Pravilo je uvek isto: **uništava se obrnutim redom od pravljenja**. Tako
@@ -72,7 +72,7 @@ lekcija 14), pa telo konstruktora. Destrukcija obrnuto.
 
 ```cpp
 std::cout << Tracer("temp").name().size();   // temp() 4 ~temp()  -- živi do ;
-const Tracer& ref = makeTracer("produžen");   // živi do kraja scope-a reference
+const Tracer& ref = makeTracer("extended");   // živi do kraja scope-a reference
 ```
 
 - Privremeni objekat živi do kraja **celog izraza** (do `;`), ne samo do
@@ -90,7 +90,7 @@ const Tracer& ref = makeTracer("produžen");   // živi do kraja scope-a referen
 # 4. Izuzetak u konstruktoru
 
 ```
-prvi() drugi() telo-baca ~drugi() ~prvi() | uhvaćen
+first() second() body-throws ~second() ~first() | caught
 ```
 
 - Objekat počinje da živi tek kad se konstruktor **završi**. Ako
@@ -114,7 +114,7 @@ prvi() drugi() telo-baca ~drugi() ~prvi() | uhvaćen
 | izuzetak koji niko ne uhvati | nije određeno da li | ❌ (`std::terminate`) |
 
 Test (`main.cpp`, sekcija 6): posle `std::exit(0)` se ispiše
-`~static-lokalni() ~global()`, a `~lokalni-pre-exit()` nikad. Ako lokalni
+`~static-local() ~global()`, a `~local-before-exit()` nikad. Ako lokalni
 objekat drži npr. otvoren fajl sa baferom, taj bafer se ne upiše.
 
 ⚠️ **Redosled uništavanja static objekata** je obrnut od redosleda
@@ -172,9 +172,9 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_redosled_traga`](exercises/ex1_redosled_traga.cpp) | usage | redosled pravljenja i uništavanja (sekcije 2, 3) | — |
-| [`ex2_izuzetak_u_konstruktoru`](exercises/ex2_izuzetak_u_konstruktoru.cpp) | why | zašto destruktor ne čisti za konstruktorom koji je bacio (sekcija 4) | `-DNAIVE` |
-| [`ex3_kraj_programa`](exercises/ex3_kraj_programa.cpp) | why | zašto je redosled uništavanja static objekata bitan (sekcija 5) | `-DNAIVE` |
+| [`ex1_trace_order`](exercises/ex1_trace_order.cpp) | usage | redosled pravljenja i uništavanja (sekcije 2, 3) | — |
+| [`ex2_exception_in_constructor`](exercises/ex2_exception_in_constructor.cpp) | why | zašto destruktor ne čisti za konstruktorom koji je bacio (sekcija 4) | `-DNAIVE` |
+| [`ex3_end_of_program`](exercises/ex3_end_of_program.cpp) | why | zašto je redosled uništavanja static objekata bitan (sekcija 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

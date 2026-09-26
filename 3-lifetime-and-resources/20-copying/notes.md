@@ -183,8 +183,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_rule_of_three`](exercises/ex1_rule_of_three.cpp) | usage | rule of 3: duboka kopija, copy-and-swap, destruktor (sekcija 4) | — |
-| [`ex2_kopiraj_sve_delove`](exercises/ex2_kopiraj_sve_delove.cpp) | why | zašto ručna kopija mora da kopira i baznu klasu (sekcija 5, EC++ Item 12) | `-DNAIVE` |
-| [`ex3_referenca_clan`](exercises/ex3_referenca_clan.cpp) | why | zašto član-referenca ukida dodelu (sekcija 3) | `-DNAIVE` |
+| [`ex2_copy_all_parts`](exercises/ex2_copy_all_parts.cpp) | why | zašto ručna kopija mora da kopira i baznu klasu (sekcija 5, EC++ Item 12) | `-DNAIVE` |
+| [`ex3_reference_member`](exercises/ex3_reference_member.cpp) | why | zašto član-referenca ukida dodelu (sekcija 3) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

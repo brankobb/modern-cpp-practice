@@ -57,11 +57,11 @@ Dve vrste "nema":
 Test iz `main.cpp` (član `Probe` javlja šta se stvarno pozvalo):
 
 ```
-ništa:        move ctor=1 | T b = std::move(a) -> move
-destruktor:   move ctor=1 | T b = std::move(a) -> copy    <- trait kaže "može", a zapravo kopira
+nothing:      move ctor=1 | T b = std::move(a) -> move
+destructor:   move ctor=1 | T b = std::move(a) -> copy    <- trait kaže "može", a zapravo kopira
 copy ctor:    move ctor=1 | T b = std::move(a) -> copy
 move ctor:    copy ctor=0 copy==0 ...                      <- kopija obrisana
-move dodela:  copy ctor=0 ... move ctor=0
+move assign:  copy ctor=0 ... move ctor=0
 ```
 
 ⚠️ `std::is_move_constructible_v<T>` samo kaže da `T(std::move(x))` **radi**,
@@ -132,8 +132,8 @@ Zato vektor koristi `std::move_if_noexcept`: move **samo** ako je
 
 | Element | `reserve(100)` sa 4 elementa |
 |---|---|
-| move `noexcept(false)` | kopija=4, move=0 |
-| move `noexcept` | kopija=0, move=4 |
+| move `noexcept(false)` | copies=4, move=0 |
+| move `noexcept` | copies=0, move=4 |
 
 Isto pravilo važi za svaku operaciju vektora koja realocira (`push_back`,
 `emplace_back`, `reserve`, `resize`).
@@ -215,8 +215,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_predvidi_traitove`](exercises/ex1_predvidi_traitove.cpp) | usage | pročitaj tabelu generisanja preko type traits (sekcija 1) | — |
-| [`ex2_destruktor_ukida_move`](exercises/ex2_destruktor_ukida_move.cpp) | why | zašto "samo dodajem destruktor za log" menja performanse (sekcija 2) | `-DNAIVE` |
+| [`ex1_predict_traits`](exercises/ex1_predict_traits.cpp) | usage | pročitaj tabelu generisanja preko type traits (sekcija 1) | — |
+| [`ex2_destructor_kills_move`](exercises/ex2_destructor_kills_move.cpp) | why | zašto "samo dodajem destruktor za log" menja performanse (sekcija 2) | `-DNAIVE` |
 | [`ex3_noexcept_vector`](exercises/ex3_noexcept_vector.cpp) | why | zašto move konstruktor treba noexcept (sekcija 4, EMC Item 14) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

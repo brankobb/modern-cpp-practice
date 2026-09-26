@@ -64,13 +64,13 @@ void row(const char* declared) {
 }
 
 void s01_generationTable() {
-    std::cout << "-- 1. šta kompajler napiše, zavisno od toga šta si ti deklarisao --\n";
-    row<Nothing>("ništa:          ");
-    row<DtorOnly>("destruktor:     ");
+    std::cout << "-- 1. what the compiler writes, depending on what you declared --\n";
+    row<Nothing>("nothing:        ");
+    row<DtorOnly>("destructor:     ");
     row<CopyCtorOnly>("copy ctor:      ");
     row<MoveCtorOnly>("move ctor:      ");
-    row<MoveAssignOnly>("move dodela:    ");
-    std::cout << "  <- \"move ctor=1\" za destruktor i copy ctor znači samo da T b = std::move(a) RADI -- kopijom!\n";
+    row<MoveAssignOnly>("move assign:    ");
+    std::cout << "  <- \"move ctor=1\" for destructor and copy ctor only means that T b = std::move(a) WORKS -- by copying!\n";
 }
 
 // ---------------------------------------------------------------- 2
@@ -92,17 +92,17 @@ struct LoggedFixed {
 };
 
 void s02_destructorKillsMove() {
-    std::cout << "-- 2. destruktor ukida move --\n";
+    std::cout << "-- 2. a destructor suppresses move --\n";
     Logged a{std::vector<int>(1000, 1)};
     const int* before = a.data.data();
     Logged b = std::move(a);
     LoggedFixed c{std::vector<int>(1000, 1)};
     const int* beforeFixed = c.data.data();
     LoggedFixed d = std::move(c);
-    std::cout << "  Logged (samo ~):       isti bafer posle \"move\": " << (b.data.data() == before ? "da" : "ne")
-              << ", izvor i dalje ima " << a.data.size() << " elemenata  <- kopija!\n";
-    std::cout << "  LoggedFixed (= default): isti bafer: " << (d.data.data() == beforeFixed ? "da" : "ne")
-              << ", izvor ima " << c.data.size() << " elemenata\n";
+    std::cout << "  Logged (only ~):       same buffer after \"move\": " << (b.data.data() == before ? "yes" : "no")
+              << ", the source still has " << a.data.size() << " elements  <- a copy!\n";
+    std::cout << "  LoggedFixed (= default): same buffer: " << (d.data.data() == beforeFixed ? "yes" : "no")
+              << ", the source has " << c.data.size() << " elements\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -118,7 +118,7 @@ struct Defaulted {
 };
 
 void s03_defaultAndNoexcept() {
-    std::cout << "-- 3. = default izvodi noexcept, ručna funkcija ne --\n";
+    std::cout << "-- 3. = default deduces noexcept, a hand-written function does not --\n";
     std::cout << std::boolalpha << "  is_nothrow_move_constructible: HandWritten=" << std::is_nothrow_move_constructible_v<HandWritten>
               << " Defaulted=" << std::is_nothrow_move_constructible_v<Defaulted> << "\n" << std::noboolalpha;
 }
@@ -140,21 +140,21 @@ struct SafeElement {
 };
 
 void s04_vectorAndNoexcept() {
-    std::cout << "-- 4. std::vector realokacija koristi move samo ako je noexcept --\n";
+    std::cout << "-- 4. std::vector reallocation uses move only if it is noexcept --\n";
     std::vector<Element> risky(4);
     std::vector<SafeElement> safe(4);
     Element::copies = Element::moves = 0;
     SafeElement::copies = SafeElement::moves = 0;
     risky.reserve(100); // realokacija: premesti 4 elementa
     safe.reserve(100);
-    std::cout << "  reserve(100) sa 4 elementa: Element (move noexcept(false)) kopija=" << Element::copies
-              << " move=" << Element::moves << "; SafeElement (noexcept) kopija=" << SafeElement::copies
+    std::cout << "  reserve(100) with 4 elements: Element (move noexcept(false)) copies=" << Element::copies
+              << " move=" << Element::moves << "; SafeElement (noexcept) copies=" << SafeElement::copies
               << " move=" << SafeElement::moves << "\n";
     Element e;
     Element::copies = Element::moves = 0;
     Element taken = std::move_if_noexcept(e); // isto pravilo koje koristi vector
     (void)taken;
-    std::cout << "  std::move_if_noexcept(Element) -> kopija=" << Element::copies << " move=" << Element::moves << "\n";
+    std::cout << "  std::move_if_noexcept(Element) -> copies=" << Element::copies << " move=" << Element::moves << "\n";
 }
 
 // ---------------------------------------------------------------- 5
@@ -164,18 +164,18 @@ struct Box {
     // Šablonski konstruktor NIJE copy konstruktor i ne sprečava da ga
     // kompajler napiše, ali u overload resolution-u često pobedi (EMC 26).
     template <typename T>
-    explicit Box(T&&) { std::cout << "šablonski ctor"; }
+    explicit Box(T&&) { std::cout << "template ctor"; }
 };
 
 void s05_templateConstructor() {
-    std::cout << "-- 5. šablonski konstruktor otima kopiju (EMC Item 17 i 26) --\n";
+    std::cout << "-- 5. a template constructor hijacks the copy (EMC Item 17 and 26) --\n";
     const Box constBox;
     Box plainBox;
     std::cout << "  Box a(constBox) -> ";
     Box a(constBox); // const Box& -> copy ctor je tačan match
     std::cout << "\n  Box b(plainBox) -> ";
     Box b(plainBox); // Box& -> šablon sa T = Box& je BOLJI (bez dodavanja const)
-    std::cout << "  <- iznenađenje (errors/e04)\n";
+    std::cout << "  <- surprise (errors/e04)\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -195,11 +195,11 @@ Session login(const char* name) {
 }
 
 void s06_moveOnly() {
-    std::cout << "-- 6. = delete + = default: move-only tip --\n";
-    Session s = login("ana");
+    std::cout << "-- 6. = delete + = default: a move-only type --\n";
+    Session s = login("ann");
     std::vector<Session> active;
     active.push_back(std::move(s));
-    std::cout << std::boolalpha << "  Session: kopija=" << std::is_copy_constructible_v<Session>
+    std::cout << std::boolalpha << "  Session: copy=" << std::is_copy_constructible_v<Session>
               << " move=" << std::is_move_constructible_v<Session> << ", active[0].user=" << active[0].user << "\n"
               << std::noboolalpha;
 }

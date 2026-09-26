@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVE kopija: 1, pomeranja: 0
+// DEMO-OUT: NAIVE copies: 1, moves: 0
 //
 // Zadatak 3 -- zašto std::move na const objektu tiho kopira
 // (sekcija 3, EMC Item 23)
@@ -7,13 +7,13 @@
 //
 // Korak 1: pokreni naivnu verziju:
 //     ./build.sh 3-lifetime-and-resources/22-move-semantics/exercises/ex3_move_const.cpp -DNAIVE
-//   poruka je const, pa je std::move(poruka) tipa const Tekst&&. Move
-//   konstruktor prima Tekst&& (ne-const) -- ne može da se veže. Zato
-//   pobedi copy konstruktor (const Tekst& prima i const rvalue).
+//   message je const, pa je std::move(message) tipa const Text&&. Move
+//   konstruktor prima Text&& (ne-const) -- ne može da se veže. Zato
+//   pobedi copy konstruktor (const Text& prima i const rvalue).
 //   Nema greške ni upozorenja sa -Wall -Wextra: "move" je tiho postao kopija.
 // Korak 2: u #else grani ukloni const sa promenljive koju nameravaš da
 //   pomeriš, i proveri brojače.
-// Korak 3: (za razmišljanje) zašto move konstruktor ne prima const Tekst&&?
+// Korak 3: (za razmišljanje) zašto move konstruktor ne prima const Text&&?
 //   (Odgovor: da bi ukrao sadržaj, mora da izmeni izvor -- ostavi ga
 //   praznim. Iz const objekta ne može.)
 
@@ -22,35 +22,35 @@
 #include <utility>
 #include <vector>
 
-struct Brojac {
-    int kopija = 0;
-    int pomeranja = 0;
-} brojac;
+struct Counter {
+    int copies = 0;
+    int moves = 0;
+} counter;
 
-struct Tekst {
+struct Text {
     std::string s;
-    explicit Tekst(std::string x) : s(std::move(x)) {}
-    Tekst(const Tekst& o) : s(o.s) { ++brojac.kopija; }
-    Tekst(Tekst&& o) noexcept : s(std::move(o.s)) { ++brojac.pomeranja; }
+    explicit Text(std::string x) : s(std::move(x)) {}
+    Text(const Text& o) : s(o.s) { ++counter.copies; }
+    Text(Text&& o) noexcept : s(std::move(o.s)) { ++counter.moves; }
 };
 
 int main() {
-    std::vector<Tekst> red;
-    red.reserve(1);
+    std::vector<Text> queue;
+    queue.reserve(1);
 #ifdef NAIVE
-    const Tekst poruka("dugačka poruka koja se šalje u red");
-    red.push_back(std::move(poruka));
-    std::cout << "kopija: " << brojac.kopija << ", pomeranja: " << brojac.pomeranja << '\n';
+    const Text message("a long message that goes into the queue");
+    queue.push_back(std::move(message));
+    std::cout << "copies: " << counter.copies << ", moves: " << counter.moves << '\n';
 #else
     // TODO korak 2
     // Korak 2 -- otkomentariši:
-    // red.push_back(std::move(poruka));
-    // std::cout << "kopija: " << brojac.kopija << ", pomeranja: " << brojac.pomeranja << '\n';
-    // std::cout << "poruka posle: \"" << poruka.s << "\"\n";
+    // queue.push_back(std::move(message));
+    // std::cout << "copies: " << counter.copies << ", moves: " << counter.moves << '\n';
+    // std::cout << "message after: \"" << message.s << "\"\n";
 #endif
 }
 
 /* EXPECTED OUTPUT
-kopija: 0, pomeranja: 1
-poruka posle: ""
+copies: 0, moves: 1
+message after: ""
 */

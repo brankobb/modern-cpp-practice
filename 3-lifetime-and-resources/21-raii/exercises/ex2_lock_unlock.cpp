@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVE druga obrada: deadlock
+// DEMO-OUT: NAIVE second run: deadlock
 //
 // Zadatak 2 -- zašto lock_guard, a ne lock() ... unlock() (sekcije 1, 2)
 // Rešenje: exercises/solutions/ex2_lock_unlock.cpp
@@ -13,7 +13,7 @@
 //   uhvaćen, program ide dalje -- ali unlock() se nikad nije izvršio.
 //   Sledeća obrada zaglavi. Svaki "return" ili izuzetak između lock i
 //   unlock je ista greška.
-// Korak 2: u #else grani napiši obradi() sa std::lock_guard<Mutex>
+// Korak 2: u #else grani napiši process() sa std::lock_guard<Mutex>
 //   (<mutex>). lock_guard radi sa SVAKIM tipom koji ima lock() i
 //   unlock() -- ne mora std::mutex. Destruktor lock_guard-a otključa
 //   i kad blok napusti izuzetak (stack unwinding).
@@ -23,43 +23,43 @@
 #include <stdexcept>
 
 struct Mutex {
-    bool zakljucan = false;
+    bool locked = false;
     void lock() {
-        if (zakljucan) throw std::logic_error("deadlock");
-        zakljucan = true;
+        if (locked) throw std::logic_error("deadlock");
+        locked = true;
     }
-    void unlock() { zakljucan = false; }
+    void unlock() { locked = false; }
 };
 
 #ifdef NAIVE
-void obradi(Mutex& m, int x) {
+void process(Mutex& m, int x) {
     m.lock();
-    if (x < 0) throw std::invalid_argument("negativna vrednost");
-    std::cout << "obrađeno: " << x << '\n';
+    if (x < 0) throw std::invalid_argument("negative value");
+    std::cout << "processed: " << x << '\n';
     m.unlock();
 }
 #else
 // TODO korak 2 (dok ne napišeš, ova verzija samo baca, da bi se fajl kompajlirao)
-void obradi(Mutex&, int) { throw std::invalid_argument("nije napisano"); }
+void process(Mutex&, int) { throw std::invalid_argument("not written yet"); }
 #endif
 
 int main() {
     Mutex m;
     try {
-        obradi(m, -1);
+        process(m, -1);
     } catch (const std::invalid_argument& e) {
-        std::cout << "prva obrada: " << e.what() << '\n';
+        std::cout << "first run: " << e.what() << '\n';
     }
     try {
-        obradi(m, 5);
+        process(m, 5);
     } catch (const std::logic_error& e) {
-        std::cout << "druga obrada: " << e.what() << '\n';
+        std::cout << "second run: " << e.what() << '\n';
     }
-    std::cout << "mutex na kraju: " << (m.zakljucan ? "zaključan" : "otključan") << '\n';
+    std::cout << "mutex at the end: " << (m.locked ? "locked" : "unlocked") << '\n';
 }
 
 /* EXPECTED OUTPUT
-prva obrada: negativna vrednost
-obrađeno: 5
-mutex na kraju: otključan
+first run: negative value
+processed: 5
+mutex at the end: unlocked
 */

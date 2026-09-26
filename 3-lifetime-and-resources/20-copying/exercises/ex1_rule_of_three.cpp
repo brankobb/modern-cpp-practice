@@ -6,17 +6,17 @@
 // main() i uporedi izlaz sa blokom EXPECTED OUTPUT na dnu fajla.
 // Rešenje: exercises/solutions/ex1_rule_of_three.cpp
 //
-// class Tekst drži svoj char niz na heap-u: char* podaci_ i
-// std::size_t duzina_ (bez '\0' u dužini).
-// Korak 1: explicit Tekst(const char* s) -- alociraj duzina_ + 1 i kopiraj
+// class Text drži svoj char niz na heap-u: char* data_ i
+// std::size_t length_ (bez '\0' u dužini).
+// Korak 1: explicit Text(const char* s) -- alociraj length_ + 1 i kopiraj
 //   (std::strlen, std::memcpy iz <cstring>). Destruktor: delete[].
-//   const char* c_str() const, std::size_t duzina() const.
+//   const char* c_str() const, std::size_t length() const.
 // Korak 2: copy konstruktor -- DUBOKA kopija (novi blok + kopiranje).
-//   void promeni(std::size_t i, char c) menja jedan znak, da bi se videlo
+//   void set(std::size_t i, char c) menja jedan znak, da bi se videlo
 //   da su kopije nezavisne.
 // Korak 3: copy dodela idiomom copy-and-swap:
-//       Tekst& operator=(const Tekst& o) { Tekst kopija(o); swap(kopija); return *this; }
-//   uz void swap(Tekst& o) noexcept koji zameni pokazivače i dužine.
+//       Text& operator=(const Text& o) { Text copy(o); swap(copy); return *this; }
+//   uz void swap(Text& o) noexcept koji zameni pokazivače i dužine.
 //   Radi i za a = a, i ako alokacija baci -- *this ostaje netaknut.
 
 #include <cstddef>
@@ -24,34 +24,34 @@
 #include <iostream>
 #include <utility>
 
-class Tekst {
+class Text {
 public:
     // TODO korak 1, 2, 3
 };
 
 int main() {
     // Korak 1 i 2 -- otkomentariši:
-    // Tekst a("motor");
-    // Tekst b(a);
-    // b.promeni(0, 'M');
-    // std::cout << "a: " << a.c_str() << ", b: " << b.c_str() << ", dužina " << b.duzina() << '\n';
+    // Text a("motor");
+    // Text b(a);
+    // b.set(0, 'M');
+    // std::cout << "a: " << a.c_str() << ", b: " << b.c_str() << ", length " << b.length() << '\n';
 
     // Korak 3 -- otkomentariši:
-    // Tekst c("x");
+    // Text c("x");
     // c = a;
-    // a.promeni(4, 'R');
+    // a.set(4, 'R');
     // std::cout << "a: " << a.c_str() << ", c: " << c.c_str() << '\n';
-    // Tekst& isti = c;
-    // c = isti;                                   // dodela samom sebi
-    // std::cout << "posle c = c: " << c.c_str() << '\n';
-    // Tekst d("d"), e("e");
-    // d = e = b;                                  // lanac: vraća Tekst&
+    // Text& same = c;
+    // c = same;                                   // dodela samom sebi
+    // std::cout << "after c = c: " << c.c_str() << '\n';
+    // Text d("d"), e("e");
+    // d = e = b;                                  // lanac: vraća Text&
     // std::cout << "d: " << d.c_str() << ", e: " << e.c_str() << '\n';
 }
 
 /* EXPECTED OUTPUT
-a: motor, b: Motor, dužina 5
+a: motor, b: Motor, length 5
 a: motoR, c: motor
-posle c = c: motor
+after c = c: motor
 d: Motor, e: Motor
 */

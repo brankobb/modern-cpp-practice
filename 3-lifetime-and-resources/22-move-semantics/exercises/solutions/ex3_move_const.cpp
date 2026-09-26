@@ -5,32 +5,32 @@
 #include <utility>
 #include <vector>
 
-struct Brojac {
-    int kopija = 0;
-    int pomeranja = 0;
-} brojac;
+struct Counter {
+    int copies = 0;
+    int moves = 0;
+} counter;
 
-struct Tekst {
+struct Text {
     std::string s;
-    explicit Tekst(std::string x) : s(std::move(x)) {}
-    Tekst(const Tekst& o) : s(o.s) { ++brojac.kopija; }
-    Tekst(Tekst&& o) noexcept : s(std::move(o.s)) { ++brojac.pomeranja; }
+    explicit Text(std::string x) : s(std::move(x)) {}
+    Text(const Text& o) : s(o.s) { ++counter.copies; }
+    Text(Text&& o) noexcept : s(std::move(o.s)) { ++counter.moves; }
 };
 
 int main() {
-    std::vector<Tekst> red;
-    red.reserve(1);
+    std::vector<Text> queue;
+    queue.reserve(1);
     // Ako je promenljiva const, a posle je pomeraš (nije dobro): std::move
-    // da const Tekst&&, move konstruktor ne može da ga primi, i dobije se
+    // da const Text&&, move konstruktor ne može da ga primi, i dobije se
     // kopija -- bez ikakvog upozorenja.
     // Treba ovako: objekat koji ćeš pomeriti nije const (EMC Item 23:
     // "ne deklariši objekte const ako želiš da ih pomeriš").
-    Tekst poruka("dugačka poruka koja se šalje u red");
-    red.push_back(std::move(poruka));
-    std::cout << "kopija: " << brojac.kopija << ", pomeranja: " << brojac.pomeranja << '\n';
+    Text message("a long message that goes into the queue");
+    queue.push_back(std::move(message));
+    std::cout << "copies: " << counter.copies << ", moves: " << counter.moves << '\n';
     // Moved-from std::string je u "validnom, ali nespecifikovanom stanju".
     // libstdc++ ga ostavi praznim (provereno); standard to ne garantuje, pa
     // se na to ne oslanjaj u pravom kodu. (Ako na Windows-u/libc++ vidiš
     // nešto drugo, javi.)
-    std::cout << "poruka posle: \"" << poruka.s << "\"\n";
+    std::cout << "message after: \"" << message.s << "\"\n";
 }

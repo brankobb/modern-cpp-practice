@@ -3,27 +3,27 @@
 #include <iostream>
 #include <utility>
 
-struct Brojac {
-    int kopija = 0;
-    int pomeranja = 0;
-} brojac;
+struct Counter {
+    int copies = 0;
+    int moves = 0;
+} counter;
 
-struct Tekst {
+struct Text {
     const char* s;
-    explicit Tekst(const char* x) : s(x) {}
-    Tekst(const Tekst& o) : s(o.s) { ++brojac.kopija; }
-    Tekst(Tekst&& o) noexcept : s(o.s) { ++brojac.pomeranja; }
+    explicit Text(const char* x) : s(x) {}
+    Text(const Text& o) : s(o.s) { ++counter.copies; }
+    Text(Text&& o) noexcept : s(o.s) { ++counter.moves; }
 };
 
 // Ako pišeš "return std::move(t);" (nije dobro): NRVO se isključi, pa
 // umesto nula dobiješ jedan move.
 // Treba ovako: "return t;" -- NRVO, a gde nije moguć, automatski move.
-Tekst napravi() {
-    Tekst t("rezultat");
+Text make() {
+    Text t("result");
     return t;
 }
 
 int main() {
-    Tekst r = napravi();
-    std::cout << r.s << " -- kopija: " << brojac.kopija << ", pomeranja: " << brojac.pomeranja << '\n';
+    Text r = make();
+    std::cout << r.s << " -- copies: " << counter.copies << ", moves: " << counter.moves << '\n';
 }

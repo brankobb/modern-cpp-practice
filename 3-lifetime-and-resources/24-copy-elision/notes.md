@@ -152,9 +152,9 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_parametri_i_povratak`](exercises/ex1_parametri_i_povratak.cpp) | usage | vraćanje po vrednosti, sink parametar, emplace_back (sekcije 1, 3, 4) | — |
+| [`ex1_parameters_and_return`](exercises/ex1_parameters_and_return.cpp) | usage | vraćanje po vrednosti, sink parametar, emplace_back (sekcije 1, 3, 4) | — |
 | [`ex2_return_std_move`](exercises/ex2_return_std_move.cpp) | why | zašto NE pisati return std::move(lokalna) (sekcije 1, 2) | `-DNAIVE` |
-| [`ex3_const_lokalna`](exercises/ex3_const_lokalna.cpp) | why | zašto lokalna koju vraćaš ne treba da bude const (sekcija 2) | `-DNAIVE` |
+| [`ex3_const_local`](exercises/ex3_const_local.cpp) | why | zašto lokalna koju vraćaš ne treba da bude const (sekcija 2) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

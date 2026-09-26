@@ -90,10 +90,10 @@ konstruktor više. ❌ Ne sme uz njega i `operator=(Buffer&&)`: poziv
 
 | Test | Rezultat | Zašto |
 |---|---|---|
-| kopija, move, dodele, dodela samom sebi | kopija=3, move=2 | move dodela samom sebi se preskače |
-| `Buffer filled = makeFilled(5, 3);` | kopija=0, move=0 | NRVO (nije garantovano, lekcija 24) |
-| 5× `push_back`, `noexcept` move | kopija=0, move=12 | 5 u vektor + 1+2+4 pri realokacijama |
-| 5× `push_back`, move **bez** `noexcept` | **kopija=7**, move=5 | realokacija kopira, da bi sačuvala strong garanciju |
+| kopija, move, dodele, dodela samom sebi | copies=3, move=2 | move dodela samom sebi se preskače |
+| `Buffer filled = makeFilled(5, 3);` | copies=0, move=0 | NRVO (nije garantovano, lekcija 24) |
+| 5× `push_back`, `noexcept` move | copies=0, move=12 | 5 u vektor + 1+2+4 pri realokacijama |
+| 5× `push_back`, move **bez** `noexcept` | **copies=7**, move=5 | realokacija kopira, da bi sačuvala strong garanciju |
 
 Poslednji red je najvažniji: move konstruktor bez `noexcept` je za
 `std::vector` **kao da ne postoji**. Vektor pri realokaciji mora da

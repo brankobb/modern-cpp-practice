@@ -41,7 +41,7 @@ private:
 };
 ```
 
-Test: `[otvoren] [zatvoren] | uhvaćen` -- fajl se zatvori **pre** nego
+Test: `[opened] [closed] | caught` -- fajl se zatvori **pre** nego
 što `catch` počne, iako je funkcija prekinuta izuzetkom.
 
 Pravila:
@@ -74,7 +74,7 @@ outer() middle() inner() ~inner() ~middle() ~outer() | catch
 Kad izuzetak izađe iz funkcije, uništavaju se svi njeni potpuno napravljeni
 lokalni objekti, pa isto u funkciji koja ju je pozvala, sve do `catch`
 bloka. Redosled je obrnut od pravljenja, kao i inače. Kod posle mesta
-bacanja (`(ovo se ne izvrši)`) se preskače.
+bacanja (`(this never runs)`) se preskače.
 
 ---
 
@@ -103,11 +103,11 @@ ni ne treba (rule of 0).
 | **basic** | objekat ispravan (invarijante važe, nema curenja), ali stanje nepoznato | većina operacija |
 | nijedna | objekat pokvaren ili curenje | ❌ |
 
-Test iz `main.cpp` (kopija elementa "pokvaren" baca):
+Test iz `main.cpp` (kopija elementa "broken" baca):
 
 ```
-basic posle izuzetka:  jabuka           <- ispravan, ali ni staro ni novo
-strong posle izuzetka: staro1 staro2    <- netaknut
+basic after exception:  apple          <- valid, but neither old nor new
+strong after exception: old1 old2      <- untouched
 ```
 
 **Kako se dobija strong garancija: copy-and-swap.** Sva posla koja mogu da
@@ -206,9 +206,9 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_datoteka_raii`](exercises/ex1_datoteka_raii.cpp) | usage | RAII omotač, unique_ptr sa deleter-om i scope guard (sekcije 1, 6) | — |
+| [`ex1_file_raii`](exercises/ex1_file_raii.cpp) | usage | RAII omotač, unique_ptr sa deleter-om i scope guard (sekcije 1, 6) | — |
 | [`ex2_lock_unlock`](exercises/ex2_lock_unlock.cpp) | why | zašto lock_guard, a ne lock() ... unlock() (sekcije 1, 2) | `-DNAIVE` |
-| [`ex3_jaka_garancija`](exercises/ex3_jaka_garancija.cpp) | why | zašto "sve ili ništa" (strong guarantee, sekcija 4, EC++ Item 29) | `-DNAIVE` |
+| [`ex3_strong_guarantee`](exercises/ex3_strong_guarantee.cpp) | why | zašto "sve ili ništa" (strong guarantee, sekcija 4, EC++ Item 29) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

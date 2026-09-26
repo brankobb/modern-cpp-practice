@@ -44,13 +44,13 @@ bacaju).
 # 1. `throw`, `try`, `catch`
 
 ```cpp
-double podeli(double a, double b) {
-    if (b == 0.0) throw std::invalid_argument("delilac je 0");
+double divide(double a, double b) {
+    if (b == 0.0) throw std::invalid_argument("divisor is 0");
     return a / b;
 }
 
 try {
-    podeli(10, 0);                          // baca: ostatak try bloka se preskače
+    divide(10, 0);                          // baca: ostatak try bloka se preskače
 } catch (const std::invalid_argument& e) {  // ✅ po const&
     std::cout << e.what();
 }
@@ -62,7 +62,7 @@ try {
   vrednosti pravi kopiju i **seče** izvedeni tip (slicing, zadatak ex2).
   g++ `-Wall` upozori (`-Wcatch-value`), clang ne.
 - ⚠️ Izuzetak prekida **izraz na mestu gde je bačen**. Test: u
-  `std::cout << "10 / 0 = " << podeli(10, 0)` tekst "10 / 0 = " je već
+  `std::cout << "10 / 0 = " << divide(10, 0)` tekst "10 / 0 = " je već
   ispisan (od C++17 `<<` se računa sleva nadesno).
 - ✅ Baci tip iz hijerarhije `std::exception`, ne `int` ili `const char*`:
   pozivalac tada može da uhvati sve sa `catch (const std::exception&)` i
@@ -105,10 +105,10 @@ catch (...)                        { ... }   // sve ostalo
 # 3. Sopstvena klasa izuzetka (E.14)
 
 ```cpp
-class GreskaSenzora : public std::runtime_error {
+class SensorError : public std::runtime_error {
 public:
-    GreskaSenzora(int senzorId, const std::string& poruka)
-        : std::runtime_error("senzor " + std::to_string(senzorId) + ": " + poruka), id_(senzorId) {}
+    SensorError(int sensorId, const std::string& message)
+        : std::runtime_error("sensor " + std::to_string(sensorId) + ": " + message), id_(sensorId) {}
     int id() const noexcept { return id_; }
 private:
     int id_;
@@ -129,10 +129,10 @@ private:
 # 4. Stack unwinding
 
 ```
- a() b() c() ~c() ~b() ~a() | uhvaćeno: duboko
+ a() b() c() ~c() ~b() ~a() | caught: deep down
 ```
 
-Izuzetak bačen u `unutrasnja()` prolazi kroz `srednja()` do `main`-ovog
+Izuzetak bačen u `inner()` prolazi kroz `middle()` do `main`-ovog
 `catch`-a. Usput se uništavaju **svi** lokalni objekti, obrnutim redom
 (test). Zato RAII radi i kad nešto baci: resurs oslobađa destruktor,
 a ne kod posle poziva (lekcija 21).
@@ -157,10 +157,10 @@ try {
 ```
 
 - ✅ `throw;` (bez izraza) ponovo baca **trenutni** izuzetak. Spoljni
-  `catch (const GreskaSenzora&)` ga i dalje prepozna (test).
+  `catch (const SensorError&)` ga i dalje prepozna (test).
 - ❌ `throw e;` baca **kopiju** promenljive `e`, statičkog tipa iz
   `catch`-a. Ako je `e` tipa `std::exception&`, a stvarni izuzetak
-  `GreskaSenzora`, kopija je samo `std::exception` (zadatak ex2).
+  `SensorError`, kopija je samo `std::exception` (zadatak ex2).
 - ❌ `throw;` kad nema trenutnog izuzetka: `std::terminate`
   (`runtime/r05`).
 - `try` blokovi mogu da se ugnežđuju: unutrašnji `catch` obradi šta ume,
@@ -175,7 +175,7 @@ fajl", "koji blok"), a da ne izgubi originalni uzrok:
 
 ```cpp
 } catch (...) {
-    std::throw_with_nested(std::runtime_error("fajl config.bin"));
+    std::throw_with_nested(std::runtime_error("file config.bin"));
 }
 ...
 std::rethrow_if_nested(e);   // baci unutrašnji izuzetak, ako postoji
@@ -184,9 +184,9 @@ std::rethrow_if_nested(e);   // baci unutrašnji izuzetak, ako postoji
 Test (`main.cpp`, sekcija 6):
 
 ```
-fajl config.bin
-  blok 3
-    CRC ne odgovara
+file config.bin
+  block 3
+    CRC mismatch
 ```
 
 - `std::throw_with_nested(x)` baci objekat koji je **i** tipa `x` **i**
@@ -194,29 +194,29 @@ fajl config.bin
 - `std::rethrow_if_nested(e)` baci taj sačuvani izuzetak (ako ga ima), pa
   rekurzivni `catch` ispiše ceo lanac.
 - Alternativa bez lanca: **prevedi** izuzetak u tip svog sloja (zadatak ex1:
-  `std::invalid_argument` iz `stoi` postane `GreskaKonfiguracije`).
+  `std::invalid_argument` iz `stoi` postane `ConfigError`).
 
 ---
 
 # 7. Konstruktor i destruktor
 
 ```
- trag() Bafer(16) telo | ~Uredjaj ~Bafer ~trag()
- trag() ~trag() | Uredjaj: bafer prevelik | spolja: senzor 0: Uredjaj nije napravljen
+ trace() Buffer(16) body | ~Device ~Buffer ~trace()
+ trace() ~trace() | Device: buffer too large | outside: sensor 0: Device not created
 ```
 
 - **Konstruktor koji baci** ostavlja objekat koji nikad nije postojao:
   njegov destruktor se NE poziva, ali već napravljeni članovi i baze se
-  uništavaju, obrnutim redom (test: `~trag()` bez `~Uredjaj`). Detaljno u lekciji 19, sekcija 4.
+  uništavaju, obrnutim redom (test: `~trace()` bez `~Device`). Detaljno u lekciji 19, sekcija 4.
 - ✅ Konstruktor koji ne može da uspostavi invarijantu **baca**, umesto da
   ostavi "napola napravljen" objekat sa `bool init()` (zadatak ex3).
 - **function-try-block** hvata i izuzetke iz init liste:
 
   ```cpp
-  Uredjaj(std::size_t n) try : trag_("trag"), bafer_(n) {
+  Device(std::size_t n) try : trace_("trace"), buffer_(n) {
       ...
   } catch (const std::length_error& e) {
-      throw GreskaSenzora(0, "Uredjaj nije napravljen");   // prevedi
+      throw SensorError(0, "Device not created");   // prevedi
   }
   ```
 
@@ -244,12 +244,12 @@ fajl config.bin
 Test (`main.cpp`, sekcija 8):
 
 ```cpp
-noexcept(bezbedna(1))       // true
-noexcept(mozeDaBaci(1))     // false
+noexcept(safe(1))           // true
+noexcept(mayThrow(1))       // false
 template <typename T>
-void zameni(T& a, T& b) noexcept(std::is_nothrow_move_constructible_v<T> &&
-                                 std::is_nothrow_move_assignable_v<T>);
-noexcept(zameni(a, b))      // true za int, false za tip čiji move može da baci
+void swapValues(T& a, T& b) noexcept(std::is_nothrow_move_constructible_v<T> &&
+                                     std::is_nothrow_move_assignable_v<T>);
+noexcept(swapValues(a, b))  // true za int, false za tip čiji move može da baci
 ```
 
 - ⚠️ `noexcept` se **ne proverava pri kompajliranju** (samo upozorenje za
@@ -278,7 +278,7 @@ std::rethrow_exception(p);                          // kasnije, drugde: baci ga 
   niti (to radi `std::future`/`std::async`), iz callback-a C biblioteke,
   iz reda poslova.
 - `exception_ptr` je kao `shared_ptr` na objekat izuzetka; prazan
-  (`nullptr`) znači "nije bilo greške" (test: `posao 0: ok`, `posao 1: x <= 0`).
+  (`nullptr`) znači "nije bilo greške" (test: `job 0: ok`, `job 1: x <= 0`).
 
 ---
 
@@ -336,8 +336,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_konfiguracija_greske`](exercises/ex1_konfiguracija_greske.cpp) | usage | sopstvena klasa izuzetka, prevođenje izuzetaka i lanac uzroka (sekcije 2, 3, 6) | — |
-| [`ex2_hvatanje_po_vrednosti`](exercises/ex2_hvatanje_po_vrednosti.cpp) | why | zašto catch po const& i "throw;" (sekcije 1, 5) | `-DNAIVE` |
-| [`ex3_konstruktor_baca`](exercises/ex3_konstruktor_baca.cpp) | why | zašto konstruktor baca, umesto init() koji vraća bool (sekcija 7) | `-DNAIVE` |
+| [`ex1_config_errors`](exercises/ex1_config_errors.cpp) | usage | sopstvena klasa izuzetka, prevođenje izuzetaka i lanac uzroka (sekcije 2, 3, 6) | — |
+| [`ex2_catch_by_value`](exercises/ex2_catch_by_value.cpp) | why | zašto catch po const& i "throw;" (sekcije 1, 5) | `-DNAIVE` |
+| [`ex3_constructor_throws`](exercises/ex3_constructor_throws.cpp) | why | zašto konstruktor baca, umesto init() koji vraća bool (sekcija 7) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

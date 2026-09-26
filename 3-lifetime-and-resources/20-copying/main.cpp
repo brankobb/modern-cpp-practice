@@ -20,18 +20,18 @@ struct Person { // nijedna specijalna funkcija nije napisana -- kompajler piše 
 };
 
 void s01_generatedMembers() {
-    std::cout << "-- 1. šta kompajler sam napiše --\n";
+    std::cout << "-- 1. what the compiler writes on its own --\n";
     std::cout << std::boolalpha << "  Person: default ctor=" << std::is_default_constructible_v<Person>
               << " copy ctor=" << std::is_copy_constructible_v<Person>
-              << " copy dodela=" << std::is_copy_assignable_v<Person>
-              << " destruktor=" << std::is_destructible_v<Person> << "\n" << std::noboolalpha;
+              << " copy assign=" << std::is_copy_assignable_v<Person>
+              << " destructor=" << std::is_destructible_v<Person> << "\n" << std::noboolalpha;
 
-    Person a{"Ana", {90, 85}};
+    Person a{"Ann", {90, 85}};
     Person b = a;       // kompajlerov copy ctor: kopira član po član
     b.name[0] = 'I';    // string i vector kopiraju SADRŽAJ, pa je b nezavisan
     b.scores.push_back(70);
-    std::cout << "  posle izmene kopije: a=" << a.name << "/" << a.scores.size() << " ocene, b=" << b.name << "/"
-              << b.scores.size() << " ocene  <- član po član je ovde duboka kopija\n";
+    std::cout << "  after changing the copy: a=" << a.name << "/" << a.scores.size() << " scores, b=" << b.name << "/"
+              << b.scores.size() << " scores  <- member-wise is a deep copy here\n";
 }
 
 // ---------------------------------------------------------------- 2
@@ -51,7 +51,7 @@ void byValue(Counted) {}
 void byConstRef(const Counted&) {}
 
 void s02_whenCopied() {
-    std::cout << "-- 2. kada se pravi kopija --\n";
+    std::cout << "-- 2. when a copy is made --\n";
     Counted original;
 
     Counted::reset();
@@ -74,10 +74,10 @@ void s02_whenCopied() {
 
     Counted::reset();
     a = b;                      // oba već postoje -> copy DODELA, ne konstruktor
-    std::cout << "  Counted a = x; Counted b(x): kopija=" << afterInit << "; byValue(x) + byConstRef(x): kopija="
-              << afterCalls << "\n  for (Counted item : v) sa 3 elementa: kopija=" << afterLoopByValue
-              << "; for (const Counted& item : v): kopija=" << afterLoopByRef << "\n  a = b: copy konstruktor="
-              << Counted::copies << ", copy dodela=" << Counted::assignments << "\n";
+    std::cout << "  Counted a = x; Counted b(x): copies=" << afterInit << "; byValue(x) + byConstRef(x): copies="
+              << afterCalls << "\n  for (Counted item : v) with 3 elements: copies=" << afterLoopByValue
+              << "; for (const Counted& item : v): copies=" << afterLoopByRef << "\n  a = b: copy constructor="
+              << Counted::copies << ", copy assign=" << Counted::assignments << "\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -87,10 +87,10 @@ struct Order {
 };
 
 void s03_deletedByMembers() {
-    std::cout << "-- 3. kad kompajler NE može da napiše kopiju --\n";
+    std::cout << "-- 3. when the compiler CANNOT write the copy --\n";
     std::cout << std::boolalpha << "  Order{const int id}: copy ctor=" << std::is_copy_constructible_v<Order>
-              << " copy dodela=" << std::is_copy_assignable_v<Order>
-              << "  <- const i referenca kao član brišu dodelu (errors/e01, e02)\n" << std::noboolalpha;
+              << " copy assign=" << std::is_copy_assignable_v<Order>
+              << "  <- a const or reference member deletes assignment (errors/e01, e02)\n" << std::noboolalpha;
     Order first{1, 5};
     Order copy = first; // konstrukcija kopije je u redu: id se INICIJALIZUJE, ne dodeljuje
     std::cout << "  Order copy = first: id=" << copy.id << " quantity=" << copy.quantity << "\n";
@@ -129,17 +129,17 @@ private:
 };
 
 void s04_deepCopy() {
-    std::cout << "-- 4. plitka vs duboka kopija: rule of 3 --\n";
-    Name a("Ana");
+    std::cout << "-- 4. shallow vs deep copy: rule of 3 --\n";
+    Name a("Ann");
     Name b = a;
-    Name c("Ceca");
+    Name c("Cara");
     c = a;
     b.setFirst('I');
     c.setFirst('E');
     Name& alias = a;
     a = alias; // dodela samom sebi
     std::cout << "  a=" << a.c_str() << " b=" << b.c_str() << " c=" << c.c_str()
-              << "  <- svaki objekat ima svoju memoriju; a = a radi\n";
+              << "  <- each object has its own memory; a = a works\n";
 }
 
 // ---------------------------------------------------------------- 5
@@ -181,14 +181,14 @@ private:
 };
 
 void s05_copyAllParts() {
-    std::cout << "-- 5. kopiraj SVE delove (EC++ Item 12) --\n";
-    Forgetful f(7, "hitno");
+    std::cout << "-- 5. copy ALL parts (EC++ Item 12) --\n";
+    Forgetful f(7, "urgent");
     Forgetful fCopy(f);
-    Careful c(7, "hitno");
+    Careful c(7, "urgent");
     Careful cCopy(c);
-    std::cout << "  Forgetful kopija: id=" << fCopy.id() << " tag=\"" << fCopy.tag() << "\"  <- baza i tag izgubljeni, bez upozorenja\n";
-    std::cout << "  Careful kopija:   id=" << cCopy.id() << " tag=\"" << cCopy.tag() << "\"\n";
-    std::cout << "  (najbolje: ne piši copy konstruktor kad kompajlerov radi -- rule of 0)\n";
+    std::cout << "  Forgetful copy: id=" << fCopy.id() << " tag=\"" << fCopy.tag() << "\"  <- base and tag lost, no warning\n";
+    std::cout << "  Careful copy:   id=" << cCopy.id() << " tag=\"" << cCopy.tag() << "\"\n";
+    std::cout << "  (best: do not write a copy constructor when the compiler's works -- rule of 0)\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -204,11 +204,11 @@ private:
 };
 
 void s06_forbidCopy() {
-    std::cout << "-- 6. zabrana kopiranja --\n";
+    std::cout << "-- 6. forbidding copies --\n";
     Connection db(5432);
     const Connection& same = db; // referenca: bez kopije
     std::cout << std::boolalpha << "  Connection: copy ctor=" << std::is_copy_constructible_v<Connection>
-              << ", referenca radi: port=" << same.port() << "\n" << std::noboolalpha;
+              << ", a reference works: port=" << same.port() << "\n" << std::noboolalpha;
 }
 
 int main() {

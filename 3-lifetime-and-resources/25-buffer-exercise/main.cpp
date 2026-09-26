@@ -86,7 +86,7 @@ void s01_ruleOfFive() {
     a = alias;               // copy dodela samom sebi
     a = std::move(alias);    // move dodela samom sebi: provera this != &other
     std::cout << "  a[0]=" << a[0] << " d[0]=" << d[0] << " b.size()=" << b.size() << " (moved-from)"
-              << "\n  kopija=" << Buffer::counters.copies << " move=" << Buffer::counters.moves << "\n";
+              << "\n  copies=" << Buffer::counters.copies << " move=" << Buffer::counters.moves << "\n";
 }
 
 // ---------------------------------------------------------------- 2
@@ -97,11 +97,11 @@ Buffer makeFilled(std::size_t n, int value) {
 }
 
 void s02_returnByValue() {
-    std::cout << "-- 2. vraćanje po vrednosti --\n";
+    std::cout << "-- 2. returning by value --\n";
     Buffer::counters = {};
     Buffer filled = makeFilled(5, 3);
-    std::cout << "  makeFilled(5, 3): filled[4]=" << filled[4] << ", kopija=" << Buffer::counters.copies
-              << " move=" << Buffer::counters.moves << "  <- ni kopija ni move (NRVO)\n";
+    std::cout << "  makeFilled(5, 3): filled[4]=" << filled[4] << ", copies=" << Buffer::counters.copies
+              << " move=" << Buffer::counters.moves << "  <- neither copy nor move (NRVO)\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -129,7 +129,7 @@ private:
 };
 
 void s03_vectorReallocation() {
-    std::cout << "-- 3. std::vector realokacija: noexcept move --\n";
+    std::cout << "-- 3. std::vector reallocation: noexcept move --\n";
     Buffer::counters = {};
     SlowBuffer::counters = {};
     std::vector<Buffer> fast;
@@ -138,10 +138,10 @@ void s03_vectorReallocation() {
         fast.push_back(Buffer(4)); // bez reserve: kapacitet raste 1, 2, 4, 8 -> tri realokacije
         slow.push_back(SlowBuffer(4));
     }
-    std::cout << "  5 x push_back, Buffer (noexcept move):  kopija=" << Buffer::counters.copies
+    std::cout << "  5 x push_back, Buffer (noexcept move):  copies=" << Buffer::counters.copies
               << " move=" << Buffer::counters.moves << "\n";
-    std::cout << "  5 x push_back, SlowBuffer (move bez noexcept): kopija=" << SlowBuffer::counters.copies
-              << " move=" << SlowBuffer::counters.moves << "  <- realokacija KOPIRA (strong garancija, lekcija 23)\n";
+    std::cout << "  5 x push_back, SlowBuffer (move without noexcept): copies=" << SlowBuffer::counters.copies
+              << " move=" << SlowBuffer::counters.moves << "  <- reallocation COPIES (strong guarantee, lesson 23)\n";
 }
 
 // ---------------------------------------------------------------- 4
@@ -170,9 +170,9 @@ void s04_ruleOfZero() {
     a = alias; // i dodela samom sebi radi
     std::cout << std::boolalpha << "  Buffer0: a[0]=" << a.data[0] << " c[0]=" << c.data[0]
               << ", nothrow move=" << std::is_nothrow_move_constructible_v<Buffer0>
-              << ", kopija=" << std::is_copy_constructible_v<Buffer0> << "\n";
+              << ", copy=" << std::is_copy_constructible_v<Buffer0> << "\n";
     std::cout << "  UniqueBuffer: nothrow move=" << std::is_nothrow_move_constructible_v<UniqueBuffer>
-              << ", kopija=" << std::is_copy_constructible_v<UniqueBuffer> << "  <- move-only bez ijedne linije\n"
+              << ", copy=" << std::is_copy_constructible_v<UniqueBuffer> << "  <- move-only without writing a single line\n"
               << std::noboolalpha;
 }
 
@@ -209,7 +209,7 @@ private:
 };
 
 void s05_unifiedAssignment() {
-    std::cout << "-- 5. jedan operator= po vrednosti (copy-and-swap za oba) --\n";
+    std::cout << "-- 5. one by-value operator= (copy-and-swap for both) --\n";
     Buffer4 a(3);
     Buffer4 b(5);
     Buffer4::counters = {};
@@ -217,8 +217,8 @@ void s05_unifiedAssignment() {
     int copiesForCopy = Buffer4::counters.copies;
     Buffer4::counters = {};
     a = std::move(b); // move u parametar, pa swap
-    std::cout << "  a = b: kopija=" << copiesForCopy << "; a = std::move(b): kopija=" << Buffer4::counters.copies
-              << " move=" << Buffer4::counters.moves << " (namenski move = bi bio 0 move ctor-a)\n";
+    std::cout << "  a = b: copies=" << copiesForCopy << "; a = std::move(b): copies=" << Buffer4::counters.copies
+              << " move=" << Buffer4::counters.moves << " (a dedicated move = would make 0 move ctors)\n";
     // Ne piši i operator=(Buffer4) i operator=(Buffer4&&): dvosmisleno (errors/e01).
 }
 
