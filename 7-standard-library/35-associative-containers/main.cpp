@@ -21,159 +21,159 @@
 // ./check_cases.sh 7-standard-library/35-associative-containers  proverava oba.
 
 template <typename C>
-void ispisi(const char* opis, const C& c) {
-    std::cout << opis << ':';
+void print(const char* label, const C& c) {
+    std::cout << label << ':';
     for (const auto& x : c) std::cout << ' ' << x;
     std::cout << '\n';
 }
 
 // ---------------------------------------------------------------- 1
-void sekcija1() {
-    std::cout << "\n== 1. std::set i std::multiset\n";
+void section1() {
+    std::cout << "\n== 1. std::set and std::multiset\n";
     std::set<int> s{5, 1, 4, 1, 3};                 // sortiran, bez duplikata
-    ispisi("set", s);
-    auto [it, ubaceno] = s.insert(4);               // već postoji
-    std::cout << "insert(4): ubačeno " << ubaceno << ", iterator na " << *it << '\n';
+    print("set", s);
+    auto [it, inserted] = s.insert(4);               // već postoji
+    std::cout << "insert(4): inserted " << inserted << ", iterator to " << *it << '\n';
     std::cout << "count(3) " << s.count(3) << ", find(7) == end: " << (s.find(7) == s.end()) << '\n';
     std::cout << "lower_bound(2) " << *s.lower_bound(2) << ", upper_bound(4) " << *s.upper_bound(4)
               << '\n';
 
     std::multiset<int> ms{1, 2, 2, 2, 3};           // sortiran, SA duplikatima
     std::multiset<int> ms2 = ms;
-    auto obrisano = ms.erase(2);                    // briše SVE jednake
+    auto erased = ms.erase(2);                    // briše SVE jednake
     ms2.erase(ms2.find(2));                         // briše JEDAN
-    std::cout << "multiset.erase(2) obrisao " << obrisano << '\n';
-    ispisi("ostalo", ms);
-    ispisi("multiset.erase(find(2))", ms2);
+    std::cout << "multiset.erase(2) erased " << erased << '\n';
+    print("remaining", ms);
+    print("multiset.erase(find(2))", ms2);
 }
 
 // ---------------------------------------------------------------- 2
-struct PoDuzini {   // poredi po dužini -- "jednaki" su stringovi iste dužine
+struct ByLength {   // poredi po dužini -- "jednaki" su stringovi iste dužine
     bool operator()(const std::string& a, const std::string& b) const { return a.size() < b.size(); }
 };
 
-void sekcija2() {
-    std::cout << "\n== 2. poredak i ekvivalencija\n";
-    std::set<int, std::greater<int>> opadajuce{1, 3, 2};
-    ispisi("set<int, greater>", opadajuce);
+void section2() {
+    std::cout << "\n== 2. ordering and equivalence\n";
+    std::set<int, std::greater<int>> descending{1, 3, 2};
+    print("set<int, greater>", descending);
     // Poredak određuje i šta je "isto": !(a < b) && !(b < a).
-    std::set<std::string, PoDuzini> poDuzini{"aa", "b", "cc", "ddd"};
-    ispisi("set po dužini (\"cc\" je \"isto\" što i \"aa\")", poDuzini);
+    std::set<std::string, ByLength> byLength{"aa", "b", "cc", "ddd"};
+    print("set by length (\"cc\" in \"the same\" as \"aa\")", byLength);
     // Lambda kao poredak: tip je decltype(lambda), a objekat se prosledi
     // konstruktoru.
-    auto bezVelikih = [](const std::string& a, const std::string& b) {
+    auto caseInsensitive = [](const std::string& a, const std::string& b) {
         return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(),
                                             [](unsigned char x, unsigned char y) { return std::tolower(x) < std::tolower(y); });
     };
-    std::set<std::string, decltype(bezVelikih)> imena(bezVelikih);
-    for (const char* i : {"Ana", "bora", "ANA", "Cane"}) imena.insert(i);
-    ispisi("bez obzira na velika slova", imena);
+    std::set<std::string, decltype(caseInsensitive)> names(caseInsensitive);
+    for (const char* i : {"Ann", "bob", "ANN", "Carl"}) names.insert(i);
+    print("ignoring case", names);
 }
 
 // ---------------------------------------------------------------- 3
-void sekcija3() {
-    std::cout << "\n== 3. std::map i std::multimap\n";
-    std::map<std::string, int> kanali{{"temp", 1}, {"pritisak", 2}};
-    kanali["vlaga"] = 3;                             // [] ubaci ako ne postoji
-    std::cout << "kanali[\"nepoznat\"] = " << kanali["nepoznat"] << " -- i sada size = " << kanali.size()
+void section3() {
+    std::cout << "\n== 3. std::map and std::multimap\n";
+    std::map<std::string, int> channels{{"temp", 1}, {"pressure", 2}};
+    channels["humidity"] = 3;                             // [] ubaci ako ne postoji
+    std::cout << "channels[\"unknown\"] = " << channels["unknown"] << " -- and now size = " << channels.size()
               << '\n';
     // Čitanje bez ubacivanja: find ili at.
-    if (auto it = kanali.find("temp"); it != kanali.end()) std::cout << "find temp: " << it->second << '\n';
+    if (auto it = channels.find("temp"); it != channels.end()) std::cout << "find temp: " << it->second << '\n';
     try {
-        std::cout << kanali.at("nema");
+        std::cout << channels.at("missing");
     } catch (const std::out_of_range&) {
-        std::cout << "at(\"nema\"): out_of_range\n";
+        std::cout << "at(\"missing\"): out_of_range\n";
     }
     // insert NE prepisuje postojeći; insert_or_assign i try_emplace (C++17).
-    auto [it, ubaceno] = kanali.insert({"temp", 99});
-    std::cout << "insert postojećeg: ubačeno " << ubaceno << ", vrednost ostala " << it->second << '\n';
-    kanali.insert_or_assign("temp", 10);
-    kanali.try_emplace("temp", 77);                  // postoji: ne radi ništa (ni ne pravi vrednost)
-    kanali.try_emplace("struja", 4);
-    for (const auto& [ime, kanal] : kanali) std::cout << ' ' << ime << '=' << kanal;
+    auto [it, inserted] = channels.insert({"temp", 99});
+    std::cout << "insert of an existing key: inserted " << inserted << ", value stayed " << it->second << '\n';
+    channels.insert_or_assign("temp", 10);
+    channels.try_emplace("temp", 77);                  // postoji: ne radi ništa (ni ne pravi vrednost)
+    channels.try_emplace("current", 4);
+    for (const auto& [name, channel] : channels) std::cout << ' ' << name << '=' << channel;
     std::cout << '\n';
 
-    std::multimap<std::string, int> merenja{{"temp", 21}, {"pritisak", 1013}, {"temp", 22}, {"temp", 20}};
-    auto [od, doKraja] = merenja.equal_range("temp");   // svi sa ključem "temp", redom ubacivanja
-    std::cout << "temp merenja:";
-    for (auto i = od; i != doKraja; ++i) std::cout << ' ' << i->second;
-    std::cout << " (ukupno ključeva temp: " << merenja.count("temp") << ")\n";
+    std::multimap<std::string, int> readings{{"temp", 21}, {"pressure", 1013}, {"temp", 22}, {"temp", 20}};
+    auto [first, last] = readings.equal_range("temp");   // svi sa ključem "temp", redom ubacivanja
+    std::cout << "temp readings:";
+    for (auto i = first; i != last; ++i) std::cout << ' ' << i->second;
+    std::cout << " (total temp keys: " << readings.count("temp") << ")\n";
 }
 
 // ---------------------------------------------------------------- 4
-void sekcija4() {
-    std::cout << "\n== 4. neuređeni kontejneri: heš tabela\n";
-    std::unordered_map<std::string, int> brojac;
-    for (const char* rec : {"a", "b", "a", "c", "a", "b"}) ++brojac[rec];
+void section4() {
+    std::cout << "\n== 4. unordered containers: hash table\n";
+    std::unordered_map<std::string, int> counter;
+    for (const char* word : {"a", "b", "a", "c", "a", "b"}) ++counter[word];
     // Redosled iteracije NIJE određen -- za ispis ga sortiramo.
-    std::vector<std::pair<std::string, int>> sortirano(brojac.begin(), brojac.end());
-    std::sort(sortirano.begin(), sortirano.end());
-    for (const auto& [rec, n] : sortirano) std::cout << ' ' << rec << '=' << n;
+    std::vector<std::pair<std::string, int>> sorted(counter.begin(), counter.end());
+    std::sort(sorted.begin(), sorted.end());
+    for (const auto& [word, n] : sorted) std::cout << ' ' << word << '=' << n;
     std::cout << '\n';
-    std::cout << "size " << brojac.size() << ", bucket_count " << brojac.bucket_count() << ", load_factor "
-              << brojac.load_factor() << '\n';
+    std::cout << "size " << counter.size() << ", bucket_count " << counter.bucket_count() << ", load_factor "
+              << counter.load_factor() << '\n';
     std::unordered_set<int> u;
     u.reserve(100);                                  // bucket-i za 100 elemenata unapred: bez rehash-a
-    std::size_t pre = u.bucket_count();
+    std::size_t before = u.bucket_count();
     for (int i = 0; i < 100; ++i) u.insert(i);
-    std::cout << "posle reserve(100) i 100 insert-a bucket_count isti: " << (pre == u.bucket_count())
+    std::cout << "after reserve(100) and 100 inserts bucket_count unchanged: " << (before == u.bucket_count())
               << '\n';
 }
 
 // ---------------------------------------------------------------- 5
-struct Tacka {
+struct Point {
     int x, y;
-    bool operator==(const Tacka& o) const { return x == o.x && y == o.y; }
+    bool operator==(const Point& o) const { return x == o.x && y == o.y; }
 };
 
 // Heš za sopstveni tip: funkcijski objekat koji kombinuje heševe polja.
-struct HesTacke {
-    std::size_t operator()(const Tacka& t) const noexcept {
+struct PointHash {
+    std::size_t operator()(const Point& t) const noexcept {
         std::size_t h = std::hash<int>{}(t.x);
         return h ^ (std::hash<int>{}(t.y) + 0x9e3779b9 + (h << 6) + (h >> 2));
     }
 };
 
 // Loš heš: svi ključevi u isti bucket.
-struct LosHes {
-    std::size_t operator()(const Tacka&) const noexcept { return 42; }
+struct BadHash {
+    std::size_t operator()(const Point&) const noexcept { return 42; }
 };
 
-void sekcija5() {
-    std::cout << "\n== 5. std::hash i sopstveni heš\n";
+void section5() {
+    std::cout << "\n== 5. std::hash and a custom hash\n";
     std::cout << "std::hash<int>{}(42) == std::hash<int>{}(42): "
               << (std::hash<int>{}(42) == std::hash<int>{}(42)) << '\n';
-    std::unordered_set<Tacka, HesTacke> tacke{{1, 2}, {2, 1}, {3, 4}};
-    std::cout << "sadrži (2, 1): " << tacke.count({2, 1}) << ", (5, 5): " << tacke.count({5, 5}) << '\n';
-    std::unordered_set<Tacka, LosHes> los;
-    for (int i = 0; i < 100; ++i) los.insert({i, i});
-    std::cout << "loš heš: u bucket-u ključa (0, 0) je " << los.bucket_size(los.bucket({0, 0}))
-              << " od 100 elemenata -- traženje je linearno\n";
+    std::unordered_set<Point, PointHash> points{{1, 2}, {2, 1}, {3, 4}};
+    std::cout << "contains (2, 1): " << points.count({2, 1}) << ", (5, 5): " << points.count({5, 5}) << '\n';
+    std::unordered_set<Point, BadHash> bad;
+    for (int i = 0; i < 100; ++i) bad.insert({i, i});
+    std::cout << "bad hash: the bucket of key (0, 0) holds " << bad.bucket_size(bad.bucket({0, 0}))
+              << " of 100 elements -- lookup in linear\n";
 }
 
 // ---------------------------------------------------------------- 6
-void sekcija6() {
-    std::cout << "\n== 6. C++17: extract i merge\n";
+void section6() {
+    std::cout << "\n== 6. C++17: extract and merge\n";
     // Ključ u mapi je const. Da se promeni bez nove alokacije: extract čvor,
     // promeni ključ, vrati.
-    std::map<int, std::string> uredjaji{{1, "senzor"}, {2, "motor"}};
-    auto cvor = uredjaji.extract(1);
-    cvor.key() = 10;
-    uredjaji.insert(std::move(cvor));
-    for (const auto& [adr, ime] : uredjaji) std::cout << ' ' << adr << ':' << ime;
+    std::map<int, std::string> devices{{1, "sensor"}, {2, "motor"}};
+    auto node = devices.extract(1);
+    node.key() = 10;
+    devices.insert(std::move(node));
+    for (const auto& [addr, name] : devices) std::cout << ' ' << addr << ':' << name;
     std::cout << '\n';
     std::set<int> a{1, 3, 5}, b{2, 3, 4};
     a.merge(b);                                      // premesti čvorove iz b; duplikati ostaju u b
-    ispisi("a posle merge", a);
-    ispisi("b posle merge", b);
+    print("a after merge", a);
+    print("b after merge", b);
 }
 
 int main() {
     std::cout << std::boolalpha;
-    sekcija1();
-    sekcija2();
-    sekcija3();
-    sekcija4();
-    sekcija5();
-    sekcija6();
+    section1();
+    section2();
+    section3();
+    section4();
+    section5();
+    section6();
 }

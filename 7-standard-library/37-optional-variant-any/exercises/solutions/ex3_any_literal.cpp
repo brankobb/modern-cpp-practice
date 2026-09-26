@@ -5,27 +5,27 @@
 #include <map>
 #include <string>
 
-using Svojstva = std::map<std::string, std::any>;
+using Properties = std::map<std::string, std::any>;
 
 // Ako se upiše "temp" (nije dobro): u any ode const char*, a any_cast<std::string>
 // traži baš std::string -- bad_any_cast.
 // Treba ovako: napravi std::string pre upisa; tada je tip u any-ju tačno onaj koji se čita.
-void postaviIme(Svojstva& s) {
+void setName(Properties& s) {
     using namespace std::string_literals;
-    s["ime"] = "temp"s;
+    s["name"] = "temp"s;
 }
 
 int main() {
-    Svojstva s;
+    Properties s;
     s["id"] = 7;
-    postaviIme(s);
+    setName(s);
     std::cout << "id: " << std::any_cast<int>(s["id"]) << '\n';
     try {
-        std::cout << "ime: " << std::any_cast<std::string>(s.at("ime")) << '\n';
+        std::cout << "name: " << std::any_cast<std::string>(s.at("name")) << '\n';
     } catch (const std::bad_any_cast&) {
-        bool pokazivac = s.at("ime").type() == typeid(const char*);
-        std::cout << "pogrešan tip" << (pokazivac ? " (const char*)" : "") << '\n';
+        bool isPointer = s.at("name").type() == typeid(const char*);
+        std::cout << "wrong type" << (isPointer ? " (const char*)" : "") << '\n';
     } catch (const std::out_of_range&) {
-        std::cout << "nije postavljeno\n";
+        std::cout << "not set\n";
     }
 }

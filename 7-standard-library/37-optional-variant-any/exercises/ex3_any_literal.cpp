@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVE ime: pogrešan tip \(const char\*\)
+// DEMO-OUT: NAIVE name: wrong type \(const char\*\)
 //
 // Zadatak 3 -- zašto any_cast<std::string> ne uspe na "temp" (sekcija 7)
 // Rešenje: exercises/solutions/ex3_any_literal.cpp
@@ -14,7 +14,7 @@
 //   std::string. Ista zamka kao CTAD sa literalom (lekcija 29, zadatak ex3).
 //   (U ovom primeru const char* pokazuje na literal, pa bar ne visi; da
 //   je upisan c_str() lokalnog stringa, pokazivao bi u oslobođenu memoriju.)
-// Korak 2: u #else grani napiši postaviIme() tako da u any ode
+// Korak 2: u #else grani napiši setName() tako da u any ode
 //   std::string (std::string("temp") ili "temp"s).
 
 #include <any>
@@ -22,31 +22,31 @@
 #include <map>
 #include <string>
 
-using Svojstva = std::map<std::string, std::any>;
+using Properties = std::map<std::string, std::any>;
 
 #ifdef NAIVE
-void postaviIme(Svojstva& s) { s["ime"] = "temp"; }
+void setName(Properties& s) { s["name"] = "temp"; }
 #else
 // TODO korak 2 (dok ne napišeš, ime se ne postavlja)
-void postaviIme(Svojstva&) {}
+void setName(Properties&) {}
 #endif
 
 int main() {
-    Svojstva s;
+    Properties s;
     s["id"] = 7;
-    postaviIme(s);
+    setName(s);
     std::cout << "id: " << std::any_cast<int>(s["id"]) << '\n';
     try {
-        std::cout << "ime: " << std::any_cast<std::string>(s.at("ime")) << '\n';
+        std::cout << "name: " << std::any_cast<std::string>(s.at("name")) << '\n';
     } catch (const std::bad_any_cast&) {
-        bool pokazivac = s.at("ime").type() == typeid(const char*);
-        std::cout << "pogrešan tip" << (pokazivac ? " (const char*)" : "") << '\n';
+        bool isPointer = s.at("name").type() == typeid(const char*);
+        std::cout << "wrong type" << (isPointer ? " (const char*)" : "") << '\n';
     } catch (const std::out_of_range&) {
-        std::cout << "nije postavljeno\n";
+        std::cout << "not set\n";
     }
 }
 
 /* EXPECTED OUTPUT
 id: 7
-ime: temp
+name: temp
 */

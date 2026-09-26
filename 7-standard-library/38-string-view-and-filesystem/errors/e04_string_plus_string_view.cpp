@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 int main() {
-    std::string s = "kanal: ";
+    std::string s = "channel: ";
     std::string_view sv = "temp";
     std::string r = s + sv;
     return static_cast<int>(r.size());

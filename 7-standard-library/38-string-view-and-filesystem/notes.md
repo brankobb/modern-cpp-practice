@@ -16,7 +16,7 @@ Već obrađeno, ovde samo upućujemo:
   lekcija 27, sekcija 5 -- ovde isto, šire;
 - iterator/pokazivač koji visi posle realokacije: lekcija 04, sekcija 12;
   lekcija 07;
-- `std::optional` (za `uBroj` u zadatku ex1): lekcija 37.
+- `std::optional` (za `toNumber` u zadatku ex1): lekcija 37.
 
 **Izvori:** standard, `[string.view]`, `[charconv]` (`from_chars`),
 `[filesystem]` (`[fs.class.path]`, `[fs.class.directory.entry]`,
@@ -47,10 +47,10 @@ posebna stvar). *C++17 -- The Complete Guide* (Josuttis).
 # 1. `string_view`: pogled na tuđe znakove (kurs 231)
 
 ```cpp
-std::string_view a = "pritisak";          // literal
+std::string_view a = "pressure";          // literal
 std::string_view b = s;                   // std::string -- implicitno, jeftino
-std::string_view c(niz, 5);               // pokazivač + dužina (niz bez '\0')
-auto d = "napon"sv;                       // using namespace std::string_view_literals
+std::string_view c(arr, 4);               // pokazivač + dužina (arr bez '\0')
+auto d = "voltage"sv;                       // using namespace std::string_view_literals
 ```
 
 - `sizeof(string_view)` je 16: pokazivač + dužina (test). Kopira se po
@@ -71,8 +71,8 @@ auto d = "napon"sv;                       // using namespace std::string_view_li
 # 2. `string_view` kao parametar (kurs 231)
 
 ```cpp
-std::size_t duzinaStr(const std::string& s);   // literal -> privremeni std::string
-std::size_t duzinaSv(std::string_view s);      // literal -> samo pokazivač + dužina
+std::size_t lengthStr(const std::string& s);   // literal -> privremeni std::string
+std::size_t lengthSv(std::string_view s);      // literal -> samo pokazivač + dužina
 ```
 
 - Test (libstdc++, literal od 32 znaka, duži od SSO bafera od 15):
@@ -80,7 +80,7 @@ std::size_t duzinaSv(std::string_view s);      // literal -> samo pokazivač + d
   znakova: `std::string` → 1 alokacija, `string_view` → 0.
 - ✅ Parametar koji samo čita tekst: `std::string_view`, po vrednosti
   (SL.str.2). Prima `std::string`, literal i `const char*` bez kopije.
-- ✅ Sečenje bez alokacija: `podeli("temp=21;vlaga=40;...", ';')` vrati
+- ✅ Sečenje bez alokacija: `split("temp=21;humidity=40;...", ';')` vrati
   poglede u original (test: jedine alokacije su za sam vektor).
 - ⚠️ Kad funkcija ipak mora da sačuva tekst (član, ključ u mapi), treba
   joj `std::string` -- tada `const std::string&` ili `std::string` po
@@ -92,8 +92,8 @@ std::size_t duzinaSv(std::string_view s);      // literal -> samo pokazivač + d
 
 **Nema `'\0'` na kraju pogleda.** `data()` je samo pokazivač na prvi znak.
 
-- Test: `substr(0, 4)` od `"temperatura"` je `temp`, ali `data()`
-  ispisan kao C string daje `temperatura` -- C kod čita do `'\0'`
+- Test: `substr(0, 4)` od `"temperature"` je `temp`, ali `data()`
+  ispisan kao C string daje `temperature` -- C kod čita do `'\0'`
   originala. ❌ Nema `c_str()` (`errors/e03`). ✅ Za C API:
   `std::string(sv).c_str()`, ili funkcija koja prima i dužinu
   (`printf("%.*s", ...)`, `fwrite`) (zadatak ex3; SL.str.3).
@@ -120,24 +120,24 @@ std::size_t duzinaSv(std::string_view s);      // literal -> samo pokazivač + d
 
 ```cpp
 namespace fs = std::filesystem;
-fs::path p = fs::path("merenja") / "2024" / "hala3.temp.log";
-p.parent_path();   // merenja/2024
-p.filename();      // hala3.temp.log
-p.stem();          // hala3.temp   -- samo POSLEDNJA ekstenzija se skida
+fs::path p = fs::path("readings") / "2024" / "hall3.temp.log";
+p.parent_path();   // readings/2024
+p.filename();      // hall3.temp.log
+p.stem();          // hall3.temp   -- samo POSLEDNJA ekstenzija se skida
 p.extension();     // .log
 ```
 
 - `/` spaja delove sa separatorom platforme; ❌ `+` ne postoji
   (`errors/e05`); `+=` dodaje znakove bez separatora.
 - `replace_extension(".csv")`, obilazak delova `for (auto& deo : p)`
-  (test: `[merenja] [2024] [hala3.temp.log]`).
+  (test: `[readings] [2024] [hall3.temp.log]`).
 - **Leksičke** operacije rade samo nad tekstom, ne gledaju disk:
-  `lexically_normal()` skida `.` i `..` (test: `merenja/./2024/../2025/a.log`
-  → `merenja/2025/a.log`), `lexically_relative(baza)` (test: `../2025/a.log`).
+  `lexically_normal()` skida `.` i `..` (test: `readings/./2024/../2025/a.log`
+  → `readings/2025/a.log`), `lexically_relative(baza)` (test: `../2025/a.log`).
   (`fs::canonical` i `fs::relative` rade slično, ali gledaju disk i prate
   simboličke linkove; `canonical` traži da putanja postoji.)
 - ⚠️ `std::cout << p` ispiše putanju **pod navodnicima** (test:
-  `filename "hala3.temp.log"`) -- zbog razmaka u imenima. Bez navodnika:
+  `filename "hall3.temp.log"`) -- zbog razmaka u imenima. Bez navodnika:
   `p.string()` ili, prenosivo sa `/` i na Windows-u, `p.generic_string()`.
 
 ---
@@ -152,7 +152,7 @@ fs::status(putanja).permissions();
 
 - `directory_entry` je putanja + podaci o fajlu koje biblioteka sme da
   zapamti (kešira) -- to je ono što `directory_iterator` daje u petlji.
-- Test: `a.log` je fajl od 10 B, `arhiva` direktorijum, `nema.txt` ne
+- Test: `a.log` je fajl od 10 B, `archive` direktorijum, `missing.txt` ne
   postoji (sve tri provere `false`, bez izuzetka).
 - ⚠️ Stanje na disku može da se promeni između provere i upotrebe (drugi
   proces obriše fajl) -- `exists()` pa `file_size()` nije atomično;
@@ -256,8 +256,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_konfig_i_logovi`](exercises/ex1_konfig_i_logovi.cpp) | usage | parsiranje bez kopija preko string_view i from_chars, pregled log fajlova preko filesystem-a (sekcije 1, 2, 5, 6) | — |
-| [`ex2_pogled_u_prazno`](exercises/ex2_pogled_u_prazno.cpp) | why | zašto string_view ne sme da bude član koji "čuva" ime (sekcija 3; ub/u01) | `-DNAIVE` |
-| [`ex3_nije_c_string`](exercises/ex3_nije_c_string.cpp) | why | zašto data() od string_view-a nije C string (sekcija 3; errors/e03) | `-DNAIVE` |
+| [`ex1_config_and_logs`](exercises/ex1_config_and_logs.cpp) | usage | parsiranje bez kopija preko string_view i from_chars, pregled log fajlova preko filesystem-a (sekcije 1, 2, 5, 6) | — |
+| [`ex2_view_into_nothing`](exercises/ex2_view_into_nothing.cpp) | why | zašto string_view ne sme da bude član koji "čuva" ime (sekcija 3; ub/u01) | `-DNAIVE` |
+| [`ex3_not_a_c_string`](exercises/ex3_not_a_c_string.cpp) | why | zašto data() od string_view-a nije C string (sekcija 3; errors/e03) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

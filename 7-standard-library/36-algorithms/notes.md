@@ -47,7 +47,7 @@ nameru).
 
 Složenost kaže kako **raste** cena kad raste broj elemenata `n`, bez
 konstanti. `main.cpp` broji poređenja preko komparatora sa brojačem
-(`struct Manje`), za 1024 sortirana broja:
+(`struct Less`), za 1024 sortirana broja:
 
 | Operacija | Složenost | Izmereno (test) |
 |---|---|---|
@@ -123,7 +123,7 @@ mesta.
   ASan to vidi tek uz `-D_GLIBCXX_SANITIZE_VECTOR` (`ub/u02`), a bez toga
   program tiho ispiše 0 (veličinu).
 - ✅ Dve ispravne varijante (Effective STL Item 30):
-  - napravi mesto unapred: `std::vector<int> kvadrati(v.size());` (test
+  - napravi mesto unapred: `std::vector<int> squares(v.size());` (test
     `transform`);
   - pusti da raste: `std::back_inserter(c)` na svako upisivanje zove
     `c.push_back` (test `copy_if`; zadatak ex1). ❌ Zato ne radi za
@@ -158,7 +158,7 @@ mesta.
 | `partial_sort(b, m, e)` | samo prvih `m - b` najmanjih, sortirano | ≈ n log m |
 | `nth_element(b, n, e)` | na mestu `n` element koji bi tu bio posle sortiranja; levo manji, desno veći | O(n) u proseku |
 
-- Test: `stable_sort` po oceni daje `Ana(9) Cane(9) Bora(7) Dara(7)` --
+- Test: `stable_sort` po oceni daje `Ann(9) Carl(9) Bob(7) Dora(7)` --
   Ana ostaje ispred Caneta jer je bila ispred. Za sortiranje po drugom
   ključu posle prvog.
 - ✅ Effective STL Item 31: ne sortiraj sve ako ne treba. "Top 3" je
@@ -189,18 +189,18 @@ std::set_intersection / set_union / set_difference(b1, e1, b2, e2, out)
 | Novo | Primer | Test / gde |
 |---|---|---|
 | `initializer_list` konstruktor | `std::vector<int> v{1, 2, 3};`, `std::map<...> m{{"a", 1}}` | lekcija 07, sekcija 6 |
-| `emplace`, `emplace_back` | `senzori.emplace_back("temp", 1);` -- pravi na mestu | lekcija 24, sekcija 4 |
-| `emplace_back` vraća referencu (C++17) | `Senzor& s = v.emplace_back(...)` | test: `poslednji vlaga` |
-| `push_back(T&&)`, `insert(T&&)` | `v.push_back(std::move(s));` -- premesti | test: `dug.empty() = true` |
+| `emplace`, `emplace_back` | `sensors.emplace_back("temp", 1);` -- pravi na mestu | lekcija 24, sekcija 4 |
+| `emplace_back` vraća referencu (C++17) | `Sensor& s = v.emplace_back(...)` | test: `last humidity` |
+| `push_back(T&&)`, `insert(T&&)` | `v.push_back(std::move(s));` -- premesti | test: `longText.empty() = true` |
 | move pri rastu vektora | samo ako je move `noexcept` | lekcija 23, sekcija 4 |
 | `cbegin`, `cend` | `const_iterator` i za ne-const kontejner | test |
-| `std::begin`, `std::end` (C++11), `std::size`, `std::data` (C++17) | rade i za C niz | test: `std::size(niz) = 3` |
+| `std::begin`, `std::end` (C++11), `std::size`, `std::data` (C++17) | rade i za C niz | test: `std::size(arr) = 3` |
 | `shrink_to_fit` | `capacity` na `size` | test: `capacity 10` (zahtev, ne garancija) |
 | `data()` za `vector` | pokazivač na niz, za C API | lekcija 07 |
 | novi kontejneri | `array`, `forward_list`, `unordered_*` | lekcije 34, 35 |
 | move-only elementi | `std::vector<std::unique_ptr<T>>` | lekcija 33 |
 
-- ⚠️ Stanje `dug` posle `std::move` je "važeće, ali neodređeno"
+- ⚠️ Stanje `longText` posle `std::move` je "važeće, ali neodređeno"
   (lekcija 22, sekcija 6); `empty() == true` je ono što libstdc++ i libc++ rade,
   ne pravilo standarda.
 - ✅ `shrink_to_fit` je **neobavezujući zahtev** (`[vector.capacity]`); ako
@@ -252,8 +252,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_analiza_merenja`](exercises/ex1_analiza_merenja.cpp) | usage | mali STL projekat: analiza loga merenja (sekcije 2, 3, 4; kurs 187) | — |
-| [`ex2_accumulate_nula`](exercises/ex2_accumulate_nula.cpp) | why | zašto accumulate "gubi" decimale (sekcija 2) | `-DNAIVE` |
-| [`ex3_remove_ne_brise`](exercises/ex3_remove_ne_brise.cpp) | why | zašto std::remove ne smanji vektor (sekcija 3) | `-DNAIVE` |
+| [`ex1_reading_analysis`](exercises/ex1_reading_analysis.cpp) | usage | mali STL projekat: analiza loga merenja (sekcije 2, 3, 4; kurs 187) | — |
+| [`ex2_accumulate_zero`](exercises/ex2_accumulate_zero.cpp) | why | zašto accumulate "gubi" decimale (sekcija 2) | `-DNAIVE` |
+| [`ex3_remove_does_not_erase`](exercises/ex3_remove_does_not_erase.cpp) | why | zašto std::remove ne smanji vektor (sekcija 3) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

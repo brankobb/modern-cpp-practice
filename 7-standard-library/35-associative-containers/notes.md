@@ -38,7 +38,7 @@ mapi). Core Guidelines **SL.con.2**.
 
 ```cpp
 std::set<int> s{5, 1, 4, 1, 3};      // 1 3 4 5 -- sortiran, bez duplikata
-auto [it, ubaceno] = s.insert(4);    // ubaceno == false, it pokazuje na postojeću 4
+auto [it, inserted] = s.insert(4);    // inserted == false, it pokazuje na postojeću 4
 s.count(3);  s.find(7) == s.end();   // traženje: O(log n)
 s.lower_bound(2);                    // prvi >= 2  -> 3
 s.upper_bound(4);                    // prvi >  4  -> 5
@@ -59,9 +59,9 @@ s.upper_bound(4);                    // prvi >  4  -> 5
 # 2. Poredak i ekvivalencija
 
 ```cpp
-std::set<int, std::greater<int>> opadajuce;              // 3 2 1
-std::set<std::string, PoDuzini> poDuzini;                // funkcijski objekat
-std::set<std::string, decltype(lambda)> imena(lambda);   // lambda: tip + objekat
+std::set<int, std::greater<int>> descending;              // 3 2 1
+std::set<std::string, ByLength> byLength;                // funkcijski objekat
+std::set<std::string, decltype(lambda)> names(lambda);   // lambda: tip + objekat
 ```
 
 - Drugi argument šablona je poredak (podrazumevano `std::less<T>`, tj.
@@ -70,29 +70,29 @@ std::set<std::string, decltype(lambda)> imena(lambda);   // lambda: tip + objeka
 - ⚠️ Set ne pita `==`. Dva elementa su "ista" (**ekvivalentna**) kad
   `!(a < b) && !(b < a)` (Effective STL Item 19). Sa poretkom po dužini
   `"cc"` se ne ubaci, jer je "isto" što i `"aa"` (test). Sa poretkom bez
-  obzira na velika slova, `"ANA"` je "isto" što i `"Ana"`.
+  obzira na velika slova, `"ANN"` je "isto" što i `"Ann"`.
 
 ---
 
 # 3. `std::map` i `std::multimap` (kurs 173)
 
 Parovi ključ → vrednost, sortirani po ključu; `value_type` je
-`std::pair<const Kljuc, Vrednost>` (ključ je `const`).
+`std::pair<const Key, Value>` (ključ je `const`).
 
 | Operacija | Ako ključ ne postoji | Ako postoji |
 |---|---|---|
-| `m[k]` | **ubaci** `{k, Vrednost{}}`, vrati referencu | vrati referencu |
+| `m[k]` | **ubaci** `{k, Value{}}`, vrati referencu | vrati referencu |
 | `m.at(k)` | baci `std::out_of_range` | vrati referencu |
 | `m.find(k)` | vrati `end()` | vrati iterator |
 | `m.insert({k, v})` | ubaci | **ne menja** (vrati `false`) |
 | `m.insert_or_assign(k, v)` (C++17) | ubaci | prepiši |
 | `m.try_emplace(k, args...)` (C++17) | napravi vrednost od `args` | ne radi ništa, ni ne pravi vrednost |
 
-- ⚠️ `m[k]` samo za čitanje **menja mapu**: `kanali["nepoznat"]` vrati 0 i
+- ⚠️ `m[k]` samo za čitanje **menja mapu**: `channels["nepoznat"]` vrati 0 i
   ubaci ključ (test: size 3 → 4; zadatak ex2). Zato `[]` ne postoji za
   `const` mapu (lekcija 09, `errors/e08`). Za čitanje: `find` ili `at`.
 - `[]` traži da vrednost ima podrazumevani konstruktor.
-- Iteracija: `for (const auto& [kljuc, vrednost] : m)` (lekcija 10).
+- Iteracija: `for (const auto& [key, value] : m)` (lekcija 10).
 - `multimap`: više vrednosti po ključu. Nema `[]` (`errors/e04`);
   `equal_range(k)` daje opseg svih sa ključem `k`, redom ubacivanja
   (test: 21 22 20).
@@ -125,22 +125,22 @@ Parovi ključ → vrednost, sortirani po ključu; `value_type` je
 
 - `std::hash<T>` postoji za ugrađene tipove, `std::string`, pokazivače,
   pametne pokazivače, `enum`-e... Za sopstveni tip **ne postoji**:
-  `unordered_set<Tacka>` se ne kompajlira (`errors/e02`).
+  `unordered_set<Point>` se ne kompajlira (`errors/e02`).
 - Sopstveni heš je funkcijski objekat, drugi argument šablona; uz njega
   ide i `operator==` (ili treći argument):
 
   ```cpp
-  struct HesTacke {
-      std::size_t operator()(const Tacka& t) const noexcept {
+  struct PointHash {
+      std::size_t operator()(const Point& t) const noexcept {
           std::size_t h = std::hash<int>{}(t.x);
           return h ^ (std::hash<int>{}(t.y) + 0x9e3779b9 + (h << 6) + (h >> 2));
       }
   };
-  std::unordered_set<Tacka, HesTacke> tacke;
+  std::unordered_set<Point, PointHash> points;
   ```
 
   (Kombinovanje po uzoru na `boost::hash_combine`. Alternativa:
-  specijalizacija `template <> struct std::hash<Tacka>`.)
+  specijalizacija `template <> struct std::hash<Point>`.)
 - ✅ Pravila: jednaki objekti **moraju** imati jednak heš; različiti treba
   da imaju različit što češće.
 - ⚠️ Loš heš ne kvari rezultat, nego brzinu. Heš koji uvek vraća 42 stavi
@@ -153,9 +153,9 @@ Parovi ključ → vrednost, sortirani po ključu; `value_type` je
 # 6. C++17: `extract` i `merge`
 
 ```cpp
-auto cvor = uredjaji.extract(1);   // izvadi čvor iz mape (bez dealokacije)
-cvor.key() = 10;                   // sada ključ sme da se menja
-uredjaji.insert(std::move(cvor));  // vrati -- ista memorija, bez kopije vrednosti
+auto node = devices.extract(1);   // izvadi čvor iz mape (bez dealokacije)
+node.key() = 10;                   // sada ključ sme da se menja
+devices.insert(std::move(node));  // vrati -- ista memorija, bez kopije vrednosti
 a.merge(b);                        // premesti čvorove iz b u a; duplikati ostaju u b
 ```
 
@@ -209,7 +209,7 @@ prirodan heš.
 
 ⚠️ Set i mapa porede **ekvivalencijom** preko poretka, ne `==`.
 
-⚠️ `multiset::erase(vrednost)` briše sve jednake.
+⚠️ `multiset::erase(value)` briše sve jednake.
 
 ⚠️ Redosled u `unordered_*` nije određen -- ne oslanjaj se na njega.
 
@@ -229,8 +229,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_indeks_reci`](exercises/ex1_indeks_reci.cpp) | usage | map za brojanje, map<string, set<int>> za indeks, unordered_map sa sopstvenim hešom (sekcije 1, 3, 4, 5) | — |
-| [`ex2_indeks_ubacuje`](exercises/ex2_indeks_ubacuje.cpp) | why | zašto se u mapi ne proverava sa [] (sekcija 3) | `-DNAIVE` |
-| [`ex3_los_hes`](exercises/ex3_los_hes.cpp) | why | zašto je kvalitet heša bitan (sekcije 4, 5) | `-DNAIVE` |
+| [`ex1_word_index`](exercises/ex1_word_index.cpp) | usage | map za brojanje, map<string, set<int>> za indeks, unordered_map sa sopstvenim hešom (sekcije 1, 3, 4, 5) | — |
+| [`ex2_index_inserts`](exercises/ex2_index_inserts.cpp) | why | zašto se u mapi ne proverava sa [] (sekcija 3) | `-DNAIVE` |
+| [`ex3_bad_hash`](exercises/ex3_bad_hash.cpp) | why | zašto je kvalitet heša bitan (sekcije 4, 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

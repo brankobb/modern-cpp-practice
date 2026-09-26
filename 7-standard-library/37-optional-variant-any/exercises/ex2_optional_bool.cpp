@@ -1,10 +1,10 @@
 // KIND: why
-// DEMO-OUT: NAIVE vrata B: ZATVORENA
+// DEMO-OUT: NAIVE door B: CLOSED
 //
 // Zadatak 2 -- zašto if (o) nije isto što i if (*o) za optional<bool> (sekcija 3)
 // Rešenje: exercises/solutions/ex2_optional_bool.cpp
 //
-// Senzor vrata javlja true (zatvorena), false (otvorena) ili ne odgovara
+// Sensor vrata javlja true (zatvorena), false (otvorena) ili ne odgovara
 // (nullopt). Za troja vrata: A zatvorena, B otvorena, C ne odgovara.
 //
 // Korak 1: pokreni naivnu verziju:
@@ -13,7 +13,7 @@
 //   if (o) pita "IMA LI vrednost", ne "da li je vrednost true". Za
 //   optional<bool> = false odgovor je "ima" -- true. Isto važi za
 //   optional<int> = 0 i optional<T*> = nullptr. Kompajler ne upozori.
-// Korak 2: u #else grani napiši opis() tako da razlikuje sva tri stanja:
+// Korak 2: u #else grani napiši describe() tako da razlikuje sva tri stanja:
 //   nema vrednosti -> "NEPOZNATO", *o == true -> "ZATVORENA", inače
 //   "OTVORENA". (Eksplicitno: o.has_value(), o == true, o.value_or(...).)
 
@@ -21,29 +21,29 @@
 #include <optional>
 #include <string>
 
-std::optional<bool> ocitaj(char vrata) {
-    if (vrata == 'A') return true;
-    if (vrata == 'B') return false;
+std::optional<bool> readSensor(char door) {
+    if (door == 'A') return true;
+    if (door == 'B') return false;
     return std::nullopt;
 }
 
 #ifdef NAIVE
-std::string opis(std::optional<bool> o) {
-    if (o) return "ZATVORENA";
-    if (!o.has_value()) return "NEPOZNATO";
-    return "OTVORENA";
+std::string describe(std::optional<bool> o) {
+    if (o) return "CLOSED";
+    if (!o.has_value()) return "UNKNOWN";
+    return "OPEN";
 }
 #else
 // TODO korak 2 (dok ne napišeš, sve je "?")
-std::string opis(std::optional<bool>) { return "?"; }
+std::string describe(std::optional<bool>) { return "?"; }
 #endif
 
 int main() {
-    for (char v : {'A', 'B', 'C'}) std::cout << "vrata " << v << ": " << opis(ocitaj(v)) << '\n';
+    for (char v : {'A', 'B', 'C'}) std::cout << "door " << v << ": " << describe(readSensor(v)) << '\n';
 }
 
 /* EXPECTED OUTPUT
-vrata A: ZATVORENA
-vrata B: OTVORENA
-vrata C: NEPOZNATO
+door A: CLOSED
+door B: OPEN
+door C: UNKNOWN
 */

@@ -42,11 +42,11 @@ izbor).
 
 ```cpp
 template <typename It>
-int zbir(It first, It last);            // radi za SVE što ima iteratore
+int sum(It first, It last);            // radi za SVE što ima iteratore
 
-zbir(v.begin(), v.end());               // vector
-zbir(l.begin(), l.end());               // list
-zbir(std::begin(niz), std::end(niz));   // C niz
+sum(v.begin(), v.end());               // vector
+sum(l.begin(), l.end());               // list
+sum(std::begin(arr), std::end(arr));   // C niz
 ```
 
 - Opseg je **poluotvoren** `[first, last)`: `last` pokazuje iza
@@ -217,8 +217,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_red_i_zadaci`](exercises/ex1_red_i_zadaci.cpp) | usage | deque kao red, list sa splice, array kao brojač (sekcije 2, 4, 5) | — |
-| [`ex2_umetanje_na_pocetak`](exercises/ex2_umetanje_na_pocetak.cpp) | why | zašto vector nije za umetanje na početak (sekcije 3, 4) | `-DNAIVE` |
-| [`ex3_stabilne_adrese`](exercises/ex3_stabilne_adrese.cpp) | why | zašto izbor kontejnera određuje da li pokazivači "drže" (sekcije 3, 4, 5) | `-DNAIVE` |
+| [`ex1_queue_and_tasks`](exercises/ex1_queue_and_tasks.cpp) | usage | deque kao red, list sa splice, array kao brojač (sekcije 2, 4, 5) | — |
+| [`ex2_insert_at_front`](exercises/ex2_insert_at_front.cpp) | why | zašto vector nije za umetanje na početak (sekcije 3, 4) | `-DNAIVE` |
+| [`ex3_stable_addresses`](exercises/ex3_stable_addresses.cpp) | why | zašto izbor kontejnera određuje da li pokazivači "drže" (sekcije 3, 4, 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

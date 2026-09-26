@@ -45,11 +45,11 @@ Complete Guide* (Josuttis), poglavlja o ova tri tipa.
 # 1. `std::optional`: vrednost ili ništa (kurs 224)
 
 ```cpp
-std::optional<int> parsiraj(const std::string& s) {
+std::optional<int> parse(const std::string& s) {
     if (/* nije broj */) return std::nullopt;
     return std::stoi(s);               // int -> optional<int>
 }
-if (auto r = parsiraj(ulaz)) std::cout << *r;
+if (auto r = parse(input)) std::cout << *r;
 ```
 
 | Pristup | Prazan optional |
@@ -70,9 +70,9 @@ if (auto r = parsiraj(ulaz)) std::cout << *r;
 
 # 2. `optional`: pravljenje, izmena, cena (kurs 225)
 
-- Prazan optional **ne pravi** `T`: `std::optional<Tacka>` radi i kad
-  `Tacka` nema podrazumevani konstruktor (test).
-- Na mestu: `o.emplace(3, 4)`, `std::optional<Tacka> u(std::in_place, 5, 6)`,
+- Prazan optional **ne pravi** `T`: `std::optional<Point>` radi i kad
+  `Point` nema podrazumevani konstruktor (test).
+- Na mestu: `o.emplace(3, 4)`, `std::optional<Point> u(std::in_place, 5, 6)`,
   `std::make_optional<std::string>(3, 'a')` (test: `aaa`).
 - Pražnjenje: `o = std::nullopt` ili `o.reset()` -- uništi sadržaj.
 - **Cena**: `sizeof(optional<int>)` je 8, `optional<double>` 16 (vrednost
@@ -84,7 +84,7 @@ if (auto r = parsiraj(ulaz)) std::cout << *r;
 
 # 3. `optional` u praksi (kurs 226)
 
-- **Lenja inicijalizacija**: član `std::optional<double> kal_;` se računa
+- **Lenja inicijalizacija**: član `std::optional<double> cal_;` se računa
   pri prvom čitanju (test: 2 čitanja, 1 računanje).
 - **Poređenje**: prazan je jednak `nullopt` i manji od svake vrednosti
   (test); `o == 0` je za prazan `false`, bez izuzetka (provereno van
@@ -127,10 +127,10 @@ std::holds_alternative<double>(v);           // bool
 # 5. `std::visit` (kurs 228)
 
 ```cpp
-template <typename... F> struct Preopterecen : F... { using F::operator()...; };
-template <typename... F> Preopterecen(F...) -> Preopterecen<F...>;   // C++17; C++20 ne treba
+template <typename... F> struct Overloaded : F... { using F::operator()...; };
+template <typename... F> Overloaded(F...) -> Overloaded<F...>;   // C++17; C++20 ne treba
 
-std::visit(Preopterecen{
+std::visit(Overloaded{
     [](int i)                { ... },
     [](double d)             { ... },
     [](const std::string& s) { ... },
@@ -138,7 +138,7 @@ std::visit(Preopterecen{
 ```
 
 - `visit` pozove granu za alternativu koju variant trenutno drži.
-  `Preopterecen` spoji lambde u jedan objekat sa više `operator()`
+  `Overloaded` spoji lambde u jedan objekat sa više `operator()`
   (nasleđivanje od paketa + `using` sa paketom, C++17).
 - ✅ Zaboravljena alternativa je **greška kompajliranja** (`errors/e03`) --
   prednost nad `switch (v.index())`, gde se zaboravljen slučaj ne primeti.
@@ -152,10 +152,10 @@ std::visit(Preopterecen{
 
 # 6. `variant` u praksi (kurs 229)
 
-- **Mašina stanja**: `using Stanje = std::variant<Ugasen, Radi, Greska>;`
-  -- svako stanje nosi SVOJE podatke (brzina postoji samo u `Radi`, opis
-  greške samo u `Greska`). Prelaz je `visit` koji vraća novo stanje
-  (test: start → brze → brze → kvar → reset).
+- **Mašina stanja**: `using State = std::variant<Off, Running, Fault>;`
+  -- svako stanje nosi SVOJE podatke (brzina postoji samo u `Running`, opis
+  greške samo u `Fault`). Prelaz je `visit` koji vraća novo stanje
+  (test: start → faster → faster → fault → reset).
 - Zatvoren skup tipova, poznat unapred -- alternativa nasleđivanju i
   virtuelnim funkcijama kad se tipovi ne dodaju, a operacije da (i bez
   heap-a).
@@ -167,7 +167,7 @@ std::visit(Preopterecen{
   `variant<int, ...>`, `variant<std::string, ...>` ili `variant<std::vector<int>, ...>`,
   ostane stara vrednost -- provereno van `main.cpp`); standard to dozvoljava,
   ali ne garantuje.
-- ⚠️ Konverzija pri dodeli: `variant<bool, std::string> v = "tekst"` je u
+- ⚠️ Konverzija pri dodeli: `variant<bool, std::string> v = "text"` je u
   prvobitnom C++17 birao `bool` (pokazivač → `bool`). Ispravka P0608
   primenjena je unazad: g++ 13 i clang 18 biraju `std::string` i sa
   `-std=c++17` (provereno); stariji kompajleri mogu da izaberu `bool`.
@@ -177,11 +177,11 @@ std::visit(Preopterecen{
 # 7. `std::any` (kurs 230)
 
 ```cpp
-std::map<std::string, std::any> svojstva;
-svojstva["id"] = 7;
-std::any_cast<int>(svojstva["id"]);        // tačno int -- inače bad_any_cast
-std::any_cast<double>(&svojstva["id"]);    // pokazivač: nullptr ako tip nije tačan
-svojstva["id"].type() == typeid(int);
+std::map<std::string, std::any> properties;
+properties["id"] = 7;
+std::any_cast<int>(properties["id"]);        // tačno int -- inače bad_any_cast
+std::any_cast<double>(&properties["id"]);    // pokazivač: nullptr ako tip nije tačan
+properties["id"].type() == typeid(int);
 ```
 
 - Drži bilo koji tip koji se **kopira** (`errors/e04`: `unique_ptr` ne može).
@@ -250,7 +250,7 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_komande_senzora`](exercises/ex1_komande_senzora.cpp) | usage | optional za "možda uspe", variant za komande, visit za izvršavanje (sekcije 1, 4, 5) | — |
+| [`ex1_sensor_commands`](exercises/ex1_sensor_commands.cpp) | usage | optional za "možda uspe", variant za komande, visit za izvršavanje (sekcije 1, 4, 5) | — |
 | [`ex2_optional_bool`](exercises/ex2_optional_bool.cpp) | why | zašto if (o) nije isto što i if (*o) za optional<bool> (sekcija 3) | `-DNAIVE` |
 | [`ex3_any_literal`](exercises/ex3_any_literal.cpp) | why | zašto any_cast<std::string> ne uspe na "temp" (sekcija 7) | `-DNAIVE` |
 
