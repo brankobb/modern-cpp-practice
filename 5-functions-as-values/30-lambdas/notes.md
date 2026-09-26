@@ -40,8 +40,8 @@ lokalno), **F.54** (ako zarobljavaš `this`, zarobi sve eksplicitno).
 # 1. Callback: pokazivač na funkciju (kurs 152)
 
 ```cpp
-int prebroj(const std::vector<int>& v, bool (*uslov)(int));
-prebroj(v, paran);
+int countMatching(const std::vector<int>& v, bool (*pred)(int));
+countMatching(v, isEven);
 ```
 
 Radi, ali funkcija **nema stanje**: "veći od praga" bi tražio globalnu
@@ -52,14 +52,14 @@ promenljivu za prag. Detaljno: lekcija 11, sekcija 7.
 # 2. Callback: funkcijski objekat (kurs 153)
 
 ```cpp
-class VeciOd {
+class GreaterThan {
 public:
-    explicit VeciOd(int prag) : prag_(prag) {}
-    bool operator()(int x) const { return x > prag_; }
+    explicit GreaterThan(int threshold) : threshold_(threshold) {}
+    bool operator()(int x) const { return x > threshold_; }
 private:
-    int prag_;
+    int threshold_;
 };
-std::count_if(v.begin(), v.end(), VeciOd(4));
+std::count_if(v.begin(), v.end(), GreaterThan(4));
 ```
 
 Objekat nosi **stanje** (prag), a poziva se kao funkcija. Mana: posebna
@@ -74,11 +74,11 @@ klasa, daleko od mesta upotrebe.
 ```
 
 ```cpp
-std::count_if(v.begin(), v.end(), [prag](int x) { return x > prag; });
+std::count_if(v.begin(), v.end(), [threshold](int x) { return x > threshold; });
 std::sort(v.begin(), v.end(), [](int a, int b) { return std::abs(a) < std::abs(b); });
 ```
 
-- Isto što i `VeciOd(prag)`, ali na mestu upotrebe.
+- Isto što i `GreaterThan(threshold)`, ali na mestu upotrebe.
 - Povratni tip se izvodi iz `return`-a. Kad dva `return`-a daju različite
   tipove (`0` i `double(a) / b`), napiši `-> double`.
 - ✅ Najčešća upotreba: argument STL algoritmu (`sort`, `find_if`,
@@ -88,13 +88,13 @@ std::sort(v.begin(), v.end(), [](int a, int b) { return std::abs(a) < std::abs(b
 
 # 4. Kako lambda radi iznutra (kurs 155)
 
-Od `[prag](int x) { return x > prag; }` kompajler napravi, otprilike:
+Od `[threshold](int x) { return x > threshold; }` kompajler napravi, otprilike:
 
 ```cpp
 class __lambda_1 {
-    int prag;                                           // zarobljena kopija
+    int threshold;                                           // zarobljena kopija
 public:
-    bool operator()(int x) const { return x > prag; }   // const po podrazumevanju
+    bool operator()(int x) const { return x > threshold; }   // const po podrazumevanju
 };
 ```
 
@@ -111,7 +111,7 @@ public:
 - `operator()` je `const`: kopije ne mogu da se menjaju bez `mutable`
   (lekcija 09, sekcija 11).
 - Od C++17 lambda može biti `constexpr` (i jeste, kad telo to dozvoljava):
-  `static_assert(kvadrat(3) == 9)`.
+  `static_assert(square(3) == 9)`.
 
 ---
 
@@ -119,11 +119,11 @@ public:
 
 ```cpp
 int x = 1;
-auto poVrednosti = [x] { return x; };    // kopija U TRENUTKU pravljenja lambde
-auto poReferenci = [&x] { return x; };   // referenca: vidi kasnije promene
+auto byValue = [x] { return x; };    // kopija U TRENUTKU pravljenja lambde
+auto byRef = [&x] { return x; };   // referenca: vidi kasnije promene
 x = 2;
-poVrednosti();   // 1
-poReferenci();   // 2
+byValue();   // 1
+byRef();   // 2
 ```
 
 | Capture | Lambda ima | Menja original | Opasnost |
@@ -143,7 +143,7 @@ poReferenci();   // 2
 ```cpp
 [=]         // sve korišćeno, po vrednosti
 [&]         // sve korišćeno, po referenci
-[=, &zbir]  // sve po vrednosti, osim zbir
+[=, &sum]  // sve po vrednosti, osim sum
 [&, a]      // sve po referenci, osim a
 ```
 
@@ -151,7 +151,7 @@ poReferenci();   // 2
   `[=, x]` je greška (`errors/e02`).
 - ❌ Bez capture-a lokalna promenljiva se ne vidi (`errors/e01`).
 - Globalne i `static` promenljive se **ne zarobljavaju** -- lambda ih
-  koristi direktno i vidi trenutnu vrednost (test: `globalni` promenjen
+  koristi direktno i vidi trenutnu vrednost (test: `globalValue` promenjen
   posle pravljenja lambde, lambda vrati novu vrednost). `[globalna]` je
   greška (`errors/e06`).
 - ⚠️ EMC Item 31: podrazumevani capture sakrije šta se sve zarobljava, i
@@ -162,7 +162,7 @@ poReferenci();   // 2
 
 # 7. Capture i `this` (kurs 158)
 
-U metodi, član `prag_` je u stvari `this->prag_`, pa lambda koja ga
+U metodi, član `threshold_` je u stvari `this->threshold_`, pa lambda koja ga
 koristi mora da zarobi `this`:
 
 | Capture | Zarobi | Vidi promene člana | Objekat mora da živi |
@@ -170,10 +170,10 @@ koristi mora da zarobi `this`:
 | `[this]` | pokazivač | da | ✅ da |
 | `[=]` (u metodi) | **pokazivač** (implicitno), ne kopiju članova | da | ✅ da |
 | `[*this]` (C++17) | kopiju celog objekta | ne | ne |
-| `[prag = prag_]` | kopiju jednog člana | ne | ne |
+| `[threshold = threshold_]` | kopiju jednog člana | ne | ne |
 
 Test (prag 20, pa promenjen na 10; da li je 15 ispod praga):
-`[this]` → false, `[*this]` → true, `[prag = prag_]` → true.
+`[this]` → false, `[*this]` → true, `[threshold = threshold_]` → true.
 
 - ⚠️ `[=]` u metodi **nije** kopija objekta: zarobi `this` (zadatak ex2). Ako
   lambda nadživi objekat, čita oslobođenu memoriju (`ub/u01`,
@@ -187,7 +187,7 @@ Test (prag 20, pa promenjen na 10; da li je 15 ispod praga):
 # 8. Generalizovani capture (C++14, kurs 159)
 
 ```cpp
-[tekst = ime + "-01", duzina = ime.size()] { ... }   // nove promenljive u lambdi
+[text = name + "-01", length = name.size()] { ... }   // nove promenljive u lambdi
 [q = std::move(p)] { return *q; }                     // premesti unique_ptr u lambdu
 ```
 
@@ -205,7 +205,7 @@ Test (prag 20, pa promenjen na 10; da li je 15 ispod praga):
 # 9. Generičke lambde, `std::function`, IIFE
 
 - **Generička lambda** (C++14): parametar `auto` znači da je `operator()`
-  šablon -- `saberi(1, 2)`, `saberi(1.5, 2)`, `saberi(std::string("a"), "b")`.
+  šablon -- `add(1, 2)`, `add(1.5, 2)`, `add(std::string("a"), "b")`.
 - **`std::function<R(Args...)>`**: jedan tip za SVE što se može pozvati
   tim potpisom (funkcija, funkcijski objekat, lambda) -- zato može u
   vektor ili kao član klase (zadatak ex1). Cena: veći objekat (`sizeof` je
@@ -270,8 +270,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_slusaoci`](exercises/ex1_slusaoci.cpp) | usage | tri vrste callback-a u std::function, i lambde sa STL algoritmima (sekcije 1, 2, 3, 5, 9) | — |
-| [`ex2_this_nije_kopija`](exercises/ex2_this_nije_kopija.cpp) | why | zašto [=] u metodi ne pravi snimak članova (sekcija 7) | `-DNAIVE` |
-| [`ex3_referenca_u_petlji`](exercises/ex3_referenca_u_petlji.cpp) | why | zašto [&] za callback koji se čuva za kasnije visi (sekcije 5, 6; lekcija 27, sekcija 7) | `-DNAIVE` |
+| [`ex1_listeners`](exercises/ex1_listeners.cpp) | usage | tri vrste callback-a u std::function, i lambde sa STL algoritmima (sekcije 1, 2, 3, 5, 9) | — |
+| [`ex2_this_is_not_a_copy`](exercises/ex2_this_is_not_a_copy.cpp) | why | zašto [=] u metodi ne pravi snimak članova (sekcija 7) | `-DNAIVE` |
+| [`ex3_reference_in_loop`](exercises/ex3_reference_in_loop.cpp) | why | zašto [&] za callback koji se čuva za kasnije visi (sekcije 5, 6; lekcija 27, sekcija 7) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

@@ -2,16 +2,16 @@
 // NIJE UB, ali program se prekine: poziv PRAZNOG std::function-a baca
 // std::bad_function_call ([func.wrap.func.inv]); niko ga ne hvata, pa
 // std::terminate (lekcija 18, runtime/r01).
-// Ispravno: proveri pre poziva -- if (naKlik) naKlik(); -- ili dodeli
-// podrazumevani callback koji ne radi ništa: naKlik = [] {};
+// Ispravno: proveri pre poziva -- if (onClick) onClick(); -- ili dodeli
+// podrazumevani callback koji ne radi ništa: onClick = [] {};
 #include <functional>
 #include <iostream>
-struct Dugme {
-    std::function<void()> naKlik;
-    void klik() { naKlik(); }
+struct Button {
+    std::function<void()> onClick;
+    void click() { onClick(); }
 };
 int main() {
-    Dugme d;
-    std::cout << "klik\n";
-    d.klik();
+    Button d;
+    std::cout << "click\n";
+    d.click();
 }

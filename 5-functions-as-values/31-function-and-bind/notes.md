@@ -39,8 +39,8 @@ Guidelines **T.49** (izbegavaj "brisanje tipa" gde nije potrebno).
 
 ```cpp
 std::function<int(int, int)> op;   // potpis: prima (int, int), vraća int
-op = saberi;                       // funkcija
-op = Puta{10};                     // funkcijski objekat
+op = add;                       // funkcija
+op = Times{10};                     // funkcijski objekat
 op = [](int a, int b) { return a * b; };   // lambda
 ```
 
@@ -51,8 +51,8 @@ op = [](int a, int b) { return a * b; };   // lambda
 - **Prazan** `std::function` (podrazumevano napravljen, ili `= nullptr`):
   `if (f)` je `false`. ❌ Poziv praznog baca `std::bad_function_call` --
   uhvaćen u `main.cpp`, neuhvaćen završi program (`runtime/r01`).
-- ✅ Za callback koji može da ne postoji: `if (naKlik) naKlik();`, ili
-  podrazumevana prazna lambda `naKlik = [] {};`.
+- ✅ Za callback koji može da ne postoji: `if (onClick) onClick();`, ili
+  podrazumevana prazna lambda `onClick = [] {};`.
 
 ---
 
@@ -65,13 +65,13 @@ op = [](int a, int b) { return a * b; };   // lambda
 - **Metoda**: objekat je prvi argument.
 
   ```cpp
-  std::function<int(const Senzor&)> dajId = &Senzor::id;
-  std::function<void(Senzor&, int)> postavi = &Senzor::postavi;
-  std::invoke(&Senzor::id, s);    // C++17: isti "univerzalni" poziv i za metode
+  std::function<int(const Sensor&)> getId = &Sensor::id;
+  std::function<void(Sensor&, int)> set = &Sensor::set;
+  std::invoke(&Sensor::id, s);    // C++17: isti "univerzalni" poziv i za metode
   ```
 
 - Rekurzivna lambda: lambda ne može da imenuje sebe, ali može da zarobi
-  `std::function` u koji je smeštena: `[&fakt](int n) { ... fakt(n - 1); }`.
+  `std::function` u koji je smeštena: `[&fact](int n) { ... fact(n - 1); }`.
 - ⚠️ **Cena** (test, libstdc++ x86-64):
   - `sizeof(std::function<...>)` je 32 bajta, bez obzira šta drži;
   - poziv ide indirektno (kroz pokazivač), pa kompajler ne može da ga
@@ -80,7 +80,7 @@ op = [](int a, int b) { return a * b; };   // lambda
     alokacija; veliko (256 B) ide na **heap**, 1 alokacija. Granica zavisi
     od biblioteke.
 - ✅ Kad tip može da ostane poznat, bez `std::function`: `auto f = [...]`
-  ili parametar šablona `template <typename F> void primeni(F f)` (EMC
+  ili parametar šablona `template <typename F> void apply(F f)` (EMC
   Item 5, T.49). `std::function` kad baš treba **jedan tip** za različite
   callback-ove (član klase, kontejner, granica API-ja).
 - Na mikrokontroleru bez heap-a: pazi na veličinu capture-a, ili koristi
@@ -92,14 +92,14 @@ op = [](int a, int b) { return a * b; };   // lambda
 
 ```cpp
 using namespace std::placeholders;              // _1, _2, ... (errors/e03 bez ovoga)
-auto dodaj10 = std::bind(saberi, _1, 10);       // dodaj10(5) == saberi(5, 10)
-auto obrnuto = std::bind(oduzmi, _2, _1);       // obrnuto(10, 3) == oduzmi(3, 10)
-auto uvek    = std::bind(saberi, 2, 3);         // uvek() == 5
+auto add10 = std::bind(add, _1, 10);       // add10(5) == add(5, 10)
+auto reversed = std::bind(subtract, _2, _1);       // reversed(10, 3) == subtract(3, 10)
+auto always  = std::bind(add, 2, 3);         // always() == 5
 ```
 
 - `_1` je "prvi argument poziva", `_2` drugi... Sve što nije placeholder
   je **fiksirana vrednost** (delimična primena, "partial application").
-- Isto lambdom: `[](int x) { return saberi(x, 10); }` -- običan poziv
+- Isto lambdom: `[](int x) { return add(x, 10); }` -- običan poziv
   funkcije, bez posebnih pravila.
 
 ---
@@ -107,32 +107,32 @@ auto uvek    = std::bind(saberi, 2, 3);         // uvek() == 5
 # 4. `std::bind`: metode, reference, `mem_fn` (kurs 164)
 
 ```cpp
-std::bind(&Senzor::postavi, &s, _1)    // pokazivač: poziv menja s
-std::bind(&Senzor::saPomakom, s, _1)   // KOPIJA s-a, napravljena pri bind-u
-std::bind(dodaj, std::ref(brojac), 1)  // referenca na brojac
-std::mem_fn(&Senzor::id)               // metoda kao objekat: id(s)
+std::bind(&Sensor::set, &s, _1)    // pokazivač: poziv menja s
+std::bind(&Sensor::withOffset, s, _1)   // KOPIJA s-a, napravljena pri bind-u
+std::bind(addTo, std::ref(counter), 1)  // referenca na counter
+std::mem_fn(&Sensor::id)               // metoda kao objekat: id(s)
 ```
 
 - Za metodu, drugi argument bind-a je objekat: pokazivač (`&s`), referenca
   (`std::ref(s)`) ili vrednost (kopija).
 - ⚠️ **bind KOPIRA sve argumente** u sebe. Funkcija koja prima `int&`
   dobija referencu na tu unutrašnju kopiju, pa se original ne menja --
-  bez greške i bez upozorenja (test: `brojac` posle jednog poziva sa
+  bez greške i bez upozorenja (test: `counter` posle jednog poziva sa
   kopijom i dva sa `std::ref` je 2; zadatak ex2).
 - `std::ref(x)` / `std::cref(x)` kažu bind-u "čuvaj referencu". Tada `x`
   mora da živi koliko i bind objekat (`ub/u01`: referenca na lokalnu
   promenljivu funkcije iz koje je bind vraćen).
-- `std::mem_fn(&Senzor::id)` pravi funkcijski objekat koji prima objekat
+- `std::mem_fn(&Sensor::id)` pravi funkcijski objekat koji prima objekat
   kao argument -- zgodno za algoritme.
 
 ---
 
 # 5. `std::bind`: zamke, i zašto lambda (kurs 165)
 
-- ⚠️ **Višak argumenata se tiho ignoriše**: `dodaj10(5, 99, 100)` vrati 15
+- ⚠️ **Višak argumenata se tiho ignoriše**: `add10(5, 99, 100)` vrati 15
   (test). Lambda sa pogrešnim brojem argumenata je greška.
 - ⚠️ **Argumenti se računaju pri bind-u, ne pri pozivu**:
-  `std::bind(postaviAlarm, trenutnoVreme() + 1)` izračuna vreme jednom,
+  `std::bind(setAlarm, currentTime() + 1)` izračuna vreme jednom,
   kad se pravi callback (test: napravljen u 8h, pozvan u 12h, alarm na 9h;
   lambda daje 13h; zadatak ex3, EMC Item 34).
 - ❌ Preopterećena funkcija ne može direktno u bind: ime nema jedan tip
@@ -203,8 +203,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_lanac_obrade`](exercises/ex1_lanac_obrade.cpp) | usage | std::function kao "bilo šta što se poziva", std::bind za delimičnu primenu i metode (sekcije 1, 3, 4) | — |
-| [`ex2_bind_kopira`](exercises/ex2_bind_kopira.cpp) | why | zašto bind "ne menja" promenljivu (sekcija 4) | `-DNAIVE` |
-| [`ex3_bind_racuna_odmah`](exercises/ex3_bind_racuna_odmah.cpp) | why | zašto bind računa argumente ODMAH, a lambda pri pozivu (sekcija 5, EMC Item 34) | `-DNAIVE` |
+| [`ex1_processing_chain`](exercises/ex1_processing_chain.cpp) | usage | std::function kao "bilo šta što se poziva", std::bind za delimičnu primenu i metode (sekcije 1, 3, 4) | — |
+| [`ex2_bind_copies`](exercises/ex2_bind_copies.cpp) | why | zašto bind "ne menja" promenljivu (sekcija 4) | `-DNAIVE` |
+| [`ex3_bind_evaluates_now`](exercises/ex3_bind_evaluates_now.cpp) | why | zašto bind računa argumente ODMAH, a lambda pri pozivu (sekcija 5, EMC Item 34) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

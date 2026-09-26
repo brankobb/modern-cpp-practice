@@ -7,22 +7,22 @@
 // Fajl se kompajlira i ovakav. Piši redom; posle svakog koraka
 // otkomentariši njegov deo main()-a.
 //
-// Korak 1: class Dispecer
-//   -- using Id = int; Id pretplati(tema, Rukovalac); bool odjavi(Id);
-//   int objavi(tema, poruka) -- pozove rukovaoce te teme redom kojim su
-//   se pretplatili i vrati koliko ih je pozvano; brojPretplata().
-//   Rukovalac je std::function<void(const Poruka&)> (lekcija 31, sekcija 1).
-//   -- u main-u: lambda sa [&brojac] i sa [prefiks] (kopija u trenutku
+// Korak 1: class Dispatcher
+//   -- using Id = int; Id subscribe(topic, Handler); bool unsubscribe(Id);
+//   int publish(topic, message) -- pozove rukovaoce te teme redom kojim su
+//   se pretplatili i vrati koliko ih je pozvano; subscriptionCount().
+//   Handler je std::function<void(const Message&)> (lekcija 31, sekcija 1).
+//   -- u main-u: lambda sa [&counter] i sa [prefix] (kopija u trenutku
 //   pravljenja) -- lekcija 30, sekcija 5.
-// Korak 2: dodajFilter(Filter) -- poruka stiže do rukovalaca samo ako
-//   prođe sve filtere; linearno(x, k, n) i primeni(lanac, x) nad
+// Korak 2: addFilter(Filter) -- poruka stiže do rukovalaca samo ako
+//   prođe sve filtere; linear(x, k, n) i applySteps(chain, x) nad
 //   std::vector<std::function<double(double)>>. U main-u je prvi korak
 //   lanca napravljen sa std::bind, drugi lambdom (lekcija 31, sekcije 3 i 5).
-// Korak 3: class Logger -- u konstruktoru se pretplati lambdom koja hvata
-//   this, u destruktoru se odjavi (RAII, lekcija 21; capture this:
+// Korak 3: class Logger -- u konstruktoru se pretplati (subscribe) lambdom koja hvata
+//   this, u destruktoru se odjavi (unsubscribe) (RAII, lekcija 21; capture this:
 //   lekcija 30, sekcija 7). Kopiranje zabrani -- zašto?
 // Korak 4: rukovalac sme da odjavi sebe (ili drugog) USRED objave.
-//   objavi mora to da podnese: obilazi kopiju spiska, a preskače one koji
+//   publish mora to da podnese: obilazi kopiju spiska, a preskače one koji
 //   su u međuvremenu odjavljeni (lekcija 27, sekcija 6: invalidacija
 //   iteratora).
 
@@ -33,13 +33,13 @@
 #include <utility>
 #include <vector>
 
-struct Poruka {
-    std::string izvor;
-    double vrednost;
+struct Message {
+    std::string source;
+    double value;
 };
 
-using Rukovalac = std::function<void(const Poruka&)>;
-using Filter = std::function<bool(const Poruka&)>;
+using Handler = std::function<void(const Message&)>;
+using Filter = std::function<bool(const Message&)>;
 
 // TODO korak 1, 2, 3, 4
 
@@ -47,76 +47,76 @@ int main() {
     using namespace std::placeholders;
 
     // Korak 1 -- otkomentariši:
-    // std::cout << "== korak 1: pretplata, capture, odjava\n";
-    // Dispecer d;
-    // int brojac = 0;
-    // const auto idBrojaca = d.pretplati("temp", [&brojac](const Poruka&) { ++brojac; });
-    // std::string prefiks = "  [temp] ";
-    // const auto idIspisa = d.pretplati("temp", [prefiks](const Poruka& p) { std::cout << prefiks << p.vrednost << '\n'; });
-    // prefiks = "promenjen ";                          // lambda ima svoju kopiju
-    // const int pozvano = d.objavi("temp", {"hala", 21.5});   // pre ispisa: rukovaoci i sami pišu na cout
-    // std::cout << "objava temp: " << pozvano << " rukovaoca\n";
-    // std::cout << "objava vlaga: " << d.objavi("vlaga", {"hala", 40}) << " rukovaoca\n";
-    // d.odjavi(idBrojaca);
-    // d.objavi("temp", {"hala", 22.0});
-    // std::cout << "brojač " << brojac << " (drugu objavu nije video), pretplata " << d.brojPretplata() << '\n';
-    // d.odjavi(idIspisa);
+    // std::cout << "== step 1: subscribe, capture, unsubscribe\n";
+    // Dispatcher d;
+    // int counter = 0;
+    // const auto counterId = d.subscribe("temp", [&counter](const Message&) { ++counter; });
+    // std::string prefix = "  [temp] ";
+    // const auto printId = d.subscribe("temp", [prefix](const Message& p) { std::cout << prefix << p.value << '\n'; });
+    // prefix = "changed ";                          // lambda ima svoju kopiju
+    // const int called = d.publish("temp", {"hall", 21.5});   // pre ispisa: rukovaoci i sami pišu na cout
+    // std::cout << "publish temp: " << called << " handlers\n";
+    // std::cout << "publish humidity: " << d.publish("humidity", {"hall", 40}) << " handlers\n";
+    // d.unsubscribe(counterId);
+    // d.publish("temp", {"hall", 22.0});
+    // std::cout << "counter " << counter << " (did not see the second publish), subscriptions " << d.subscriptionCount() << '\n';
+    // d.unsubscribe(printId);
 
     // Korak 2 -- otkomentariši:
-    // std::cout << "== korak 2: filter i lanac obrade (bind i lambda)\n";
-    // d.dodajFilter([](const Poruka& p) { return p.vrednost > -50 && p.vrednost < 150; });
-    // const std::vector<std::function<double(double)>> uFarenhajt{
-    //     std::bind(linearno, _1, 1.8, 32.0),          // isto što i [](double c) { return 1.8 * c + 32; }
+    // std::cout << "== step 2: filter and processing chain (bind and lambda)\n";
+    // d.addFilter([](const Message& p) { return p.value > -50 && p.value < 150; });
+    // const std::vector<std::function<double(double)>> toFahrenheit{
+    //     std::bind(linear, _1, 1.8, 32.0),          // isto što i [](double c) { return 1.8 * c + 32; }
     //     [](double f) { return std::round(f * 10) / 10; },
     // };
-    // const auto idF =
-    //     d.pretplati("temp", [&uFarenhajt](const Poruka& p) { std::cout << "  " << p.vrednost << " C = " << primeni(uFarenhajt, p.vrednost) << " F\n"; });
-    // d.objavi("temp", {"hala", 21.5});
-    // std::cout << "objava 999 (filter): " << d.objavi("temp", {"hala", 999}) << " rukovaoca\n";
-    // d.odjavi(idF);
+    // const auto fId =
+    //     d.subscribe("temp", [&toFahrenheit](const Message& p) { std::cout << "  " << p.value << " C = " << applySteps(toFahrenheit, p.value) << " F\n"; });
+    // d.publish("temp", {"hall", 21.5});
+    // std::cout << "publish 999 (filter): " << d.publish("temp", {"hall", 999}) << " handlers\n";
+    // d.unsubscribe(fId);
 
     // Korak 3 -- otkomentariši:
-    // std::cout << "== korak 3: logger se odjavljuje u destruktoru\n";
+    // std::cout << "== step 3: the logger unsubscribes in its destructor\n";
     // {
     //     Logger log(d, "alarm");
-    //     d.objavi("alarm", {"kotao", 91});
-    //     d.objavi("alarm", {"kotao", 95});
-    //     std::cout << "zapisano " << log.zapisano() << ", pretplata " << d.brojPretplata() << '\n';
+    //     d.publish("alarm", {"boiler", 91});
+    //     d.publish("alarm", {"boiler", 95});
+    //     std::cout << "written " << log.written() << ", subscriptions " << d.subscriptionCount() << '\n';
     // }
-    // std::cout << "posle bloka: pretplata " << d.brojPretplata() << ", objava alarm: " << d.objavi("alarm", {"kotao", 99})
-    //           << " rukovaoca\n";
+    // std::cout << "after the block: subscriptions " << d.subscriptionCount() << ", publish alarm: " << d.publish("alarm", {"boiler", 99})
+    //           << " handlers\n";
 
     // Korak 4 -- otkomentariši:
-    // std::cout << "== korak 4: rukovalac koji se odjavi tokom objave\n";
-    // Dispecer::Id idJednom = 0;
-    // idJednom = d.pretplati("start", [&d, &idJednom](const Poruka& p) {
-    //     std::cout << "  prvi start od " << p.izvor << ", odjavljujem se\n";
-    //     d.odjavi(idJednom);
+    // std::cout << "== step 4: a handler that unsubscribes during a publish\n";
+    // Dispatcher::Id onceId = 0;
+    // onceId = d.subscribe("start", [&d, &onceId](const Message& p) {
+    //     std::cout << "  first start from " << p.source << ", unsubscribing\n";
+    //     d.unsubscribe(onceId);
     // });
-    // d.pretplati("start", [](const Poruka& p) { std::cout << "  start od " << p.izvor << '\n'; });
-    // d.objavi("start", {"pumpa", 1});
-    // d.objavi("start", {"ventil", 1});
-    // std::cout << "pretplata na kraju: " << d.brojPretplata() << '\n';
+    // d.subscribe("start", [](const Message& p) { std::cout << "  start from " << p.source << '\n'; });
+    // d.publish("start", {"pump", 1});
+    // d.publish("start", {"valve", 1});
+    // std::cout << "subscriptions at the end: " << d.subscriptionCount() << '\n';
 }
 
 /* EXPECTED OUTPUT
-== korak 1: pretplata, capture, odjava
+== step 1: subscribe, capture, unsubscribe
   [temp] 21.5
-objava temp: 2 rukovaoca
-objava vlaga: 0 rukovaoca
+publish temp: 2 handlers
+publish humidity: 0 handlers
   [temp] 22
-brojač 1 (drugu objavu nije video), pretplata 1
-== korak 2: filter i lanac obrade (bind i lambda)
+counter 1 (did not see the second publish), subscriptions 1
+== step 2: filter and processing chain (bind and lambda)
   21.5 C = 70.7 F
-objava 999 (filter): 0 rukovaoca
-== korak 3: logger se odjavljuje u destruktoru
-  log: kotao 91
-  log: kotao 95
-zapisano 2, pretplata 1
-posle bloka: pretplata 0, objava alarm: 0 rukovaoca
-== korak 4: rukovalac koji se odjavi tokom objave
-  prvi start od pumpa, odjavljujem se
-  start od pumpa
-  start od ventil
-pretplata na kraju: 1
+publish 999 (filter): 0 handlers
+== step 3: the logger unsubscribes in its destructor
+  log: boiler 91
+  log: boiler 95
+written 2, subscriptions 1
+after the block: subscriptions 0, publish alarm: 0 handlers
+== step 4: a handler that unsubscribes during a publish
+  first start from pump, unsubscribing
+  start from pump
+  start from valve
+subscriptions at the end: 1
 */

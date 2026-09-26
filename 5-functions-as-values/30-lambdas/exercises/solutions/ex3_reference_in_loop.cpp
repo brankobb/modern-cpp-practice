@@ -1,4 +1,4 @@
-// Rešenje zadatka ex3_referenca_u_petlji.
+// Rešenje zadatka ex3_reference_in_loop.
 
 #include <functional>
 #include <iostream>
@@ -7,13 +7,13 @@
 #include <vector>
 
 int main() {
-    std::vector<std::function<void()>> zadaci;
+    std::vector<std::function<void()>> tasks;
     for (int i = 0; i < 3; ++i) {
         int id = 100 + i;
         // Ako lambda koja se čuva za kasnije hvata [&] (nije dobro):
         // reference na promenljive iteracije vise čim iteracija završi.
         // Treba ovako: zadatak nosi svoju kopiju.
-        zadaci.push_back([id] { std::cout << "zadatak " << id << '\n'; });
+        tasks.push_back([id] { std::cout << "task " << id << '\n'; });
     }
-    for (const auto& z : zadaci) z();
+    for (const auto& z : tasks) z();
 }

@@ -17,214 +17,214 @@
 
 // ---------------------------------------------------------------- 1
 // Callback kao pokazivač na funkciju (lekcija 11, sekcija 7): bez stanja.
-bool paran(int x) { return x % 2 == 0; }
+bool isEven(int x) { return x % 2 == 0; }
 
-int prebroj(const std::vector<int>& v, bool (*uslov)(int)) {
+int countMatching(const std::vector<int>& v, bool (*pred)(int)) {
     int n = 0;
     for (int x : v)
-        if (uslov(x)) ++n;
+        if (pred(x)) ++n;
     return n;
 }
 
-void sekcija1() {
-    std::cout << "\n== 1. callback: pokazivač na funkciju\n";
+void section1() {
+    std::cout << "\n== 1. callback: pointer to function\n";
     std::vector<int> v{1, 2, 3, 4, 5, 6};
-    std::cout << "parnih: " << prebroj(v, paran) << '\n';
+    std::cout << "even: " << countMatching(v, isEven) << '\n';
     // Ograničenje: funkcija nema stanje. "Veći od praga" bi tražio globalnu
     // promenljivu za prag.
 }
 
 // ---------------------------------------------------------------- 2
 // Funkcijski objekat (lekcija 15, sekcija 9): klasa sa operator() -- ima stanje.
-class VeciOd {
+class GreaterThan {
 public:
-    explicit VeciOd(int prag) : prag_(prag) {}
-    bool operator()(int x) const { return x > prag_; }
+    explicit GreaterThan(int threshold) : threshold_(threshold) {}
+    bool operator()(int x) const { return x > threshold_; }
 
 private:
-    int prag_;
+    int threshold_;
 };
 
-void sekcija2() {
-    std::cout << "\n== 2. callback: funkcijski objekat\n";
+void section2() {
+    std::cout << "\n== 2. callback: function object\n";
     std::vector<int> v{1, 2, 3, 4, 5, 6};
-    std::cout << "veći od 4: " << std::count_if(v.begin(), v.end(), VeciOd(4)) << '\n';
+    std::cout << "greater than 4: " << std::count_if(v.begin(), v.end(), GreaterThan(4)) << '\n';
 }
 
 // ---------------------------------------------------------------- 3
-void sekcija3() {
-    std::cout << "\n== 3. lambda izraz\n";
+void section3() {
+    std::cout << "\n== 3. lambda expression\n";
     std::vector<int> v{5, -3, 8, -1, 2};
-    int prag = 4;
-    // Isto što i VeciOd(prag), ali na mestu upotrebe, bez posebne klase.
-    std::cout << "veći od " << prag << ": "
-              << std::count_if(v.begin(), v.end(), [prag](int x) { return x > prag; }) << '\n';
+    int threshold = 4;
+    // Isto što i GreaterThan(threshold), ali na mestu upotrebe, bez posebne klase.
+    std::cout << "greater than " << threshold << ": "
+              << std::count_if(v.begin(), v.end(), [threshold](int x) { return x > threshold; }) << '\n';
     // Sortiranje po apsolutnoj vrednosti.
     std::sort(v.begin(), v.end(), [](int a, int b) { return std::abs(a) < std::abs(b); });
-    std::cout << "po |x|:";
+    std::cout << "by |x|:";
     for (int x : v) std::cout << ' ' << x;
     std::cout << '\n';
     // Povratni tip se izvodi iz return-a; kad ih je više različitih, napiši ga.
-    auto podeli = [](int a, int b) -> double {
+    auto divide = [](int a, int b) -> double {
         if (b == 0) return 0;      // int
         return double(a) / b;      // double -- bez "-> double" bila bi greška
     };
-    std::cout << "podeli(7, 2) = " << podeli(7, 2) << '\n';
+    std::cout << "divide(7, 2) = " << divide(7, 2) << '\n';
 }
 
 // ---------------------------------------------------------------- 4
-// Šta kompajler napravi od [prag](int x) { return x > prag; } -- otprilike:
+// Šta kompajler napravi od [threshold](int x) { return x > threshold; } -- otprilike:
 //   class __lambda_1 {
-//       int prag;                                        // zarobljena kopija
+//       int threshold;                                        // zarobljena kopija
 //   public:
-//       bool operator()(int x) const { return x > prag; }   // const!
+//       bool operator()(int x) const { return x > threshold; }   // const!
 //   };
-void sekcija4() {
-    std::cout << "\n== 4. kako lambda radi iznutra\n";
+void section4() {
+    std::cout << "\n== 4. how a lambda works inside\n";
     int a = 1;
     double d = 2;
-    auto bez = [] { return 1; };
-    auto jedan = [a] { return a; };
-    auto dva = [a, d] { return a + d; };
+    auto none = [] { return 1; };
+    auto one = [a] { return a; };
+    auto two = [a, d] { return a + d; };
     auto ref = [&a, &d] { return a + d; };
     // Veličina = veličina zarobljenih vrednosti (i poravnanje).
-    std::cout << "sizeof: bez capture-a " << sizeof(bez) << ", [a] " << sizeof(jedan) << ", [a, d] "
-              << sizeof(dva) << ", [&a, &d] " << sizeof(ref) << '\n';
+    std::cout << "sizeof: no capture " << sizeof(none) << ", [a] " << sizeof(one) << ", [a, d] "
+              << sizeof(two) << ", [&a, &d] " << sizeof(ref) << '\n';
     // Bez capture-a: konvertuje se u pokazivač na funkciju.
-    int (*fp)() = bez;
-    std::cout << "bez capture-a kao pokazivač: " << fp() << '\n';
+    int (*fp)() = none;
+    std::cout << "no capture as a pointer: " << fp() << '\n';
     // constexpr lambda (C++17): radi i pri kompajliranju.
-    constexpr auto kvadrat = [](int x) { return x * x; };
-    static_assert(kvadrat(3) == 9);
-    std::cout << "jedan() + dva() + ref() = " << jedan() + dva() + ref() << '\n';
+    constexpr auto square = [](int x) { return x * x; };
+    static_assert(square(3) == 9);
+    std::cout << "one() + two() + ref() = " << one() + two() + ref() << '\n';
 }
 
 // ---------------------------------------------------------------- 5
-void sekcija5() {
-    std::cout << "\n== 5. capture: po vrednosti i po referenci\n";
+void section5() {
+    std::cout << "\n== 5. capture: by value and by reference\n";
     int x = 1;
-    auto poVrednosti = [x] { return x; };     // kopija U TRENUTKU pravljenja lambde
-    auto poReferenci = [&x] { return x; };    // referenca: vidi kasnije promene
+    auto byValue = [x] { return x; };     // kopija U TRENUTKU pravljenja lambde
+    auto byRef = [&x] { return x; };    // referenca: vidi kasnije promene
     x = 2;
-    std::cout << "po vrednosti: " << poVrednosti() << ", po referenci: " << poReferenci() << '\n';
+    std::cout << "by value: " << byValue() << ", by reference: " << byRef() << '\n';
     // Menjanje kopije traži mutable (operator() je inače const, lekcija 09).
-    auto brojac = [n = 0]() mutable { return ++n; };
-    brojac();
-    std::cout << "mutable brojač: " << brojac() << '\n';
+    auto counter = [n = 0]() mutable { return ++n; };
+    counter();
+    std::cout << "mutable counter: " << counter() << '\n';
 }
 
 // ---------------------------------------------------------------- 6
-int globalni = 100;
+int globalValue = 100;
 
-void sekcija6() {
-    std::cout << "\n== 6. podrazumevani capture: [=] i [&]\n";
-    int a = 1, b = 2, zbir = 0;
+void section6() {
+    std::cout << "\n== 6. default capture: [=] and [&]\n";
+    int a = 1, b = 2, sum = 0;
     auto f1 = [=] { return a + b; };                  // sve što koristi, po vrednosti
-    auto f2 = [&] { zbir = a + b; };                  // sve po referenci
-    auto f3 = [=, &zbir] { zbir = a * 10 + b; };      // sve po vrednosti, zbir po referenci
-    auto f4 = [&, a] { zbir = a + b + 100; };         // sve po referenci, a po vrednosti
+    auto f2 = [&] { sum = a + b; };                  // sve po referenci
+    auto f3 = [=, &sum] { sum = a * 10 + b; };      // sve po vrednosti, sum po referenci
+    auto f4 = [&, a] { sum = a + b + 100; };         // sve po referenci, a po vrednosti
     f2();
-    std::cout << "f1 " << f1() << ", posle f2 zbir " << zbir;
+    std::cout << "f1 " << f1() << ", after f2 sum " << sum;
     f3();
-    std::cout << ", posle f3 " << zbir;
+    std::cout << ", after f3 " << sum;
     f4();
-    std::cout << ", posle f4 " << zbir << '\n';
+    std::cout << ", after f4 " << sum << '\n';
     // Globalne i static promenljive se NE zarobljavaju -- koriste se direktno
     // (errors/e06). Lambda vidi njihovu trenutnu vrednost.
-    auto g = [] { return globalni; };
-    globalni = 200;
-    std::cout << "globalni iz lambde: " << g() << '\n';
+    auto g = [] { return globalValue; };
+    globalValue = 200;
+    std::cout << "global from the lambda: " << g() << '\n';
 }
 
 // ---------------------------------------------------------------- 7
-class Termostat {
+class Thermostat {
 public:
-    explicit Termostat(int prag) : prag_(prag) {}
-    void postaviPrag(int p) { prag_ = p; }
+    explicit Thermostat(int threshold) : threshold_(threshold) {}
+    void setThreshold(int p) { threshold_ = p; }
 
-    // [this]: zarobi POKAZIVAČ -- lambda vidi trenutni prag_, i sme da
+    // [this]: zarobi POKAZIVAČ -- lambda vidi trenutni threshold_, i sme da
     // se koristi samo dok objekat živi (ub/u01).
-    auto proveraUzivo() const {
-        return [this](int t) { return t < prag_; };
+    auto liveCheck() const {
+        return [this](int t) { return t < threshold_; };
     }
     // [*this] (C++17): zarobi KOPIJU objekta -- nezavisna od originala.
-    auto proveraKopija() const {
-        return [*this](int t) { return t < prag_; };
+    auto copyCheck() const {
+        return [*this](int t) { return t < threshold_; };
     }
     // Samo ono što treba: init capture člana.
-    auto proveraPrag() const {
-        return [prag = prag_](int t) { return t < prag; };
+    auto thresholdCheck() const {
+        return [threshold = threshold_](int t) { return t < threshold; };
     }
 
 private:
-    int prag_;
+    int threshold_;
 };
 
-void sekcija7() {
-    std::cout << "\n== 7. capture i this\n";
-    Termostat ts(20);
-    auto uzivo = ts.proveraUzivo();
-    auto kopija = ts.proveraKopija();
-    auto prag = ts.proveraPrag();
-    ts.postaviPrag(10);
-    std::cout << "15 < prag? [this]: " << uzivo(15) << ", [*this]: " << kopija(15)
-              << ", [prag = prag_]: " << prag(15) << '\n';
+void section7() {
+    std::cout << "\n== 7. capture and this\n";
+    Thermostat ts(20);
+    auto live = ts.liveCheck();
+    auto copy = ts.copyCheck();
+    auto threshold = ts.thresholdCheck();
+    ts.setThreshold(10);
+    std::cout << "15 < threshold? [this]: " << live(15) << ", [*this]: " << copy(15)
+              << ", [threshold = threshold_]: " << threshold(15) << '\n';
 }
 
 // ---------------------------------------------------------------- 8
-void sekcija8() {
-    std::cout << "\n== 8. generalizovani capture (C++14)\n";
+void section8() {
+    std::cout << "\n== 8. generalized capture (C++14)\n";
     // Nova promenljiva u lambdi, inicijalizovana izrazom.
-    std::string ime = "senzor";
-    auto opis = [tekst = ime + "-01", duzina = ime.size()] { return tekst + "/" + std::to_string(duzina); };
-    std::cout << opis() << '\n';
+    std::string name = "sensor";
+    auto describe = [text = name + "-01", length = name.size()] { return text + "/" + std::to_string(length); };
+    std::cout << describe() << '\n';
     // Move-only objekat se PREMESTI u lambdu ([p] bi tražio kopiju, errors/e04).
     auto p = std::make_unique<int>(42);
-    auto vlasnik = [q = std::move(p)] { return *q; };
-    std::cout << "iz unique_ptr-a: " << vlasnik() << ", p posle: " << (p ? "pun" : "prazan") << '\n';
+    auto owner = [q = std::move(p)] { return *q; };
+    std::cout << "from unique_ptr: " << owner() << ", p after: " << (p ? "full" : "empty") << '\n';
     // Takva lambda nema kopiju, pa ne može u std::function (errors/e05) --
     // čuva se kao auto, ili prosleđuje šablonu.
-    auto pozovi = [](auto&& f) { return f(); };
-    std::cout << "preko šablona: " << pozovi(vlasnik) << '\n';
+    auto callIt = [](auto&& f) { return f(); };
+    std::cout << "via a template: " << callIt(owner) << '\n';
 }
 
 // ---------------------------------------------------------------- 9
-void sekcija9() {
-    std::cout << "\n== 9. generičke lambde, std::function, IIFE\n";
-    auto saberi = [](auto a, auto b) { return a + b; };   // operator() je šablon
-    std::cout << "saberi(1, 2) = " << saberi(1, 2) << ", saberi(1.5, 2) = " << saberi(1.5, 2)
-              << ", saberi(string) = " << saberi(std::string("a"), "b") << '\n';
+void section9() {
+    std::cout << "\n== 9. generic lambdas, std::function, IIFE\n";
+    auto add = [](auto a, auto b) { return a + b; };   // operator() je šablon
+    std::cout << "add(1, 2) = " << add(1, 2) << ", add(1.5, 2) = " << add(1.5, 2)
+              << ", add(string) = " << add(std::string("a"), "b") << '\n';
 
     // std::function: jedan tip za bilo šta što se poziva -- po cenu veličine
     // i indirektnog poziva (i moguće alokacije za veliko stanje).
-    std::vector<std::function<int(int)>> koraci;
-    koraci.push_back([](int x) { return x + 1; });
-    koraci.push_back(VeciOd(0));                  // bool -> int
-    int faktor = 3;
-    koraci.push_back([faktor](int x) { return x * faktor; });
-    std::cout << "rezultati za 5:";
-    for (const auto& k : koraci) std::cout << ' ' << k(5);
+    std::vector<std::function<int(int)>> steps;
+    steps.push_back([](int x) { return x + 1; });
+    steps.push_back(GreaterThan(0));                  // bool -> int
+    int factor = 3;
+    steps.push_back([factor](int x) { return x * factor; });
+    std::cout << "results for 5:";
+    for (const auto& k : steps) std::cout << ' ' << k(5);
     std::cout << '\n';
 
     // IIFE: lambda pozvana odmah -- za const promenljivu kojoj treba više
     // koraka da se izračuna.
-    const std::vector<int> kvadrati = [] {
+    const std::vector<int> squares = [] {
         std::vector<int> v;
         for (int i = 1; i <= 4; ++i) v.push_back(i * i);
         return v;
     }();
-    std::cout << "kvadrati.size() = " << kvadrati.size() << ", poslednji " << kvadrati.back() << '\n';
+    std::cout << "squares.size() = " << squares.size() << ", last " << squares.back() << '\n';
 }
 
 int main() {
     std::cout << std::boolalpha;
-    sekcija1();
-    sekcija2();
-    sekcija3();
-    sekcija4();
-    sekcija5();
-    sekcija6();
-    sekcija7();
-    sekcija8();
-    sekcija9();
+    section1();
+    section2();
+    section3();
+    section4();
+    section5();
+    section6();
+    section7();
+    section8();
+    section9();
 }
