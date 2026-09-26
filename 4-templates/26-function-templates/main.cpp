@@ -16,132 +16,132 @@
 // Šablon nije funkcija, nego recept za funkcije. Kompajler napravi
 // (instancira) posebnu funkciju za svaki tip sa kojim se pozove.
 template <typename T>
-T maks(T a, T b) {
+T maxOf(T a, T b) {
     return b < a ? a : b;   // traži samo operator< -- sve što ga ima, radi
 }
 
-void sekcija1() {
-    std::cout << "\n== 1. šablon i instancijacija\n";
-    std::cout << "maks(3, 7) = " << maks(3, 7) << '\n';
-    std::cout << "maks(2.5, 1.5) = " << maks(2.5, 1.5) << '\n';
-    std::cout << "maks(string) = " << maks(std::string("jabuka"), std::string("banana")) << '\n';
+void section1() {
+    std::cout << "\n== 1. template and instantiation\n";
+    std::cout << "maxOf(3, 7) = " << maxOf(3, 7) << '\n';
+    std::cout << "maxOf(2.5, 1.5) = " << maxOf(2.5, 1.5) << '\n';
+    std::cout << "maxOf(string) = " << maxOf(std::string("cherry"), std::string("banana")) << '\n';
 }
 
 // ---------------------------------------------------------------- 2
-void sekcija2() {
-    std::cout << "\n== 2. dedukcija argumenata\n";
-    // maks(1, 2.5) se NE kompajlira: T bi bio i int i double (errors/e01).
+void section2() {
+    std::cout << "\n== 2. argument deduction\n";
+    // maxOf(1, 2.5) se NE kompajlira: T bi bio i int i double (errors/e01).
     // Dedukcija ne radi konverzije -- ali eksplicitan argument ih dozvoljava:
-    std::cout << "maks<double>(1, 2.5) = " << maks<double>(1, 2.5) << '\n';
+    std::cout << "maxOf<double>(1, 2.5) = " << maxOf<double>(1, 2.5) << '\n';
     // T se dedukuje po pravilima za parametar PO VREDNOSTI (lekcija 10):
     // const i referenca se odbacuju, niz postaje pokazivač.
     const int ci = 4;
     int x = 9;
     int& rx = x;
-    static_assert(std::is_same_v<decltype(maks(ci, rx)), int>);
-    std::cout << "maks(const int, int&) vraća int: " << maks(ci, rx) << '\n';
+    static_assert(std::is_same_v<decltype(maxOf(ci, rx)), int>);
+    std::cout << "maxOf(const int, int&) returns int: " << maxOf(ci, rx) << '\n';
 }
 
 // ---------------------------------------------------------------- 3
 // Svaka instancijacija je posebna funkcija -- i ima SVOJU static promenljivu.
 template <typename T>
-int brojPoziva() {
+int callCount() {
     static int n = 0;
     return ++n;
 }
 
-void sekcija3() {
-    std::cout << "\n== 3. svaka instancijacija je posebna funkcija\n";
-    brojPoziva<int>();
-    brojPoziva<int>();
-    std::cout << "brojPoziva<int>: " << brojPoziva<int>() << ", brojPoziva<double>: "
-              << brojPoziva<double>() << '\n';
+void section3() {
+    std::cout << "\n== 3. each instantiation is a separate function\n";
+    callCount<int>();
+    callCount<int>();
+    std::cout << "callCount<int>: " << callCount<int>() << ", callCount<double>: "
+              << callCount<double>() << '\n';
 }
 
 // ---------------------------------------------------------------- 4
 // Podrazumevani argument šablona + eksplicitni argument.
-template <typename Izlaz = double, typename T>
-Izlaz prosek(const T* niz, std::size_t n) {
-    Izlaz s{};
-    for (std::size_t i = 0; i < n; ++i) s += static_cast<Izlaz>(niz[i]);
-    return n ? s / static_cast<Izlaz>(n) : Izlaz{};
+template <typename Out = double, typename T>
+Out average(const T* arr, std::size_t n) {
+    Out s{};
+    for (std::size_t i = 0; i < n; ++i) s += static_cast<Out>(arr[i]);
+    return n ? s / static_cast<Out>(n) : Out{};
 }
 
-void sekcija4() {
-    std::cout << "\n== 4. eksplicitni i podrazumevani argumenti\n";
-    int ocitavanja[] = {1, 2, 4};
-    std::cout << "prosek (double): " << prosek(ocitavanja, 3) << '\n';
-    std::cout << "prosek<int>: " << prosek<int>(ocitavanja, 3) << '\n';   // T se i dalje dedukuje
+void section4() {
+    std::cout << "\n== 4. explicit and default arguments\n";
+    int readings[] = {1, 2, 4};
+    std::cout << "average (double): " << average(readings, 3) << '\n';
+    std::cout << "average<int>: " << average<int>(readings, 3) << '\n';   // T se i dalje dedukuje
 }
 
 // ---------------------------------------------------------------- 5
-// C string: opšti maks bi poredio ADRESE (zadatak ex2). Overload za
+// C string: opšti maxOf bi poredio ADRESE (zadatak ex2). Overload za
 // const char* je ne-šablon, pa pobeđuje kad se tip tačno poklopi.
-const char* maks(const char* a, const char* b) { return std::strcmp(b, a) < 0 ? a : b; }
+const char* maxOf(const char* a, const char* b) { return std::strcmp(b, a) < 0 ? a : b; }
 
 // Eksplicitna (potpuna) specijalizacija: telo za JEDAN tip, isti potpis.
 template <typename T>
-std::string opisi(const T&) {
-    return "nešto";
+std::string describe(const T&) {
+    return "something";
 }
 template <>
-std::string opisi<bool>(const bool& b) {
-    return b ? "da" : "ne";
+std::string describe<bool>(const bool& b) {
+    return b ? "yes" : "no";
 }
 
-void sekcija5() {
-    std::cout << "\n== 5. overload i eksplicitna specijalizacija\n";
-    std::cout << "maks(\"jabuka\", \"banana\") = " << maks("jabuka", "banana") << '\n';
-    std::cout << "maks<>(3, 4) = " << maks<>(3, 4) << " (<> traži šablon)\n";
-    std::cout << "opisi(true) = " << opisi(true) << ", opisi(42) = " << opisi(42) << '\n';
+void section5() {
+    std::cout << "\n== 5. overload and explicit specialization\n";
+    std::cout << "maxOf(\"cherry\", \"banana\") = " << maxOf("cherry", "banana") << '\n';
+    std::cout << "maxOf<>(3, 4) = " << maxOf<>(3, 4) << " (<> requires the template)\n";
+    std::cout << "describe(true) = " << describe(true) << ", describe(42) = " << describe(42) << '\n';
 }
 
 // ---------------------------------------------------------------- 6
 // Ne-tipski parametri: vrednost poznata pri kompajliranju.
 template <typename T, std::size_t N>
-constexpr std::size_t velicina(const T (&)[N]) {
+constexpr std::size_t arraySize(const T (&)[N]) {
     return N;   // N se dedukuje iz tipa niza
 }
 
 template <int Min, int Max>
-int ogranici(int x) {
-    static_assert(Min <= Max, "Min mora biti <= Max");
+int clampTo(int x) {
+    static_assert(Min <= Max, "Min must be <= Max");
     return x < Min ? Min : (x > Max ? Max : x);
 }
 
 template <auto V>   // C++17: tip parametra se dedukuje iz vrednosti
-constexpr auto vrednost() {
+constexpr auto valueOf() {
     return V;
 }
 
 template <std::size_t N>
-std::array<int, N> kvadrati() {
+std::array<int, N> squares() {
     std::array<int, N> a{};
     for (std::size_t i = 0; i < N; ++i) a[i] = static_cast<int>(i * i);
     return a;
 }
 
-void sekcija6() {
-    std::cout << "\n== 6. ne-tipski parametri\n";
-    int niz[7] = {};
-    (void)niz;
-    static_assert(velicina(niz) == 7);
-    std::cout << "velicina(niz) = " << velicina(niz) << '\n';
-    std::cout << "ogranici<0, 100>(150) = " << ogranici<0, 100>(150) << ", (-5) = "
-              << ogranici<0, 100>(-5) << '\n';
-    std::cout << "vrednost<'x'>() = " << vrednost<'x'>() << ", vrednost<42u>() = " << vrednost<42u>()
+void section6() {
+    std::cout << "\n== 6. non-type parameters\n";
+    int arr[7] = {};
+    (void)arr;
+    static_assert(arraySize(arr) == 7);
+    std::cout << "arraySize(arr) = " << arraySize(arr) << '\n';
+    std::cout << "clampTo<0, 100>(150) = " << clampTo<0, 100>(150) << ", (-5) = "
+              << clampTo<0, 100>(-5) << '\n';
+    std::cout << "valueOf<'x'>() = " << valueOf<'x'>() << ", valueOf<42u>() = " << valueOf<42u>()
               << '\n';
-    auto k = kvadrati<5>();
-    std::cout << "kvadrati<5>:";
+    auto k = squares<5>();
+    std::cout << "squares<5>:";
     for (int v : k) std::cout << ' ' << v;
     std::cout << '\n';
 }
 
 int main() {
-    sekcija1();
-    sekcija2();
-    sekcija3();
-    sekcija4();
-    sekcija5();
-    sekcija6();
+    section1();
+    section2();
+    section3();
+    section4();
+    section5();
+    section6();
 }

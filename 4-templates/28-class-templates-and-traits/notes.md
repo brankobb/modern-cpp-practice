@@ -39,16 +39,16 @@ argumenata različitih tipova), **T.150** (proveri svojstva tipa
 
 ```cpp
 template <typename... Args>
-T& napravi(Args&&... args) {
-    elementi_.push_back(std::make_unique<T>(std::forward<Args>(args)...));
-    return *elementi_.back();
+T& create(Args&&... args) {
+    items_.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+    return *items_.back();
 }
 ```
 
 Ovako rade `emplace_back`, `std::make_unique` i `std::thread`: primaju
 bilo koji broj argumenata bilo kog tipa i predaju ih konstruktoru tačno
-onakve kakve su stigle. Test: `napravi(ime, 1)` kopira `ime` (lvalue), a
-`napravi(std::string("pritisak"), 2)` pomera (rvalue). Detaljno o
+onakve kakve su stigle. Test: `create(name, 1)` kopira `name` (lvalue), a
+`create(std::string("pressure"), 2)` pomera (rvalue). Detaljno o
 `Args&&` i `std::forward`: lekcija 27.
 
 ---
@@ -66,15 +66,15 @@ Paket se koristi samo **proširen** sa `...` (`errors/e06`):
 | Oblik | Proširi se u |
 |---|---|
 | `g(args...)` | `g(a1, a2, a3)` |
-| `g(kvadrat(args)...)` | `g(kvadrat(a1), kvadrat(a2), kvadrat(a3))` |
+| `g(square(args)...)` | `g(square(a1), square(a2), square(a3))` |
 | `std::forward<Args>(args)...` | svaki sa svojim tipom |
 
 **Dva načina da se obradi svaki element:**
 
 1. **Rekurzija** (C++11): "prvi" + "ostali", pa poziv za ostale. Mora da
-   postoji osnovni slučaj, ne-šablon `ispisiRek()` za prazan paket --
+   postoji osnovni slučaj, ne-šablon `printRec()` za prazan paket --
    inače poslednja instancijacija zove funkciju koja ne postoji (zadatak
-   ex3). Obični `if (sizeof...(ostali) > 0)` ne pomaže: poziv unutar
+   ex3). Obični `if (sizeof...(rest) > 0)` ne pomaže: poziv unutar
    njega se i dalje kompajlira (test); pomaže `if constexpr`.
 2. **Fold izrazi** (C++17): bez rekurzije.
 
@@ -98,27 +98,27 @@ Paket se koristi samo **proširen** sa `...` (`errors/e06`):
 
 ```cpp
 template <typename T, std::size_t N>
-class Stek {
+class Stack {
 public:
     void push(const T& v);
     T pop();
-    T najveci() const;
+    T largest() const;
 private:
-    std::array<T, N> podaci_{};
-    std::size_t vel_ = 0;
+    std::array<T, N> data_{};
+    std::size_t size_ = 0;
 };
 
 template <typename T, std::size_t N>   // definicija van klase
-T Stek<T, N>::pop() { ... }
+T Stack<T, N>::pop() { ... }
 ```
 
-- `Stek<int, 4>` i `Stek<int, 8>` su **različiti tipovi** (sekcija 3 u lekciji 26:
+- `Stack<int, 4>` i `Stack<int, 8>` su **različiti tipovi** (sekcija 3 u lekciji 26:
   svaka instancijacija je posebna).
 - Definicija metode van klase ponavlja listu parametara i piše
-  `Stek<T, N>::`. Sve ide u header (lekcija 26, sekcija 3).
+  `Stack<T, N>::`. Sve ide u header (lekcija 26, sekcija 3).
 - **Lenja instancijacija** (`[temp.inst]`): metoda klasnog šablona se
-  prevodi tek kad se **pozove**. `Stek<Tacka, 2>` radi iako `Tacka` nema
-  `operator<` -- dok se ne pozove `najveci()` (test; `errors/e04`). Zato
+  prevodi tek kad se **pozove**. `Stack<Point, 2>` radi iako `Point` nema
+  `operator<` -- dok se ne pozove `largest()` (test; `errors/e04`). Zato
   jedan šablon može da ima metode koje rade samo za neke tipove.
 - **Zavisni tipovi traže `typename`**: `typename C::value_type x;`. Bez
   toga kompajler pretpostavi da `C::value_type` nije tip (`errors/e07`).
@@ -129,11 +129,11 @@ izvode iz argumenata konstruktora.
 ```cpp
 std::pair p{1, 2.5};      // std::pair<int, double>
 std::array a{1, 2, 3};    // std::array<int, 3>
-Omotac o{"tekst"};        // Omotac<std::string> -- zbog deduction guide-a:
-Omotac(const char*) -> Omotac<std::string>;
+Wrapper o{"text"};        // Wrapper<std::string> -- zbog deduction guide-a:
+Wrapper(const char*) -> Wrapper<std::string>;
 ```
 
-- Bez guide-a bi `Omotac{"tekst"}` bio `Omotac<const char*>`. Deduction
+- Bez guide-a bi `Wrapper{"text"}` bio `Wrapper<const char*>`. Deduction
   guide kaže kompajleru "za ove argumente izvedi ovaj tip".
 - ❌ Bez argumenata nema dedukcije: `std::vector v;` (`errors/e01`).
 
@@ -142,8 +142,8 @@ Omotac(const char*) -> Omotac<std::string>;
 # 4. Eksplicitna specijalizacija klase (kurs 144–145)
 
 ```cpp
-template <typename T> struct Opis { static std::string ime() { return "nešto"; } };
-template <> struct Opis<bool> { static std::string ime() { return "bool"; } };
+template <typename T> struct TypeName { static std::string name() { return "something"; } };
+template <> struct TypeName<bool> { static std::string name() { return "bool"; } };
 ```
 
 - Specijalizacija je **potpuno druga klasa**: ne nasleđuje ništa od
@@ -154,10 +154,10 @@ template <> struct Opis<bool> { static std::string ime() { return "bool"; } };
   opšti:
 
   ```cpp
-  template <> std::string Kutija<std::string>::prikazi() const { return '"' + v + '"'; }
+  template <> std::string Box<std::string>::show() const { return '"' + v + '"'; }
   ```
 
-  Test: `Kutija<std::string>` dobija novi `prikazi()`, a `prazna()` iz
+  Test: `Box<std::string>` dobija novi `show()`, a `empty()` iz
   opšteg šablona.
 
 ---
@@ -167,17 +167,17 @@ template <> struct Opis<bool> { static std::string ime() { return "bool"; } };
 Specijalizacija za **familiju** tipova, sa sopstvenim parametrima:
 
 ```cpp
-template <typename T> struct Opis<T*>            { ... "pokazivač na " + Opis<T>::ime() };
-template <typename T> struct Opis<std::vector<T>> { ... };
-template <typename T, std::size_t N> struct Opis<T[N]> { ... };
+template <typename T> struct TypeName<T*>            { ... "pointer to " + TypeName<T>::name() };
+template <typename T> struct TypeName<std::vector<T>> { ... };
+template <typename T, std::size_t N> struct TypeName<T[N]> { ... };
 ```
 
-Test: `Opis<std::vector<bool*>>` → "vektor od pokazivač na bool",
-`Opis<double**>` → "pokazivač na pokazivač na nešto".
+Test: `TypeName<std::vector<bool*>>` → "vector of pointer to bool",
+`TypeName<double**>` → "pointer to pointer to something".
 
 - Bira se **najspecijalnija** delimična specijalizacija koja odgovara.
 - ❌ Ako odgovaraju dve, a nijedna nije specijalnija, greška
-  (`errors/e02`: `Par<A*, B>` i `Par<A, B*>` za `Par<int*, int*>`).
+  (`errors/e02`: `Pair<A*, B>` i `Pair<A, B*>` za `Pair<int*, int*>`).
 - Funkcijski šabloni nemaju delimičnu specijalizaciju (lekcija 26, `errors/e05`).
 - Ovo je osnova za **type traits** (sekcija 7).
 
@@ -187,15 +187,15 @@ Test: `Opis<std::vector<bool*>>` → "vektor od pokazivač na bool",
 
 ```cpp
 template <std::size_t N>
-using Bajtovi = std::array<std::uint8_t, N>;
+using Bytes = std::array<std::uint8_t, N>;
 template <typename T>
-using PoImenu = std::map<std::string, T>;
-using Paket = Bajtovi<8>;
+using ByName = std::map<std::string, T>;
+using Packet = Bytes<8>;
 ```
 
 - `typedef` ne može da ima parametre (lekcija 05, `errors/e13`), `using`
   može (EMC Item 9, T.43).
-- Alias **nije nov tip**: `Paket` i `std::array<std::uint8_t, 8>` su isti
+- Alias **nije nov tip**: `Packet` i `std::array<std::uint8_t, 8>` su isti
   tip (test, `static_assert`). Za zaista nov tip treba `struct` ili `enum
   class`.
 
@@ -217,15 +217,15 @@ kompajliranju:
 **Sopstveni trait**: primarni šablon kaže "ne", specijalizacija "da".
 
 ```cpp
-template <typename T> struct jeVektor : std::false_type {};
-template <typename T> struct jeVektor<std::vector<T>> : std::true_type {};
-template <typename T> inline constexpr bool jeVektor_v = jeVektor<T>::value;
+template <typename T> struct isVector : std::false_type {};
+template <typename T> struct isVector<std::vector<T>> : std::true_type {};
+template <typename T> inline constexpr bool isVector_v = isVector<T>::value;
 ```
 
 - Trait se koristi sa `if constexpr` (grana za pogrešan tip se ne
   instancira) i sa `static_assert`.
 - ⚠️ Specijalizacija se poklapa samo sa **tačno** tim tipom:
-  `jeString<const std::string&>` nije `jeString<std::string>`. U šablonu sa
+  `isString<const std::string&>` nije `isString<std::string>`. U šablonu sa
   forwarding referencom `T` je često referenca, pa pre pitanja skini
   referencu i `const`: `std::remove_cv_t<std::remove_reference_t<T>>` (C++20:
   `std::remove_cvref_t<T>`) ili `std::decay_t<T>` (zadatak ex2).
@@ -236,8 +236,8 @@ template <typename T> inline constexpr bool jeVektor_v = jeVektor<T>::value;
 
 ```cpp
 template <typename T>
-class Merenje {
-    static_assert(std::is_arithmetic_v<T>, "Merenje<T>: T mora biti brojčani tip");
+class Measurement {
+    static_assert(std::is_arithmetic_v<T>, "Measurement<T>: T must be an arithmetic type");
     ...
 };
 ```
@@ -246,7 +246,7 @@ class Merenje {
   poruku na početku izveštaja (`errors/e03`), umesto greške duboko u
   telu (lekcija 26, `errors/e02`) -- ili, gore, šablona koji se kompajlira i radi
   besmisleno.
-- Od C++17 poruka nije obavezna: `static_assert(sizeof(Merenje<std::uint16_t>) == 2);`.
+- Od C++17 poruka nije obavezna: `static_assert(sizeof(Measurement<std::uint16_t>) == 2);`.
 - Isto na ne-tipskim parametrima: `static_assert(N > 0)` (zadatak ex1).
 - C++20 **concepts** (`template <std::integral T>`, `requires`) rade isto,
   ali kao deo potpisa: pogrešan tip se odbije pri izboru overload-a, a ne
@@ -312,8 +312,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_kruzni_bafer`](exercises/ex1_kruzni_bafer.cpp) | usage | klasni šablon sa ne-tipskim parametrom, variadic metoda sa fold izrazom, static_assert i alias šablon (sekcije 2, 3, 6, 8) | — |
-| [`ex2_trait_i_referenca`](exercises/ex2_trait_i_referenca.cpp) | why | zašto se tip "očisti" pre pitanja traitu (sekcija 7) | `-DNAIVE` |
-| [`ex3_rekurzija_bez_kraja`](exercises/ex3_rekurzija_bez_kraja.cpp) | why | zašto variadic rekurzija mora da ima kraj, i zašto je fold jednostavniji (sekcija 2) | `-DNAIVE` |
+| [`ex1_ring_buffer`](exercises/ex1_ring_buffer.cpp) | usage | klasni šablon sa ne-tipskim parametrom, variadic metoda sa fold izrazom, static_assert i alias šablon (sekcije 2, 3, 6, 8) | — |
+| [`ex2_trait_and_reference`](exercises/ex2_trait_and_reference.cpp) | why | zašto se tip "očisti" pre pitanja traitu (sekcija 7) | `-DNAIVE` |
+| [`ex3_recursion_without_end`](exercises/ex3_recursion_without_end.cpp) | why | zašto variadic rekurzija mora da ima kraj, i zašto je fold jednostavniji (sekcija 2) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

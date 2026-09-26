@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVE vlaga: nije pronađen
+// DEMO-OUT: NAIVE humidity: not found
 //
 // Zadatak 3 -- zašto CTAD od string literala ne daje std::string (sekcija 1)
 // Rešenje: exercises/solutions/ex3_ctad_literal.cpp
@@ -14,7 +14,7 @@
 //   niza u pokazivač. Mapa je zato std::map<const char*, int>: ključevi
 //   se porede kao POKAZIVAČI (adrese), ne kao tekst. Bafer ima drugu
 //   adresu od literala. Bez greške i bez upozorenja.
-//   (Pretraga literalom, find("vlaga"), ovde slučajno uspe: kompajler je oba
+//   (Pretraga literalom, find("humidity"), ovde slučajno uspe: kompajler je oba
 //   pojavljivanja istog literala smestio na istu adresu. Standard to ne
 //   garantuje.)
 // Korak 2: u #else grani napravi tabelu tako da ključ bude std::string --
@@ -28,21 +28,21 @@
 #include <utility>
 
 #ifdef NAIVE
-auto napraviTabelu() { return std::map{std::pair{"temp", 21}, std::pair{"vlaga", 40}}; }
+auto makeTable() { return std::map{std::pair{"temp", 21}, std::pair{"humidity", 40}}; }
 #else
 // TODO korak 2 (dok ne napišeš, tabela je prazna)
-auto napraviTabelu() { return std::map<std::string, int>{}; }
+auto makeTable() { return std::map<std::string, int>{}; }
 #endif
 
 int main() {
-    auto tabela = napraviTabelu();
-    char ulaz[16];
-    for (const char* ime : {"temp", "vlaga"}) {
-        std::strcpy(ulaz, ime);                  // ime stiglo "spolja", u bafer
-        auto it = tabela.find(ulaz);
-        std::cout << ulaz << ": ";
-        if (it == tabela.end())
-            std::cout << "nije pronađen\n";
+    auto table = makeTable();
+    char input[16];
+    for (const char* name : {"temp", "humidity"}) {
+        std::strcpy(input, name);                  // ime stiglo "spolja", u bafer
+        auto it = table.find(input);
+        std::cout << input << ": ";
+        if (it == table.end())
+            std::cout << "not found\n";
         else
             std::cout << it->second << '\n';
     }
@@ -50,5 +50,5 @@ int main() {
 
 /* EXPECTED OUTPUT
 temp: 21
-vlaga: 40
+humidity: 40
 */

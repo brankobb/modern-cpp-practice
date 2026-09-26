@@ -11,137 +11,137 @@
 // ---------------------------------------------------------------- korak 1
 // N poslednjih vrednosti; kad je pun, nova prepisuje najstariju.
 template <typename T, std::size_t N>
-class KruzniBafer {
-    static_assert(N > 0, "KruzniBafer: kapacitet mora biti veći od 0");
+class RingBuffer {
+    static_assert(N > 0, "RingBuffer: capacity must be greater than 0");
 
 public:
-    static constexpr std::size_t kapacitet() { return N; }
-    std::size_t size() const { return broj_; }
-    bool prazan() const { return broj_ == 0; }
-    bool pun() const { return broj_ == N; }
+    static constexpr std::size_t capacity() { return N; }
+    std::size_t size() const { return count_; }
+    bool empty() const { return count_ == 0; }
+    bool full() const { return count_ == N; }
 
-    void dodaj(const T& x) { mesto() = x; }              // kopija
-    void dodaj(T&& x) { mesto() = std::move(x); }        // premeštanje
+    void push(const T& x) { slot() = x; }              // kopija
+    void push(T&& x) { slot() = std::move(x); }        // premeštanje
 
     // Argumenti idu konstruktoru T, bez usputnih kopija. (Pravi emplace, bez
     // privremenog T, traži sirovu memoriju i placement new: lekcija 33.)
     template <typename... Args>
     T& emplace(Args&&... args) {
-        T& m = mesto();
+        T& m = slot();
         m = T(std::forward<Args>(args)...);
         return m;
     }
 
-    const T& operator[](std::size_t i) const { return podaci_[(pocetak_ + i) % N]; }   // 0 = najstariji
+    const T& operator[](std::size_t i) const { return data_[(start_ + i) % N]; }   // 0 = najstariji
     const T& at(std::size_t i) const {
-        if (i >= broj_) throw std::out_of_range("KruzniBafer::at: indeks " + std::to_string(i));
+        if (i >= count_) throw std::out_of_range("RingBuffer::at: index " + std::to_string(i));
         return (*this)[i];
     }
 
     template <typename F>
-    void zaSvaki(F&& f) const {
-        for (std::size_t i = 0; i < broj_; ++i) f((*this)[i]);
+    void forEach(F&& f) const {
+        for (std::size_t i = 0; i < count_; ++i) f((*this)[i]);
     }
 
 private:
     // Mesto za sledeći element: posle poslednjeg, ili najstariji ako je pun.
-    T& mesto() {
-        if (broj_ < N) return podaci_[(pocetak_ + broj_++) % N];
-        T& m = podaci_[pocetak_];
-        pocetak_ = (pocetak_ + 1) % N;
+    T& slot() {
+        if (count_ < N) return data_[(start_ + count_++) % N];
+        T& m = data_[start_];
+        start_ = (start_ + 1) % N;
         return m;
     }
 
-    std::array<T, N> podaci_{};
-    std::size_t pocetak_ = 0;
-    std::size_t broj_ = 0;
+    std::array<T, N> data_{};
+    std::size_t start_ = 0;
+    std::size_t count_ = 0;
 };
 
 // Tip koji broji kopije i premeštanja (deo 3).
-struct Pracen {
-    static inline int kopija = 0, premestanja = 0;
-    std::string tekst;
-    Pracen() = default;
-    explicit Pracen(std::string t) : tekst(std::move(t)) {}
-    Pracen(const Pracen& o) : tekst(o.tekst) { ++kopija; }
-    Pracen(Pracen&& o) noexcept : tekst(std::move(o.tekst)) { ++premestanja; }
-    Pracen& operator=(const Pracen& o) {
-        tekst = o.tekst;
-        ++kopija;
+struct Tracked {
+    static inline int copies = 0, moves = 0;
+    std::string text;
+    Tracked() = default;
+    explicit Tracked(std::string t) : text(std::move(t)) {}
+    Tracked(const Tracked& o) : text(o.text) { ++copies; }
+    Tracked(Tracked&& o) noexcept : text(std::move(o.text)) { ++moves; }
+    Tracked& operator=(const Tracked& o) {
+        text = o.text;
+        ++copies;
         return *this;
     }
-    Pracen& operator=(Pracen&& o) noexcept {
-        tekst = std::move(o.tekst);
-        ++premestanja;
+    Tracked& operator=(Tracked&& o) noexcept {
+        text = std::move(o.text);
+        ++moves;
         return *this;
     }
 };
 
 // ---------------------------------------------------------------- korak 2
-struct Merenje {
-    std::string kanal;
+struct Measurement {
+    std::string channel;
     double v = 0;
-    double vrednost() const { return v; }
+    double value() const { return v; }
 };
 
 // Sopstveni trait: koji tipovi su "merenje" (imaju vrednost()).
 template <typename T>
-struct JeMerenje : std::false_type {};
+struct IsMeasurement : std::false_type {};
 template <>
-struct JeMerenje<Merenje> : std::true_type {};
+struct IsMeasurement<Measurement> : std::true_type {};
 template <typename T>
-inline constexpr bool jeMerenje_v = JeMerenje<T>::value;
+inline constexpr bool isMeasurement_v = IsMeasurement<T>::value;
 
 template <typename T>
-double vrednostOd(const T& x) {
+double valueOf(const T& x) {
     if constexpr (std::is_arithmetic_v<T>) {
         return static_cast<double>(x);
     } else {
-        static_assert(jeMerenje_v<T>, "vrednostOd: tip nije broj ni merenje");
-        return x.vrednost();
+        static_assert(isMeasurement_v<T>, "valueOf: type is neither a number nor a measurement");
+        return x.value();
     }
 }
 
 template <typename T, std::size_t N>
-double prosek(const KruzniBafer<T, N>& b) {
-    if (b.prazan()) return 0;
-    double zbir = 0;
-    b.zaSvaki([&zbir](const T& x) { zbir += vrednostOd(x); });
-    return zbir / static_cast<double>(b.size());
+double average(const RingBuffer<T, N>& b) {
+    if (b.empty()) return 0;
+    double total = 0;
+    b.forEach([&total](const T& x) { total += valueOf(x); });
+    return total / static_cast<double>(b.size());
 }
 
 // ---------------------------------------------------------------- korak 3
 template <typename B, typename... Ts>
-void dodajSve(B& b, Ts&&... xs) {
-    (b.dodaj(std::forward<Ts>(xs)), ...);                 // fold po zarezu, redom
+void pushAll(B& b, Ts&&... xs) {
+    (b.push(std::forward<Ts>(xs)), ...);                 // fold po zarezu, redom
 }
 
 // [[maybe_unused]]: za prazan paket fold ne koristi min i max, i g++ bi
 // upozorio "set but not used".
 template <typename... Ts>
-bool sviUOpsegu([[maybe_unused]] double min, [[maybe_unused]] double max, const Ts&... xs) {
-    return ((vrednostOd(xs) >= min && vrednostOd(xs) <= max) && ...);   // prazan paket: true
+bool allInRange([[maybe_unused]] double min, [[maybe_unused]] double max, const Ts&... xs) {
+    return ((valueOf(xs) >= min && valueOf(xs) <= max) && ...);   // prazan paket: true
 }
 
 // ---------------------------------------------------------------- korak 4
-// Opseg kao agregat: u C++17 CTAD za agregat traži deduction guide.
+// Range kao agregat: u C++17 CTAD za agregat traži deduction guide.
 template <typename T>
-struct Opseg {
+struct Range {
     T min, max;
-    bool sadrzi(const T& x) const { return !(x < min) && !(max < x); }
+    bool contains(const T& x) const { return !(x < min) && !(max < x); }
 };
 template <typename T>
-Opseg(T, T) -> Opseg<T>;
+Range(T, T) -> Range<T>;
 
-// Formater: opšti slučaj ispiše vrednost, delimična specijalizacija za
+// Formatter: opšti slučaj ispiše vrednost, delimična specijalizacija za
 // pokazivače ispiše ono na šta pokazuje, a potpuna za std::string stavi navodnike.
 template <typename T>
-struct Formater {
-    static void ispisi(std::ostream& out, const T& x) { out << x; }
+struct Formatter {
+    static void print(std::ostream& out, const T& x) { out << x; }
 };
 template <typename T>
-struct Formater<T*> {
-    static void ispisi(std::ostream& out, T* p) {
+struct Formatter<T*> {
+    static void print(std::ostream& out, T* p) {
         if (p)
             out << '*' << *p;
         else
@@ -149,68 +149,68 @@ struct Formater<T*> {
     }
 };
 template <>
-struct Formater<std::string> {
-    static void ispisi(std::ostream& out, const std::string& s) { out << '"' << s << '"'; }
+struct Formatter<std::string> {
+    static void print(std::ostream& out, const std::string& s) { out << '"' << s << '"'; }
 };
 
 template <typename T, std::size_t N>
-void ispisi(const char* naslov, const KruzniBafer<T, N>& b) {
-    std::cout << naslov << " [" << b.size() << '/' << b.kapacitet() << "]:";
-    b.zaSvaki([](const T& x) {
+void print(const char* title, const RingBuffer<T, N>& b) {
+    std::cout << title << " [" << b.size() << '/' << b.capacity() << "]:";
+    b.forEach([](const T& x) {
         std::cout << ' ';
-        Formater<T>::ispisi(std::cout, x);
+        Formatter<T>::print(std::cout, x);
     });
     std::cout << '\n';
 }
 
 template <typename T>
-using Bafer4 = KruzniBafer<T, 4>;                         // alias šablon
+using Buffer4 = RingBuffer<T, 4>;                         // alias šablon
 
 int main() {
-    std::cout << std::boolalpha << "== korak 1: bafer, prepisivanje, kopije i premeštanja\n";
-    KruzniBafer<int, 3> b;
-    for (int i = 1; i <= 5; ++i) b.dodaj(i);
-    std::cout << "posle 1..5:";
-    b.zaSvaki([](int v) { std::cout << ' ' << v; });
-    std::cout << " (size " << b.size() << '/' << b.kapacitet() << ")\n";
-    std::cout << "pun " << b.pun() << ", najstariji " << b[0] << '\n';
+    std::cout << std::boolalpha << "== step 1: buffer, overwriting, copies and moves\n";
+    RingBuffer<int, 3> b;
+    for (int i = 1; i <= 5; ++i) b.push(i);
+    std::cout << "after 1..5:";
+    b.forEach([](int v) { std::cout << ' ' << v; });
+    std::cout << " (size " << b.size() << '/' << b.capacity() << ")\n";
+    std::cout << "full " << b.full() << ", oldest " << b[0] << '\n';
     try {
         b.at(3);
     } catch (const std::out_of_range& e) {
         std::cout << "at(3): " << e.what() << '\n';
     }
-    KruzniBafer<Pracen, 2> p;
-    Pracen x("a");
-    p.dodaj(x);                                           // kopija
-    p.dodaj(Pracen("b"));                                 // premeštanje privremenog
-    p.emplace("c");                                       // prepisuje "a": pravi Pracen, pa ga premesti
-    std::cout << "Pracen: kopija " << Pracen::kopija << ", premeštanja " << Pracen::premestanja << ", sadržaj "
-              << p[0].tekst << ' ' << p[1].tekst << '\n';
+    RingBuffer<Tracked, 2> p;
+    Tracked x("a");
+    p.push(x);                                           // kopija
+    p.push(Tracked("b"));                                 // premeštanje privremenog
+    p.emplace("c");                                       // prepisuje "a": pravi Tracked, pa ga premesti
+    std::cout << "Tracked: copies " << Tracked::copies << ", moves " << Tracked::moves << ", contents "
+              << p[0].text << ' ' << p[1].text << '\n';
 
-    std::cout << "== korak 2: prosek preko trait-a i if constexpr\n";
-    KruzniBafer<Merenje, 3> m;
-    m.emplace(Merenje{"temp", 21.5});
-    m.emplace(Merenje{"temp", 22.5});
-    std::cout << "prosek int: " << prosek(b) << ", prosek merenja: " << prosek(m) << '\n';
+    std::cout << "== step 2: average via a trait and if constexpr\n";
+    RingBuffer<Measurement, 3> m;
+    m.emplace(Measurement{"temp", 21.5});
+    m.emplace(Measurement{"temp", 22.5});
+    std::cout << "average int: " << average(b) << ", average of measurements: " << average(m) << '\n';
 
-    std::cout << "== korak 3: variadic i fold\n";
-    dodajSve(b, 10, 20);
-    std::cout << "posle dodajSve(10, 20):";
-    b.zaSvaki([](int v) { std::cout << ' ' << v; });
+    std::cout << "== step 3: variadic and fold\n";
+    pushAll(b, 10, 20);
+    std::cout << "after pushAll(10, 20):";
+    b.forEach([](int v) { std::cout << ' ' << v; });
     std::cout << '\n';
-    std::cout << "sviUOpsegu(0, 50, 10, 20.5, merenje 21.5): " << sviUOpsegu(0, 50, 10, 20.5, m[0])
-              << ", sa 60: " << sviUOpsegu(0, 50, 10, 60) << ", bez argumenata: " << sviUOpsegu(0, 50) << '\n';
+    std::cout << "allInRange(0, 50, 10, 20.5, measurement 21.5): " << allInRange(0, 50, 10, 20.5, m[0])
+              << ", with 60: " << allInRange(0, 50, 10, 60) << ", no arguments: " << allInRange(0, 50) << '\n';
 
-    std::cout << "== korak 4: CTAD, specijalizacije, alias\n";
-    Opseg o{0.0, 50.0};
-    static_assert(std::is_same_v<decltype(o), Opseg<double>>);
-    std::cout << "Opseg{0.0, 50.0} sadrži 21.5: " << o.sadrzi(21.5) << ", 60: " << o.sadrzi(60.0) << '\n';
-    Bafer4<std::string> imena;
-    dodajSve(imena, std::string("temp"), std::string("vlaga"));
-    imena.emplace(3, 'x');
-    ispisi("string", imena);
+    std::cout << "== step 4: CTAD, specializations, alias\n";
+    Range o{0.0, 50.0};
+    static_assert(std::is_same_v<decltype(o), Range<double>>);
+    std::cout << "Range{0.0, 50.0} contains 21.5: " << o.contains(21.5) << ", 60: " << o.contains(60.0) << '\n';
+    Buffer4<std::string> names;
+    pushAll(names, std::string("temp"), std::string("humidity"));
+    names.emplace(3, 'x');
+    print("string", names);
     int a = 7, c = 9;
-    KruzniBafer<int*, 3> pok;
-    dodajSve(pok, &a, nullptr, &c);
-    ispisi("int*", pok);
+    RingBuffer<int*, 3> ptrs;
+    pushAll(ptrs, &a, nullptr, &c);
+    print("int*", ptrs);
 }

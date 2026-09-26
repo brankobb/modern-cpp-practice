@@ -41,17 +41,17 @@ Function Templates?".
 
 ```cpp
 template <typename T>          // "typename" i "class" su ovde isto
-T maks(T a, T b) {
+T maxOf(T a, T b) {
     return b < a ? a : b;      // traži samo operator<
 }
 
-maks(3, 7);                    // kompajler napravi int maks<int>(int, int)
-maks(2.5, 1.5);                // i double maks<double>(double, double)
+maxOf(3, 7);                    // kompajler napravi int maxOf<int>(int, int)
+maxOf(2.5, 1.5);                // i double maxOf<double>(double, double)
 ```
 
 - Šablon **nije funkcija**. Funkcija nastaje **instancijacijom**: kad
   kompajler vidi poziv, zameni `T` pravim tipom i prevede telo.
-- Šablon ne postavlja uslove unapred: `maks` radi za svaki tip za koji
+- Šablon ne postavlja uslove unapred: `maxOf` radi za svaki tip za koji
   `b < a` ima smisla (`int`, `double`, `std::string`...). Za tip bez
   `operator<` greška je pri instancijaciji (sekcija 3).
 - ⚠️ "Ima smisla" je za kompajler samo sintaksa: za `const char*`
@@ -66,18 +66,18 @@ maks(2.5, 1.5);                // i double maks<double>(double, double)
   sekcija 2). Za `T` po vrednosti: `const` i referenca se odbacuju, niz i
   funkcija postaju pokazivač.
 - ❌ Svaki argument mora da da **isti** `T`, a dedukcija ne radi
-  konverzije: `maks(1, 2.5)` ne prolazi (`errors/e01`: "deduced
+  konverzije: `maxOf(1, 2.5)` ne prolazi (`errors/e01`: "deduced
   conflicting types for parameter 'T'").
-- ✅ Eksplicitan argument: `maks<double>(1, 2.5)`. Kad je `T` zadat, na
+- ✅ Eksplicitan argument: `maxOf<double>(1, 2.5)`. Kad je `T` zadat, na
   argumentima rade obične konverzije (test).
 - Povratni tip se ne koristi za dedukciju. Parametar koji se ne može
   dedukovati mora da se navede (ili da ima podrazumevanu vrednost):
 
   ```cpp
-  template <typename Izlaz = double, typename T>
-  Izlaz prosek(const T* niz, std::size_t n);
-  prosek(niz, 3);        // Izlaz = double (podrazumevano), T = int (dedukcija)
-  prosek<int>(niz, 3);   // Izlaz = int, T i dalje iz argumenta
+  template <typename Out = double, typename T>
+  Out average(const T* arr, std::size_t n);
+  average(arr, 3);        // Out = double (podrazumevano), T = int (dedukcija)
+  average<int>(arr, 3);   // Out = int, T i dalje iz argumenta
   ```
 
 ---
@@ -85,31 +85,31 @@ maks(2.5, 1.5);                // i double maks<double>(double, double)
 # 3. Instancijacija i two-phase lookup
 
 - Svaka kombinacija argumenata šablona je **posebna funkcija**, sa svojim
-  kodom i svojim `static` promenljivama (test: `brojPoziva<int>` broji
-  do 3, a `brojPoziva<double>` je posebno na 1).
-- ⚠️ Posledica je veći izvršni fajl ("code bloat"): `kvadrati<5>` i
-  `kvadrati<6>` su dve funkcije. Na mikrokontroleru sa malo flash-a to se
+  kodom i svojim `static` promenljivama (test: `callCount<int>` broji
+  do 3, a `callCount<double>` je posebno na 1).
+- ⚠️ Posledica je veći izvršni fajl ("code bloat"): `squares<5>` i
+  `squares<6>` su dve funkcije. Na mikrokontroleru sa malo flash-a to se
   meri.
 - **Two-phase lookup** (`[temp.res]`): delovi tela koji ne zavise od `T`
   proveravaju se odmah, a izrazi koji zavise od `T` tek pri
-  instancijaciji. Zato je `duzina(const T& t) { return t.size(); }`
-  ispravan šablon, a greška se javi tek za `duzina(5)`, i to **unutar
+  instancijaciji. Zato je `length(const T& t) { return t.size(); }`
+  ispravan šablon, a greška se javi tek za `length(5)`, i to **unutar
   šablona** (`errors/e02`). Kod velikih šablona to su poruke od stotinu
   redova -- zato se šabloni ograničavaju (`static_assert`, lekcija 28; C++20
   concepts).
 
-**Definicija u header-u.** Da bi instancirao `maks<int>`, kompajler mora
+**Definicija u header-u.** Da bi instancirao `maxOf<int>`, kompajler mora
 da vidi **telo** šablona na mestu poziva:
 
-- ❌ Deklaracija u `.h`, definicija u `.cpp`: fajl koji poziva `maks<int>`
+- ❌ Deklaracija u `.h`, definicija u `.cpp`: fajl koji poziva `maxOf<int>`
   očekuje je negde drugde, a `.cpp` sa definicijom je ne instancira jer
-  je ne koristi. Linker: "undefined reference to `int maks<int>(int,
+  je ne koristi. Linker: "undefined reference to `int maxOf<int>(int,
   int)'" (`errors/e07`).
 - ✅ Ceo šablon u header-u. Šabloni su izuzetak od ODR-a kao `inline`
   (lekcija 08): ista instancijacija u više `.cpp` fajlova nije greška.
 - ✅ Za unapred poznat skup tipova: **eksplicitna instancijacija** u `.cpp`
-  (`template int maks<int>(int, int);`), a u header-u
-  `extern template int maks<int>(int, int);` da je drugi fajlovi ne
+  (`template int maxOf<int>(int, int);`), a u header-u
+  `extern template int maxOf<int>(int, int);` da je drugi fajlovi ne
   instanciraju ponovo.
 
 ---
@@ -117,9 +117,9 @@ da vidi **telo** šablona na mestu poziva:
 # 4. Eksplicitni i podrazumevani argumenti
 
 ```cpp
-maks<double>(1, 2.5);    // T zadat, argumenti se konvertuju
-maks<>(3, 4);            // <> -- samo šablon, ne i ne-šablon overload (sekcija 5)
-prosek<int>(niz, 3);     // zadat prvi parametar, ostali se dedukuju
+maxOf<double>(1, 2.5);    // T zadat, argumenti se konvertuju
+maxOf<>(3, 4);            // <> -- samo šablon, ne i ne-šablon overload (sekcija 5)
+average<int>(arr, 3);     // zadat prvi parametar, ostali se dedukuju
 ```
 
 Parametri šablona se zadaju sleva nadesno; oni koje ne zadaš se
@@ -132,15 +132,15 @@ dedukuju ili uzimaju podrazumevanu vrednost.
 **Eksplicitna (potpuna) specijalizacija** daje drugo telo za jedan tip:
 
 ```cpp
-template <typename T> std::string opisi(const T&) { return "nešto"; }
-template <> std::string opisi<bool>(const bool& b) { return b ? "da" : "ne"; }
+template <typename T> std::string describe(const T&) { return "something"; }
+template <> std::string describe<bool>(const bool& b) { return b ? "yes" : "no"; }
 ```
 
 **Overload** (obična funkcija ili drugi šablon istog imena) je drugi
 način da jedan tip dobije drugačije ponašanje:
 
 ```cpp
-const char* maks(const char* a, const char* b);   // ne-šablon, poredi strcmp-om
+const char* maxOf(const char* a, const char* b);   // ne-šablon, poredi strcmp-om
 ```
 
 Kako se bira (`[over.match.best]`):
@@ -152,11 +152,11 @@ Kako se bira (`[over.match.best]`):
    eksplicitna specijalizacija za te argumente.
 
 ⚠️ Zato specijalizacija funkcijskog šablona iznenađuje: ona pripada šablonu
-koji je bio **vidljiv kad je napisana**. Sa `obradi(T)` i `obradi(T*)`,
-specijalizacija `template<> void obradi<>(int*)` napisana između njih
-specijalizuje `obradi(T)`, a poziv `obradi(&x)` izabere `obradi(T*)` -- i
+koji je bio **vidljiv kad je napisana**. Sa `process(T)` i `process(T*)`,
+specijalizacija `template<> void process<>(int*)` napisana između njih
+specijalizuje `process(T)`, a poziv `process(&x)` izabere `process(T*)` -- i
 specijalizacija se ne pozove. Ista specijalizacija napisana posle
-`obradi(T*)` se pozove (test, oba kompajlera; zadatak ex3).
+`process(T*)` se pozove (test, oba kompajlera; zadatak ex3).
 
 - ✅ Za funkcije: **overload** umesto specijalizacije (T.144). Ne-šablon je
   predvidljiv i ne zavisi od redosleda.
@@ -173,19 +173,19 @@ specijalizacija se ne pozove. Ista specijalizacija napisana posle
 
 ```cpp
 template <typename T, std::size_t N>
-constexpr std::size_t velicina(const T (&)[N]) { return N; }   // N iz tipa niza
+constexpr std::size_t arraySize(const T (&)[N]) { return N; }   // N iz tipa niza
 
 template <int Min, int Max>
-int ogranici(int x);                                           // ogranici<0, 100>(150) == 100
+int clampTo(int x);                                           // clampTo<0, 100>(150) == 100
 
 template <auto V>                                              // C++17: tip iz vrednosti
-constexpr auto vrednost() { return V; }                        // vrednost<'x'>(), vrednost<42u>()
+constexpr auto valueOf() { return V; }                        // valueOf<'x'>(), valueOf<42u>()
 ```
 
 - Parametar šablona može biti i **vrednost**: celobrojna, `enum`,
   pokazivač, referenca, `nullptr_t`. Od C++20 i `double` i jednostavne
   klase; u C++17 `double` nije dozvoljen (`errors/e04`).
-- ❌ Argument mora biti **konstantni izraz**: `puta<n>(3)` sa `n` iz
+- ❌ Argument mora biti **konstantni izraz**: `times<n>(3)` sa `n` iz
   `argc` ne prolazi (`errors/e03`).
 - ✅ Zašto vrednost u šablonu, a ne parametar funkcije: poznata je pri
   kompajliranju, pa može da bude veličina niza (`std::array<int, N>`), da
@@ -248,8 +248,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_genericke_funkcije`](exercises/ex1_genericke_funkcije.cpp) | usage | funkcijski šabloni, dedukcija i ne-tipski parametri (sekcije 1, 2, 4, 6) | — |
-| [`ex2_pokazivaci_u_sablonu`](exercises/ex2_pokazivaci_u_sablonu.cpp) | why | zašto opšti šablon "radi" i kad ne treba (sekcije 1, 5) | `-DNAIVE` |
-| [`ex3_specijalizacija_ili_overload`](exercises/ex3_specijalizacija_ili_overload.cpp) | why | zašto overload umesto eksplicitne specijalizacije funkcijskog šablona (sekcija 5) | `-DNAIVE` |
+| [`ex1_generic_functions`](exercises/ex1_generic_functions.cpp) | usage | funkcijski šabloni, dedukcija i ne-tipski parametri (sekcije 1, 2, 4, 6) | — |
+| [`ex2_pointers_in_template`](exercises/ex2_pointers_in_template.cpp) | why | zašto opšti šablon "radi" i kad ne treba (sekcije 1, 5) | `-DNAIVE` |
+| [`ex3_specialization_or_overload`](exercises/ex3_specialization_or_overload.cpp) | why | zašto overload umesto eksplicitne specijalizacije funkcijskog šablona (sekcija 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

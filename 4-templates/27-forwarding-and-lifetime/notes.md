@@ -73,8 +73,8 @@ Unutar funkcije parametar ima ime, pa je **lvalue** (lekcija 22, sekcija 5).
 poziva: rvalue ako je `T` bez reference, lvalue ako je `T` referenca.
 
 ```
-bez forward: lvalue -> inner(const&), rvalue -> inner(const&)   <- move izgubljen
-sa forward:  lvalue -> inner(const&), rvalue -> inner(&&)
+without forward: lvalue -> inner(const&), rvalue -> inner(const&)   <- move izgubljen
+with forward:    lvalue -> inner(const&), rvalue -> inner(&&)
 ```
 
 | Parametar | Kad ga predaješ dalje |
@@ -115,7 +115,7 @@ konkretan pokazivač na funkciju ili lambda, `nullptr` umesto `0`.
 ```cpp
 std::string_view word = firstWord(sentence);   // ✅ sentence živi duže
 std::string_view literal = "string literal";   // ✅ literal živi ceo program
-std::string_view view = makeGreeting("Ana");   // ❌ privremeni string nestaje na ; (ub/u01)
+std::string_view view = makeGreeting("Ann");   // ❌ privremeni string nestaje na ; (ub/u01)
 ```
 
 - `string_view` je pokazivač + dužina. Produženje života privremenog
@@ -196,9 +196,9 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_savrseno_prosledjivanje`](exercises/ex1_savrseno_prosledjivanje.cpp) | usage | forwarding reference, std::forward i variadic template (sekcije 1, 3) | — |
-| [`ex2_move_na_forwarding`](exercises/ex2_move_na_forwarding.cpp) | why | zašto std::forward, a ne std::move, na forwarding referenci (sekcije 1, 3, EMC Item 25) | `-DNAIVE` |
-| [`ex3_lambda_referenca`](exercises/ex3_lambda_referenca.cpp) | why | zašto [&] u lambdi koja nadživi funkciju visi (sekcija 7, EMC Item 31) | `-DNAIVE` |
+| [`ex1_perfect_forwarding`](exercises/ex1_perfect_forwarding.cpp) | usage | forwarding reference, std::forward i variadic template (sekcije 1, 3) | — |
+| [`ex2_move_on_forwarding`](exercises/ex2_move_on_forwarding.cpp) | why | zašto std::forward, a ne std::move, na forwarding referenci (sekcije 1, 3, EMC Item 25) | `-DNAIVE` |
+| [`ex3_lambda_reference`](exercises/ex3_lambda_reference.cpp) | why | zašto [&] u lambdi koja nadživi funkciju visi (sekcija 7, EMC Item 31) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

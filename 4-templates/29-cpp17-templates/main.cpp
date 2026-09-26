@@ -21,31 +21,31 @@
 
 // ---------------------------------------------------------------- 1
 template <typename T>
-struct Merenje {
-    std::string senzor;
-    T vrednost;
-    Merenje(std::string s, T v) : senzor(std::move(s)), vrednost(v) {}
+struct Measurement {
+    std::string sensor;
+    T value;
+    Measurement(std::string s, T v) : sensor(std::move(s)), value(v) {}
 };
 
 template <typename T>
-struct Opseg {
-    std::vector<T> elementi;
+struct Range {
+    std::vector<T> items;
     template <typename It>
-    Opseg(It prvi, It poslednji) : elementi(prvi, poslednji) {}
+    Range(It first, It last) : items(first, last) {}
 };
 // Iz konstruktora se T ne vidi (It nije T) -- deduction guide kaže kako:
 template <typename It>
-Opseg(It, It) -> Opseg<typename std::iterator_traits<It>::value_type>;
+Range(It, It) -> Range<typename std::iterator_traits<It>::value_type>;
 
 template <typename T>
-struct Par {                     // agregat: nema konstruktor
-    T prvi, drugi;
+struct Pair {                     // agregat: nema konstruktor
+    T first, second;
 };
 template <typename T>
-Par(T, T) -> Par<T>;             // C++17 agregat bez ovoga: errors/e02 (C++20 ne treba)
+Pair(T, T) -> Pair<T>;             // C++17 agregat bez ovoga: errors/e02 (C++20 ne treba)
 
-void sekcija1() {
-    std::cout << "\n== 1. CTAD: argumenti šablona klase iz konstruktora\n";
+void section1() {
+    std::cout << "\n== 1. CTAD: class template arguments from the constructor\n";
     std::pair p{1, 2.5};                       // pair<int, double>
     std::tuple t{1, 'x', 3.0};                 // tuple<int, char, double>
     std::vector v{1, 2, 3};                    // vector<int>
@@ -60,18 +60,18 @@ void sekcija1() {
     static_assert(std::is_same_v<decltype(a), std::array<int, 3>>);
     static_assert(std::is_same_v<decltype(o), std::optional<int>>);
     static_assert(std::is_same_v<decltype(f), std::function<double(int)>>);
-    std::cout << "pair, tuple, vector, array, optional, lock_guard, function: tipovi provereni\n";
+    std::cout << "pair, tuple, vector, array, optional, lock_guard, function: types checked\n";
 
-    Merenje m1{"temp", 21.5};                  // Merenje<double>, iz konstruktora
-    static_assert(std::is_same_v<decltype(m1), Merenje<double>>);
-    std::cout << "Merenje{\"temp\", 21.5}: " << m1.senzor << ' ' << m1.vrednost << '\n';
+    Measurement m1{"temp", 21.5};                  // Measurement<double>, iz konstruktora
+    static_assert(std::is_same_v<decltype(m1), Measurement<double>>);
+    std::cout << "Measurement{\"temp\", 21.5}: " << m1.sensor << ' ' << m1.value << '\n';
 
-    std::vector<int> izvor{4, 5, 6};
-    Opseg r(izvor.begin(), izvor.end());       // Opseg<int>, preko deduction guide-a
-    static_assert(std::is_same_v<decltype(r), Opseg<int>>);
-    Par par{3, 4};
-    static_assert(std::is_same_v<decltype(par), Par<int>>);
-    std::cout << "Opseg iz iteratora: " << r.elementi.size() << " elementa; Par{3, 4}: " << par.prvi + par.drugi
+    std::vector<int> source{4, 5, 6};
+    Range r(source.begin(), source.end());       // Range<int>, preko deduction guide-a
+    static_assert(std::is_same_v<decltype(r), Range<int>>);
+    Pair pr{3, 4};
+    static_assert(std::is_same_v<decltype(pr), Pair<int>>);
+    std::cout << "Range from iterators: " << r.items.size() << " elements; Pair{3, 4}: " << pr.first + pr.second
               << '\n';
 
     // ⚠️ Zamke:
@@ -91,182 +91,182 @@ void sekcija1() {
 
 // ---------------------------------------------------------------- 2
 template <typename... T>
-int desnoUnarni(T... a) { return (a - ...); }          // a1 - (a2 - a3)
+int rightUnary(T... a) { return (a - ...); }          // a1 - (a2 - a3)
 template <typename... T>
-int levoUnarni(T... a) { return (... - a); }           // (a1 - a2) - a3
+int leftUnary(T... a) { return (... - a); }           // (a1 - a2) - a3
 template <typename... T>
-int desnoBinarni(T... a) { return (a - ... - 100); }   // a1 - (a2 - (a3 - 100))
+int rightBinary(T... a) { return (a - ... - 100); }   // a1 - (a2 - (a3 - 100))
 template <typename... T>
-int levoBinarni(T... a) { return (100 - ... - a); }    // ((100 - a1) - a2) - a3
+int leftBinary(T... a) { return (100 - ... - a); }    // ((100 - a1) - a2) - a3
 
 template <typename... T>
-bool svi(T... a) { return (... && a); }
+bool allTrue(T... a) { return (... && a); }
 template <typename... T>
-bool bar_jedan(T... a) { return (... || a); }
+bool anyTrue(T... a) { return (... || a); }
 template <typename... T>
-int zbir(T... a) { return (0 + ... + a); }             // binarni: radi i za prazan paket
+int sum(T... a) { return (0 + ... + a); }             // binarni: radi i za prazan paket
 
-void sekcija2() {
-    std::cout << "\n== 2. fold izrazi: četiri oblika\n";
-    std::cout << "(a - ...)       za 10, 3, 2: " << desnoUnarni(10, 3, 2) << '\n';
-    std::cout << "(... - a)       za 10, 3, 2: " << levoUnarni(10, 3, 2) << '\n';
-    std::cout << "(a - ... - 100) za 10, 3, 2: " << desnoBinarni(10, 3, 2) << '\n';
-    std::cout << "(100 - ... - a) za 10, 3, 2: " << levoBinarni(10, 3, 2) << '\n';
-    std::cout << "za + redosled ne menja rezultat: " << zbir(10, 3, 2) << '\n';
+void section2() {
+    std::cout << "\n== 2. fold expressions: four forms\n";
+    std::cout << "(a - ...)       for 10, 3, 2: " << rightUnary(10, 3, 2) << '\n';
+    std::cout << "(... - a)       for 10, 3, 2: " << leftUnary(10, 3, 2) << '\n';
+    std::cout << "(a - ... - 100) for 10, 3, 2: " << rightBinary(10, 3, 2) << '\n';
+    std::cout << "(100 - ... - a) for 10, 3, 2: " << leftBinary(10, 3, 2) << '\n';
+    std::cout << "for + the order does not change the result: " << sum(10, 3, 2) << '\n';
 
-    std::cout << "prazan paket: && -> " << svi() << ", || -> " << bar_jedan() << ", (0 + ... + a) -> " << zbir()
+    std::cout << "empty pack: && -> " << allTrue() << ", || -> " << anyTrue() << ", (0 + ... + a) -> " << sum()
               << '\n';
-    std::cout << "svi(true, 1, 2 > 1) = " << svi(true, 1, 2 > 1) << ", bar_jedan(false, 0) = " << bar_jedan(false, 0)
+    std::cout << "allTrue(true, 1, 2 > 1) = " << allTrue(true, 1, 2 > 1) << ", anyTrue(false, 0) = " << anyTrue(false, 0)
               << '\n';
 }
 
 // ---------------------------------------------------------------- 3
 template <typename... T>
-void ispisi(const T&... a) {
+void print(const T&... a) {
     const char* sep = "";
     ((std::cout << sep << a, sep = ", "), ...);        // zarez: redom, s leva na desno
     std::cout << '\n';
 }
 
 template <typename... T>
-void spoji(const T&... a) {
+void concat(const T&... a) {
     (std::cout << ... << a) << '\n';                   // binarni levi: ((cout << a1) << a2) ...
 }
 
 template <typename C, typename... T>
-void dodajSve(C& c, T&&... a) {
+void pushAll(C& c, T&&... a) {
     (c.push_back(std::forward<T>(a)), ...);
 }
 
 template <typename... T>
-int brojPozitivnih(T... a) { return ((a > 0) + ... + 0); }
+int countPositive(T... a) { return ((a > 0) + ... + 0); }
 
 template <typename... T>
-constexpr bool sviCeli = (std::is_integral_v<T> && ...);   // fold nad TIPOVIMA
+constexpr bool allIntegral = (std::is_integral_v<T> && ...);   // fold nad TIPOVIMA
 
-void sekcija3() {
-    std::cout << "\n== 3. fold u praksi: zarez, <<, poziv po elementu\n";
-    ispisi(1, "dva", 3.5, 'c');
-    std::cout << "binarni << fold: ";
-    spoji(21, "C", '/', 3.5);
-    std::vector<std::string> imena;
-    dodajSve(imena, "temp", std::string("vlaga"), "pritisak");
-    std::cout << "dodajSve: " << imena.size() << " elementa, poslednji " << imena.back() << '\n';
-    std::cout << "brojPozitivnih(3, -1, 4, 0, 5) = " << brojPozitivnih(3, -1, 4, 0, 5) << '\n';
-    static_assert(sviCeli<int, char, long>);
-    static_assert(!sviCeli<int, double>);
-    std::cout << "sviCeli<int, char, long> = " << sviCeli<int, char, long> << '\n';
+void section3() {
+    std::cout << "\n== 3. fold in practice: comma, <<, a call per element\n";
+    print(1, "two", 3.5, 'c');
+    std::cout << "binary << fold: ";
+    concat(21, "C", '/', 3.5);
+    std::vector<std::string> names;
+    pushAll(names, "temp", std::string("humidity"), "pressure");
+    std::cout << "pushAll: " << names.size() << " elements, last " << names.back() << '\n';
+    std::cout << "countPositive(3, -1, 4, 0, 5) = " << countPositive(3, -1, 4, 0, 5) << '\n';
+    static_assert(allIntegral<int, char, long>);
+    static_assert(!allIntegral<int, double>);
+    std::cout << "allIntegral<int, char, long> = " << allIntegral<int, char, long> << '\n';
 }
 
 // ---------------------------------------------------------------- 4
 // Kako su _v i _t napravljeni (isto kao u <type_traits>):
 template <typename T>
-struct JeString : std::false_type {};
+struct IsString : std::false_type {};
 template <>
-struct JeString<std::string> : std::true_type {};
+struct IsString<std::string> : std::true_type {};
 template <typename T>
-inline constexpr bool jeString_v = JeString<T>::value;       // C++17: variable template
+inline constexpr bool isString_v = IsString<T>::value;       // C++17: variable template
 
 template <typename T>
-struct BezPokazivaca {
+struct RemoveAllPointers {
     using type = T;
 };
 template <typename T>
-struct BezPokazivaca<T*> {
-    using type = typename BezPokazivaca<T>::type;             // rekurzivno: int** -> int
+struct RemoveAllPointers<T*> {
+    using type = typename RemoveAllPointers<T>::type;             // rekurzivno: int** -> int
 };
 template <typename T>
-using bezPokazivaca_t = typename BezPokazivaca<T>::type;      // C++14: alias template
+using removeAllPointers_t = typename RemoveAllPointers<T>::type;      // C++14: alias template
 
 template <typename T>
-void tipovi(T&&) {
+void checkTypes(T&&) {
     // Duži oblik: ::value, i typename ispred ::type (errors/e06).
-    using Duze = typename std::remove_reference<T>::type;
-    using Krace = std::remove_reference_t<T>;
-    static_assert(std::is_same<Duze, Krace>::value == std::is_same_v<Duze, Krace>);
+    using Longer = typename std::remove_reference<T>::type;
+    using Shorter = std::remove_reference_t<T>;
+    static_assert(std::is_same<Longer, Shorter>::value == std::is_same_v<Longer, Shorter>);
 }
 
-void sekcija4() {
-    std::cout << "\n== 4. type traits: sufiksi _v i _t\n";
+void section4() {
+    std::cout << "\n== 4. type traits: suffixes _v and _t\n";
     static_assert(std::is_integral<int>::value == std::is_integral_v<int>);
     static_assert(std::is_same_v<std::remove_const_t<const int>, int>);
     int x = 0;
-    tipovi(x);
-    tipovi(5);
-    static_assert(jeString_v<std::string> && !jeString_v<const char*>);
-    static_assert(std::is_same_v<bezPokazivaca_t<int**>, int>);
-    std::cout << "is_integral_v<int> = " << std::is_integral_v<int> << ", jeString_v<std::string> = "
-              << jeString_v<std::string> << ", bezPokazivaca_t<int**> je int\n";
+    checkTypes(x);
+    checkTypes(5);
+    static_assert(isString_v<std::string> && !isString_v<const char*>);
+    static_assert(std::is_same_v<removeAllPointers_t<int**>, int>);
+    std::cout << "is_integral_v<int> = " << std::is_integral_v<int> << ", isString_v<std::string> = "
+              << isString_v<std::string> << ", removeAllPointers_t<int**> is int\n";
 }
 
 // ---------------------------------------------------------------- 5
 template <typename T>
-std::string uTekst(const T& x) {
+std::string toText(const T& x) {
     if constexpr (std::is_same_v<T, bool>)
-        return x ? "da" : "ne";                         // mora pre is_integral: bool je integral
+        return x ? "yes" : "no";                         // mora pre is_integral: bool je integral
     else if constexpr (std::is_integral_v<T>)
-        return "ceo " + std::to_string(x);
+        return "integer " + std::to_string(x);
     else if constexpr (std::is_floating_point_v<T>)
-        return "realan " + std::to_string(static_cast<int>(x * 10)) + "/10";
+        return "real " + std::to_string(static_cast<int>(x * 10)) + "/10";
     else if constexpr (std::is_convertible_v<T, std::string>)
-        return "tekst \"" + std::string(x) + '"';
+        return "text \"" + std::string(x) + '"';
     else                                                // sve ostalo: kontejner
-        return "kontejner od " + std::to_string(x.size());
+        return "container of " + std::to_string(x.size());
 }
 
 template <typename T>
-auto udvostruci(const T& x) {                           // grane vraćaju RAZLIČITE tipove
+auto doubled(const T& x) {                           // grane vraćaju RAZLIČITE tipove
     if constexpr (std::is_arithmetic_v<T>)
         return x * 2;
     else
         return x + x;
 }
 
-void sekcija5() {
-    std::cout << "\n== 5. if constexpr: grana po tipu\n";
-    std::cout << uTekst(true) << " | " << uTekst(42) << " | " << uTekst(2.5) << " | " << uTekst("abc") << " | "
-              << uTekst(std::string("xy")) << " | " << uTekst(std::vector<int>{1, 2, 3}) << '\n';
+void section5() {
+    std::cout << "\n== 5. if constexpr: a branch per type\n";
+    std::cout << toText(true) << " | " << toText(42) << " | " << toText(2.5) << " | " << toText("abc") << " | "
+              << toText(std::string("xy")) << " | " << toText(std::vector<int>{1, 2, 3}) << '\n';
     // Za int bi x.size() bilo greška -- ali ta grana se za int ne instancira.
-    static_assert(std::is_same_v<decltype(udvostruci(3)), int>);
-    static_assert(std::is_same_v<decltype(udvostruci(std::string("ab"))), std::string>);
-    std::cout << "udvostruci(3) = " << udvostruci(3) << ", udvostruci(\"ab\"s) = " << udvostruci(std::string("ab"))
+    static_assert(std::is_same_v<decltype(doubled(3)), int>);
+    static_assert(std::is_same_v<decltype(doubled(std::string("ab"))), std::string>);
+    std::cout << "doubled(3) = " << doubled(3) << ", doubled(\"ab\"s) = " << doubled(std::string("ab"))
               << '\n';
 }
 
 // ---------------------------------------------------------------- 6
 // Kraj rekurzije bez posebnog overload-a (uporedi lekcija 28, sekcija 2).
-template <typename Prvi, typename... Ostali>
-void ispisiRekurzivno(const Prvi& p, const Ostali&... ostali) {
+template <typename First, typename... Rest>
+void printRecursive(const First& p, const Rest&... rest) {
     std::cout << p;
-    if constexpr (sizeof...(ostali) > 0) {
+    if constexpr (sizeof...(rest) > 0) {
         std::cout << " -> ";
-        ispisiRekurzivno(ostali...);                    // za 0 ostalih se ne instancira
+        printRecursive(rest...);                    // za 0 ostalih se ne instancira
     } else {
         std::cout << '\n';
     }
 }
 
 template <int N>
-constexpr int fakt() {
+constexpr int fact() {
     if constexpr (N <= 1)
         return 1;
     else
-        return N * fakt<N - 1>();                       // bez if constexpr: beskonačna instancijacija
+        return N * fact<N - 1>();                       // bez if constexpr: beskonačna instancijacija
 }
 
-void sekcija6() {
-    std::cout << "\n== 6. if constexpr: rekurzija i kompajl-vreme\n";
-    ispisiRekurzivno("temp", 21, 'C', 3.5);
-    static_assert(fakt<5>() == 120);
-    std::cout << "fakt<5>() = " << fakt<5>() << '\n';
+void section6() {
+    std::cout << "\n== 6. if constexpr: recursion and compile time\n";
+    printRecursive("temp", 21, 'C', 3.5);
+    static_assert(fact<5>() == 120);
+    std::cout << "fact<5>() = " << fact<5>() << '\n';
 }
 
 int main() {
     std::cout << std::boolalpha;
-    sekcija1();
-    sekcija2();
-    sekcija3();
-    sekcija4();
-    sekcija5();
-    sekcija6();
+    section1();
+    section2();
+    section3();
+    section4();
+    section5();
+    section6();
 }

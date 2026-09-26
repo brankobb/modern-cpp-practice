@@ -35,9 +35,9 @@ template <typename T>
 void vectorRvalue(std::vector<T>&&) {} // T&& je deo drugog tipa: NIJE forwarding (errors/e02)
 
 void s01_universalReferences() {
-    std::cout << "-- 1. forwarding (univerzalna) vs rvalue referenca (EMC Item 24) --\n";
-    std::string name = "Ana";
-    const std::string constName = "Bojan";
+    std::cout << "-- 1. forwarding (universal) vs rvalue reference (EMC Item 24) --\n";
+    std::string name = "Ann";
+    const std::string constName = "Bob";
     std::cout << "  universal(name) -> ";
     universal(name);
     std::cout << "; universal(constName) -> ";
@@ -48,7 +48,7 @@ void s01_universalReferences() {
     rvalueOnly(std::string("ok")); // rvalueOnly(name) se ne bi kompajliralo
     vectorRvalue(std::vector<int>{1});
     auto&& bound = name; // auto&& je takođe forwarding: ovde postaje std::string&
-    std::cout << "  auto&& bound = name -> " << (std::is_lvalue_reference_v<decltype(bound)> ? "lvalue referenca" : "rvalue referenca")
+    std::cout << "  auto&& bound = name -> " << (std::is_lvalue_reference_v<decltype(bound)> ? "lvalue reference" : "rvalue reference")
               << "\n";
 }
 
@@ -61,8 +61,8 @@ void s02_referenceCollapsing() {
     static_assert(std::is_same_v<AddRvalueRef<int&>, int&>, "& && -> &");
     static_assert(std::is_same_v<AddRvalueRef<int&&>, int&&>, "&& && -> &&");
     static_assert(std::is_same_v<AddRvalueRef<int>, int&&>, "T -> T&&");
-    std::cout << "  T=int& -> int&;  T=int&& -> int&&;  T=int -> int&&  (static_assert provereno)\n";
-    std::cout << "  <- čim je bilo gde &, rezultat je &. Zato T&& sa T = std::string& postaje std::string&\n";
+    std::cout << "  T=int& -> int&;  T=int&& -> int&&;  T=int -> int&&  (checked with static_assert)\n";
+    std::cout << "  <- if there is a & anywhere, the result is &. That is why T&& with T = std::string& becomes std::string&\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -76,10 +76,10 @@ template <typename T>
 const char* withForward(T&& arg) { return inner(std::forward<T>(arg)); } // vrati originalnu kategoriju
 
 void s03_forward() {
-    std::cout << "-- 3. std::forward čuva kategoriju --\n";
+    std::cout << "-- 3. std::forward preserves the category --\n";
     std::string s = "x";
-    std::cout << "  bez forward: lvalue -> " << withoutForward(s) << ", rvalue -> " << withoutForward(std::string("y")) << "\n";
-    std::cout << "  sa forward:  lvalue -> " << withForward(s) << ", rvalue -> " << withForward(std::string("y")) << "\n";
+    std::cout << "  without forward: lvalue -> " << withoutForward(s) << ", rvalue -> " << withoutForward(std::string("y")) << "\n";
+    std::cout << "  with forward:    lvalue -> " << withForward(s) << ", rvalue -> " << withForward(std::string("y")) << "\n";
 }
 
 // ---------------------------------------------------------------- 4
@@ -98,14 +98,14 @@ private:
 };
 
 void s04_moveVsForward() {
-    std::cout << "-- 4. std::move vs std::forward na forwarding referenci (EMC Item 25) --\n";
+    std::cout << "-- 4. std::move vs std::forward on a forwarding reference (EMC Item 25) --\n";
     Profile p;
     std::string mine(30, 'a');
     p.setNameMove(mine);
-    std::cout << "  setNameMove(mine):    mine.size() posle = " << mine.size() << "  <- pozivaocu ukradeno!\n";
+    std::cout << "  setNameMove(mine):    mine.size() after = " << mine.size() << "  <- stolen from the caller!\n";
     std::string other(30, 'b');
     p.setNameForward(other);
-    std::cout << "  setNameForward(other): other.size() posle = " << other.size() << "\n";
+    std::cout << "  setNameForward(other): other.size() after = " << other.size() << "\n";
 }
 
 // ---------------------------------------------------------------- 5
@@ -127,13 +127,13 @@ std::unique_ptr<T> make(Args&&... args) { // kao std::make_unique: savršeno pro
 }
 
 void s05_perfectForwarding() {
-    std::cout << "-- 5. savršeno prosleđivanje (variadic) --\n";
+    std::cout << "-- 5. perfect forwarding (variadic) --\n";
     Tracked item;
     std::cout << "  make<Order>(item, 2)            -> ";
     auto a = make<Order>(item, 2);            // lvalue: copy u parametar, move u član
     std::cout << "\n  make<Order>(std::move(item), 3) -> ";
     auto b = make<Order>(std::move(item), 3); // rvalue: move u parametar, move u član
-    std::cout << "\n  <- make ne dodaje ništa: isto kao direktan poziv new Order(...)\n";
+    std::cout << "\n  <- make adds nothing: same as a direct call to new Order(...)\n";
     (void)a;
     (void)b;
 }
@@ -144,17 +144,17 @@ std::string_view firstWord(std::string_view text) { // view na tuđe podatke: po
 }
 
 void s06_stringView() {
-    std::cout << "-- 6. string_view: ne poseduje podatke --\n";
-    std::string sentence = "dobar dan svima";
+    std::cout << "-- 6. string_view: does not own the data --\n";
+    std::string sentence = "good day everyone";
     std::string_view word = firstWord(sentence); // sentence živi duže od word: bezbedno
     std::string_view literal = "string literal";  // literal živi ceo program: bezbedno
     std::cout << "  firstWord(sentence)=\"" << word << "\", literal=\"" << literal << "\"\n";
-    std::cout << "  <- string_view na privremeni std::string visi (ub/u01)\n";
+    std::cout << "  <- a string_view to a temporary std::string dangles (ub/u01)\n";
 }
 
 // ---------------------------------------------------------------- 7
 void s07_iteratorInvalidation() {
-    std::cout << "-- 7. invalidacija iteratora --\n";
+    std::cout << "-- 7. iterator invalidation --\n";
     std::vector<int> v{1, 2, 3, 4, 5, 6};
     for (auto it = v.begin(); it != v.end();) {
         if (*it % 2 == 0) {
@@ -165,14 +165,14 @@ void s07_iteratorInvalidation() {
     }
     std::vector<int> w{1, 2, 3, 4, 5, 6};
     w.erase(std::remove_if(w.begin(), w.end(), [](int x) { return x % 2 == 0; }), w.end()); // erase-remove
-    std::cout << "  erase u petlji: " << v.size() << " elementa; erase-remove: " << w.size()
+    std::cout << "  erase in a loop: " << v.size() << " elements; erase-remove: " << w.size()
               << " (C++20: std::erase_if(w, pred))\n";
 
-    std::map<int, std::string> m{{1, "jedan"}};
+    std::map<int, std::string> m{{1, "one"}};
     const std::string* stable = &m[1];
     for (int i = 2; i < 100; ++i) m[i] = "x"; // map: čvorovi se ne pomeraju
-    std::cout << "  std::map posle 98 umetanja: adresa elementa ista: " << (stable == &m[1] ? "da" : "ne")
-              << "; std::vector posle realokacije: ne (lekcija 04, ub/u06)\n";
+    std::cout << "  std::map after 98 insertions: same element address: " << (stable == &m[1] ? "yes" : "no")
+              << "; std::vector after reallocation: no (lesson 04, ub/u06)\n";
 }
 
 // ---------------------------------------------------------------- 8
@@ -182,15 +182,15 @@ std::function<int()> makeCounterByValue() {
 }
 
 void s08_lambdaCaptures() {
-    std::cout << "-- 8. lambda capture i životni vek (EMC Item 31, 32) --\n";
+    std::cout << "-- 8. lambda capture and lifetime (EMC Item 31, 32) --\n";
     auto counter = makeCounterByValue();
     int first = counter();
     int second = counter();
-    auto owned = std::make_unique<std::string>("vlasnik");
+    auto owned = std::make_unique<std::string>("owner");
     auto consumer = [p = std::move(owned)] { return p->size(); }; // C++14 init capture: move u lambdu
-    std::cout << "  capture po vrednosti: " << first << " " << second << "; init capture move: size=" << consumer()
-              << ", owned posle: " << (owned ? "pun" : "prazan") << "\n";
-    std::cout << "  <- [&] na lokalnu koja nestane pre lambde: visi (ub/u03)\n";
+    std::cout << "  capture by value: " << first << " " << second << "; init capture move: size=" << consumer()
+              << ", owned after: " << (owned ? "full" : "empty") << "\n";
+    std::cout << "  <- [&] to a local that dies before the lambda: dangles (ub/u03)\n";
 }
 
 int main() {

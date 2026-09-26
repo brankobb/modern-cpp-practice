@@ -51,17 +51,17 @@ std::function f = [](int x) { return x * 2.0; };   // function<double(int)>
 Kompajler od svakog konstruktora napravi "zamišljenu" funkciju-šablon i
 na nju primeni običnu dedukciju (lekcija 26, sekcija 2). Test: `pair`, `tuple`,
 `vector`, `array`, `optional`, `lock_guard`, `function`, i sopstveni
-`Merenje{"temp", 21.5}` → `Merenje<double>`.
+`Measurement{"temp", 21.5}` → `Measurement<double>`.
 
 - **Deduction guide**, kad iz konstruktora ne može da se zaključi:
 
   ```cpp
   template <typename It>
-  Opseg(It, It) -> Opseg<typename std::iterator_traits<It>::value_type>;
+  Range(It, It) -> Range<typename std::iterator_traits<It>::value_type>;
   ```
 
   Konstruktor prima iteratore, a `T` je tip elementa -- to kaže vodič
-  (test: `Opseg<int>`; zadatak ex1).
+  (test: `Range<int>`; zadatak ex1).
 - ❌ Sve ili ništa: `std::pair<int> p{1, 2}` se ne kompajlira
   (`errors/e01`).
 - ❌ Agregat (nema konstruktor) u C++17 nema CTAD bez vodiča
@@ -134,7 +134,7 @@ na nju primeni običnu dedukciju (lekcija 26, sekcija 2). Test: `pair`, `tuple`,
 | `typename std::remove_reference<T>::type` | `std::remove_reference_t<T>` | C++14 |
 
 - Kraći oblici su samo prečice, napravljene ovako (i sopstveni trait se
-  pravi isto, test `jeString_v`, `bezPokazivaca_t`):
+  pravi isto, test `isString_v`, `removeAllPointers_t`):
 
   ```cpp
   template <typename T> inline constexpr bool is_integral_v = is_integral<T>::value;  // variable template
@@ -151,11 +151,11 @@ na nju primeni običnu dedukciju (lekcija 26, sekcija 2). Test: `pair`, `tuple`,
 
 ```cpp
 template <typename T>
-std::string uTekst(const T& x) {
-    if constexpr (std::is_same_v<T, bool>)         return x ? "da" : "ne";
-    else if constexpr (std::is_integral_v<T>)      return "ceo " + std::to_string(x);
+std::string toText(const T& x) {
+    if constexpr (std::is_same_v<T, bool>)         return x ? "yes" : "no";
+    else if constexpr (std::is_integral_v<T>)      return "integer " + std::to_string(x);
     else if constexpr (std::is_convertible_v<T, std::string>) return std::string(x);
-    else                                            return "kontejner od " + std::to_string(x.size());
+    else                                            return "container of " + std::to_string(x.size());
 }
 ```
 
@@ -163,9 +163,9 @@ std::string uTekst(const T& x) {
   šablonu **ne instancira** -- zato `x.size()` sme da stoji u funkciji koju
   zovemo i sa `int` (test: šest tipova). Sa običnim `if` bi se sve grane
   prevele za svaki tip.
-- Redosled je bitan: `bool` je i `is_integral`, pa ide prvi (test: `da`).
+- Redosled je bitan: `bool` je i `is_integral`, pa ide prvi (test: `yes`).
 - Grane mogu da vraćaju **različite tipove** kad je povratni tip `auto`
-  (test: `udvostruci(3)` je `int`, `udvostruci("ab"s)` je `std::string`).
+  (test: `doubled(3)` je `int`, `doubled("ab"s)` je `std::string`).
 - ❌ Odbacuje se samo grana: kod **posle** `if constexpr` bez `else` se
   instancira uvek (`errors/e07`). ✅ Poslednji slučaj u `else`.
 - ❌ Uslov mora biti konstantan izraz; parametar funkcije nije
@@ -180,9 +180,9 @@ std::string uTekst(const T& x) {
   proverava tek pri instancijaciji:
 
   ```cpp
-  template <typename> inline constexpr bool uvekNetacno = false;
+  template <typename> inline constexpr bool alwaysFalse = false;
   ...
-  else static_assert(uvekNetacno<T>, "nepodržan tip");   // greška samo ako se grana izabere
+  else static_assert(alwaysFalse<T>, "unsupported type");   // greška samo ako se grana izabere
   ```
 
 ---
@@ -190,19 +190,19 @@ std::string uTekst(const T& x) {
 # 6. `if constexpr`: rekurzija i kompajl-vreme (kurs 223)
 
 ```cpp
-template <typename Prvi, typename... Ostali>
-void ispisiRekurzivno(const Prvi& p, const Ostali&... ostali) {
+template <typename First, typename... Rest>
+void printRecursive(const First& p, const Rest&... rest) {
     std::cout << p;
-    if constexpr (sizeof...(ostali) > 0) ispisiRekurzivno(ostali...);
+    if constexpr (sizeof...(rest) > 0) printRecursive(rest...);
 }
 ```
 
 - Kraj rekurzije bez posebnog overload-a za prazan paket (lekcija 28, sekcija
   2): za 0 ostalih se poziv ne instancira (test: `temp -> 21 -> C -> 3.5`).
-- Isto za rekurziju po ne-tipskom parametru: `fakt<N>()` sa
-  `if constexpr (N <= 1)`; sa običnim `if` se instancira i `fakt<0>`,
-  `fakt<-1>`... do granice kompajlera: 900 nivoa u g++, 1024 u clang-u
-  (`errors/e09`). Test: `static_assert(fakt<5>() == 120)`.
+- Isto za rekurziju po ne-tipskom parametru: `fact<N>()` sa
+  `if constexpr (N <= 1)`; sa običnim `if` se instancira i `fact<0>`,
+  `fact<-1>`... do granice kompajlera: 900 nivoa u g++, 1024 u clang-u
+  (`errors/e09`). Test: `static_assert(fact<5>() == 120)`.
 - ✅ Kad se paket može obraditi fold-om (sekcija 3), fold je kraći od
   rekurzije; `if constexpr` rekurzija ostaje za slučajeve kad se prvi
   element obrađuje drugačije od ostalih.
@@ -259,8 +259,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_generican_zapis`](exercises/ex1_generican_zapis.cpp) | usage | deduction guide, fold izrazi i if constexpr u jednom generičkom zapisu merenja (sekcije 1, 2, 3, 5) | — |
-| [`ex2_smer_folda`](exercises/ex2_smer_folda.cpp) | why | zašto je bitno da li je fold levi ili desni (sekcija 2) | `-DNAIVE` |
+| [`ex1_generic_record`](exercises/ex1_generic_record.cpp) | usage | deduction guide, fold izrazi i if constexpr u jednom generičkom zapisu merenja (sekcije 1, 2, 3, 5) | — |
+| [`ex2_fold_direction`](exercises/ex2_fold_direction.cpp) | why | zašto je bitno da li je fold levi ili desni (sekcija 2) | `-DNAIVE` |
 | [`ex3_ctad_literal`](exercises/ex3_ctad_literal.cpp) | why | zašto CTAD od string literala ne daje std::string (sekcija 1) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
