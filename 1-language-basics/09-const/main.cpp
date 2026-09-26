@@ -25,7 +25,7 @@ struct Plain {
 int readSensor() { return 42; } // "runtime" vrednost
 
 void s01_basics() {
-    std::cout << "-- 1. const: osnove --\n";
+    std::cout << "-- 1. const basics --\n";
     const int fromRuntime = readSensor(); // const NE znači "poznato pri kompajliranju"
     const std::string name;               // OK: string ima korisnički default ctor -> prazan
     const Plain p{};                      // OK: {} -> x == 0 (bez {} greška -- errors/e14)
@@ -37,7 +37,7 @@ void s01_basics() {
 
 // ---------------------------------------------------------------- 2
 void s02_pointers() {
-    std::cout << "-- 2. const i pokazivači --\n";
+    std::cout << "-- 2. const and pointers --\n";
     // "west const" i "east const" su ISTI tip -- const se odnosi na ono levo
     // od sebe, a ako levo nema ništa, na ono desno.
     static_assert(std::is_same_v<const int*, int const*>);
@@ -60,9 +60,9 @@ void s03_constReference() {
     int x = 1;
     const int& r = x; // kroz r samo čitanje (errors/e17); x se i dalje menja direktno
     x = 2;
-    std::cout << "r posle x = 2: " << r << "\n";
+    std::cout << "r after x = 2: " << r << "\n";
     std::cout << "countChars(\"literal\") = " << countChars("literal")
-              << " (const& prima i privremeni std::string)\n";
+              << " (const& also accepts a temporary std::string)\n";
 }
 
 // ---------------------------------------------------------------- 4
@@ -101,19 +101,19 @@ private:
 };
 
 void s04_constMemberFunctions() {
-    std::cout << "-- 4. const member funkcije (EC++ Item 3) --\n";
+    std::cout << "-- 4. const member functions (EC++ Item 3) --\n";
     TextBlock tb("Hello");
     const TextBlock ctb("World");
-    std::cout << "tb[0] (ne-const objekat):\n";
+    std::cout << "tb[0] (non-const object):\n";
     tb[0] = 'J';
-    std::cout << "ctb[0] (const objekat):\n";
+    std::cout << "ctb[0] (const object):\n";
     char c = ctb[0];   // ctb[0] = 'X'; -> greška: vraća const char&
     std::cout << "tb.text()=" << tb.text() << " ctb[0]=" << c << "\n";
 
     char raw[] = "abc";
     const Buffer buf(raw);
     buf.scribble();
-    std::cout << "posle const Buffer::scribble(): " << raw << " (bitwise const, a ne logički)\n";
+    std::cout << "after const Buffer::scribble(): " << raw << " (bitwise const, not logical)\n";
 }
 
 // ---------------------------------------------------------------- 5
@@ -148,7 +148,7 @@ void s05_mutable() {
     const Polynomial p(3.0);
     double v1 = p.expensiveValue();
     double v2 = p.expensiveValue();
-    std::cout << "vrednost=" << v1 << "," << v2 << " broj poziva=" << p.calls() << "\n";
+    std::cout << "value=" << v1 << "," << v2 << " call count=" << p.calls() << "\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -182,49 +182,49 @@ struct Rational {
 Rational operator*(const Rational& a, const Rational& b) { return Rational{a.n * b.n}; }
 
 void s06_constReturn() {
-    std::cout << "-- 6. const povratna vrednost --\n";
+    std::cout << "-- 6. const return value --\n";
     Tracer t;
-    std::cout << "t = makeConst();  (const Tracer -> move nije moguć):\n";
+    std::cout << "t = makeConst();  (const Tracer -> move is not possible):\n";
     t = makeConst();
-    std::cout << "t = makePlain();  (obična vrednost -> move):\n";
+    std::cout << "t = makePlain();  (plain value -> move):\n";
     t = makePlain();
 
     Rational a{2}, b{3}, c{4};
     a = b * c; // OK: dodela u lvalue, i to move
-    std::cout << "a = b * c -> " << a.n << "  ((a * b) = c je greška zbog & na operator=)\n";
+    std::cout << "a = b * c -> " << a.n << "  ((a * b) = c is an error because of & on operator=)\n";
 }
 
 // ---------------------------------------------------------------- 7
 void legacyLog(char* msg) { std::cout << "  legacyLog: " << msg << "\n"; } // stari C API: ne menja msg
 
 void s07_constCast() {
-    std::cout << "-- 7. const_cast: kad je legitiman --\n";
+    std::cout << "-- 7. const_cast: when it is legitimate --\n";
     // 1) Stari API koji ne menja podatke, ali je deklarisan bez const.
-    const std::string message = "poruka";
+    const std::string message = "message";
     legacyLog(const_cast<char*>(message.c_str()));
 
     // 2) Objekat SAM nije const -- samo pristup je bio kroz const pokazivač.
     int x = 1;
     const int* cp = &x;
     *const_cast<int*>(cp) = 2;  // definisano ponašanje: x nije const
-    std::cout << "x posle upisa kroz const_cast = " << x << "\n";
+    std::cout << "x after writing through const_cast = " << x << "\n";
     // Upis u objekat koji JESTE definisan kao const je UB (ub/u01, u02).
     // static_cast ne sme da skine const (errors/e16).
 }
 
 // ---------------------------------------------------------------- 8
 void s08_stl() {
-    std::cout << "-- 8. const i STL (EMC Item 13) --\n";
+    std::cout << "-- 8. const and the STL (EMC Item 13) --\n";
     std::vector<int> v{3, 1, 2};
     int sum = 0;
     for (auto it = v.cbegin(); it != v.cend(); ++it) sum += *it; // samo čitanje
-    std::cout << "suma preko cbegin/cend = " << sum << "\n";
+    std::cout << "sum via cbegin/cend = " << sum << "\n";
 
-    const std::map<std::string, int> ages{{"Ana", 30}};
-    // ages["Ana"] ne radi na const mapi (errors/e08):
-    std::cout << "ages.at(\"Ana\") = " << ages.at("Ana") << "\n";
-    auto found = ages.find("Marko");
-    std::cout << "ages.find(\"Marko\") == end: " << std::boolalpha << (found == ages.end())
+    const std::map<std::string, int> ages{{"Ann", 30}};
+    // ages["Ann"] ne radi na const mapi (errors/e08):
+    std::cout << "ages.at(\"Ann\") = " << ages.at("Ann") << "\n";
+    auto found = ages.find("John");
+    std::cout << "ages.find(\"John\") == end: " << std::boolalpha << (found == ages.end())
               << std::noboolalpha << "\n";
 
     // std::as_const: nateraj izbor const overload-a na ne-const objektu.
@@ -234,7 +234,7 @@ void s08_stl() {
     std::cout << "first=" << first << "\n";
 
     for (const auto& value : v) sum += value; // podrazumevani oblik za čitanje
-    std::cout << "suma posle range-for sa const auto& = " << sum << "\n";
+    std::cout << "sum after range-for with const auto& = " << sum << "\n";
 }
 
 // ---------------------------------------------------------------- 9
@@ -276,19 +276,19 @@ void s10_topLevelVsLowLevel() {
     static_assert(std::is_same_v<decltype(d), const int>);
     deduce(ci);
     a = 5;
-    std::cout << "auto od const int -> int (menja se: a=" << a
-              << "), auto od const int* -> const int* (static_assert)\n";
+    std::cout << "auto from const int -> int (modifiable: a=" << a
+              << "), auto from const int* -> const int* (static_assert)\n";
     (void)b; (void)c; (void)d;
 }
 
 // ---------------------------------------------------------------- 11
 void s11_lambda() {
-    std::cout << "-- 11. lambde: operator() je podrazumevano const --\n";
+    std::cout << "-- 11. lambdas: operator() is const by default --\n";
     int x = 0;
     auto next = [x]() mutable { return ++x; }; // menja SVOJU kopiju (errors/e18 bez mutable)
     int first = next();
     int second = next();
-    std::cout << "next()=" << first << "," << second << " spoljni x=" << x << "\n";
+    std::cout << "next()=" << first << "," << second << " outer x=" << x << "\n";
 }
 
 int main() {

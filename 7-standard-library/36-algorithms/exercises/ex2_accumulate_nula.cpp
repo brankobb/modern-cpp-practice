@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO ukupna potrošnja: 3 kWh
+// DEMO-OUT: NAIVE ukupna potrošnja: 3 kWh
 //
 // Zadatak 2 -- zašto accumulate "gubi" decimale (sekcija 2)
 // Rešenje: exercises/solutions/ex2_accumulate_nula.cpp
@@ -7,7 +7,7 @@
 // Brojilo daje potrošnju po satu u kWh; treba ukupna.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/36-algorithms/exercises/ex2_accumulate_nula.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/36-algorithms/exercises/ex2_accumulate_nula.cpp -DNAIVE
 //   Zbir 0.5 + 1.5 + 2.5 ispadne 3 umesto 4.5.
 //   accumulate je šablon: template <class It, class T> T accumulate(It, It, T init).
 //   Tip zbira (i povratne vrednosti) je T -- tip POČETNE VREDNOSTI, ne
@@ -21,7 +21,7 @@
 #include <numeric>
 #include <vector>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 double ukupno(const std::vector<double>& v) { return std::accumulate(v.begin(), v.end(), 0); }
 #else
 // TODO korak 2 (dok ne napišeš, ova verzija vraća 0)

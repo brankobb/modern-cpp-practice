@@ -167,14 +167,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_redosled_traga`](exercises/ex1_redosled_traga.cpp) | usage | redosled pravljenja i uništavanja (sekcije 2, 3) | — |
-| [`ex2_izuzetak_u_konstruktoru`](exercises/ex2_izuzetak_u_konstruktoru.cpp) | why | zašto destruktor ne čisti za konstruktorom koji je bacio (sekcija 4) | `-DNAIVNO` |
-| [`ex3_kraj_programa`](exercises/ex3_kraj_programa.cpp) | why | zašto je redosled uništavanja static objekata bitan (sekcija 5) | `-DNAIVNO` |
+| [`ex2_izuzetak_u_konstruktoru`](exercises/ex2_izuzetak_u_konstruktoru.cpp) | why | zašto destruktor ne čisti za konstruktorom koji je bacio (sekcija 4) | `-DNAIVE` |
+| [`ex3_kraj_programa`](exercises/ex3_kraj_programa.cpp) | why | zašto je redosled uništavanja static objekata bitan (sekcija 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

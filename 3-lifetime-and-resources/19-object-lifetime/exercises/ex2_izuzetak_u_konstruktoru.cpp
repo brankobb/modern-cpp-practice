@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-UB: NAIVNO detected memory leaks
+// DEMO-UB: NAIVE detected memory leaks
 //
 // Zadatak 2 -- zašto destruktor ne čisti za konstruktorom koji je bacio
 // (sekcija 4)
@@ -9,7 +9,7 @@
 // izuzetak.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/19-object-lifetime/exercises/ex2_izuzetak_u_konstruktoru.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/19-object-lifetime/exercises/ex2_izuzetak_u_konstruktoru.cpp -DNAIVE
 //   Na izlazu nema "~Senzor", a LeakSanitizer prijavi curenje oba bafera.
 //   Objekat počinje da živi tek kad se konstruktor ZAVRŠI; ovaj se nije
 //   završio, pa destruktor koji bi uradio delete[] ne postoji za njega.
@@ -31,7 +31,7 @@ void kalibrisi(bool uspeh) {
     if (!uspeh) throw std::runtime_error("kalibracija nije uspela");
 }
 
-#ifdef NAIVNO
+#ifdef NAIVE
 class Senzor {
 public:
     explicit Senzor(bool uspeh) {

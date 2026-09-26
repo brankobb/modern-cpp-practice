@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO konfigurisanih kanala posle provera: 5
+// DEMO-OUT: NAIVE konfigurisanih kanala posle provera: 5
 //
 // Zadatak 2 -- zašto se u mapi ne proverava sa [] (sekcija 3)
 // Rešenje: exercises/solutions/ex2_indeks_ubacuje.cpp
@@ -8,7 +8,7 @@
 // kanali koje traži korisnik.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/35-associative-containers/exercises/ex2_indeks_ubacuje.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/35-associative-containers/exercises/ex2_indeks_ubacuje.cpp -DNAIVE
 //   Posle provere tri nepostojeća kanala, konfiguracija ima 5 kanala.
 //   m[k] kad k ne postoji UBACI par (k, 0) i vrati referencu na novu
 //   nulu -- "provera" je izmenila mapu. (Zato [] ne postoji za const mapu,
@@ -20,7 +20,7 @@
 #include <map>
 #include <string>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 bool konfigurisan(std::map<std::string, int>& m, const std::string& k) { return m[k] != 0; }
 #else
 // TODO korak 2 (dok ne napišeš, ova verzija uvek vraća false)

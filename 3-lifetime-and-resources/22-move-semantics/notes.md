@@ -215,14 +215,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_move_bafer`](exercises/ex1_move_bafer.cpp) | usage | move konstruktor i move dodela (sekcije 4, 6) | — |
-| [`ex2_imenovana_rvalue`](exercises/ex2_imenovana_rvalue.cpp) | why | zašto parametar T&& unutar funkcije treba std::move (sekcija 5) | `-DNAIVNO` |
-| [`ex3_move_const`](exercises/ex3_move_const.cpp) | why | zašto std::move na const objektu tiho kopira (sekcija 3, EMC Item 23) | `-DNAIVNO` |
+| [`ex2_imenovana_rvalue`](exercises/ex2_imenovana_rvalue.cpp) | why | zašto parametar T&& unutar funkcije treba std::move (sekcija 5) | `-DNAIVE` |
+| [`ex3_move_const`](exercises/ex3_move_const.cpp) | why | zašto std::move na const objektu tiho kopira (sekcija 3, EMC Item 23) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

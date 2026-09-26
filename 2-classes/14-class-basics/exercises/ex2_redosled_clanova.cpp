@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-UB: NAIVNO runtime error|SEGV
+// DEMO-UB: NAIVE runtime error|SEGV
 //
 // Zadatak 2 -- zašto redosled u init listi ne odlučuje ništa
 // (sekcija 2, "Redosled inicijalizacije", EC++ Item 4, C.47)
@@ -8,7 +8,7 @@
 // Senzor ima Kalibraciju i Filter, a Filter se pravi IZ Kalibracije.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 2-classes/14-class-basics/exercises/ex2_redosled_clanova.cpp -DNAIVNO
+//     ./build.sh 2-classes/14-class-basics/exercises/ex2_redosled_clanova.cpp -DNAIVE
 //   Init lista kaže "prvo kal_, pa filt_", ali članovi se prave redom
 //   DEKLARACIJE u klasi ([class.base.init]), a filt_ je deklarisan prvi.
 //   Filter čita kal_.koef pre nego što je kal_ napravljen. Senzor je na
@@ -34,7 +34,7 @@ struct Filter {
     explicit Filter(const Kalibracija& k) : pojacanje(k.koef[0]) { std::cout << "Filter\n"; }
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Senzor {
     Filter filt_;          // deklarisan PRVI -> pravi se prvi
     Kalibracija kal_;
@@ -51,7 +51,7 @@ int main() {
     (void)s;
     // Korak 2 -- otkomentariši:
     // std::cout << "pojačanje: " << s->filt_.pojacanje << '\n';
-#ifdef NAIVNO
+#ifdef NAIVE
     std::cout << "pojačanje: " << s->filt_.pojacanje << '\n';
 #endif
 }

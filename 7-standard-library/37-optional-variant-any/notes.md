@@ -245,13 +245,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_komande_senzora`](exercises/ex1_komande_senzora.cpp) | usage | optional za "možda uspe", variant za komande, visit za izvršavanje (sekcije 1, 4, 5) | — |
-| [`ex2_optional_bool`](exercises/ex2_optional_bool.cpp) | why | zašto if (o) nije isto što i if (*o) za optional<bool> (sekcija 3) | `-DNAIVNO` |
-| [`ex3_any_literal`](exercises/ex3_any_literal.cpp) | why | zašto any_cast<std::string> ne uspe na "temp" (sekcija 7) | `-DNAIVNO` |
+| [`ex2_optional_bool`](exercises/ex2_optional_bool.cpp) | why | zašto if (o) nije isto što i if (*o) za optional<bool> (sekcija 3) | `-DNAIVE` |
+| [`ex3_any_literal`](exercises/ex3_any_literal.cpp) | why | zašto any_cast<std::string> ne uspe na "temp" (sekcija 7) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

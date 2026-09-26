@@ -224,13 +224,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_indeks_reci`](exercises/ex1_indeks_reci.cpp) | usage | map za brojanje, map<string, set<int>> za indeks, unordered_map sa sopstvenim hešom (sekcije 1, 3, 4, 5) | — |
-| [`ex2_indeks_ubacuje`](exercises/ex2_indeks_ubacuje.cpp) | why | zašto se u mapi ne proverava sa [] (sekcija 3) | `-DNAIVNO` |
-| [`ex3_los_hes`](exercises/ex3_los_hes.cpp) | why | zašto je kvalitet heša bitan (sekcije 4, 5) | `-DNAIVNO` |
+| [`ex2_indeks_ubacuje`](exercises/ex2_indeks_ubacuje.cpp) | why | zašto se u mapi ne proverava sa [] (sekcija 3) | `-DNAIVE` |
+| [`ex3_los_hes`](exercises/ex3_los_hes.cpp) | why | zašto je kvalitet heša bitan (sekcije 4, 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

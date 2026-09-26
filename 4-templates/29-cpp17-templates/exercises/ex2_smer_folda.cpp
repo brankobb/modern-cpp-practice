@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO preostalo od 100 posle 30 i 20: 90
+// DEMO-OUT: NAIVE preostalo od 100 posle 30 i 20: 90
 //
 // Zadatak 2 -- zašto je bitno da li je fold levi ili desni (sekcija 2)
 // Rešenje: exercises/solutions/ex2_smer_folda.cpp
@@ -7,7 +7,7 @@
 // Budžet energije je 100; potrošači troše 30 i 20. Ostaje 50.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 4-templates/29-cpp17-templates/exercises/ex2_smer_folda.cpp -DNAIVNO
+//     ./build.sh 4-templates/29-cpp17-templates/exercises/ex2_smer_folda.cpp -DNAIVE
 //   Ispadne 90. (a - ...) je DESNI fold: a1 - (a2 - a3) = 100 - (30 - 20).
 //   Za + i * smer ne menja rezultat, pa se greška ne vidi dok se ne
 //   upotrebi operator koji nije asocijativan (-, /, <<).
@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 template <typename... T>
 int preostalo(T... a) { return (a - ...); }
 #else

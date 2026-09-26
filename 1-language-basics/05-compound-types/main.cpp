@@ -39,28 +39,28 @@ template <typename T>
 std::string category() {
     if (std::is_void_v<T>) return "void";
     if (std::is_null_pointer_v<T>) return "std::nullptr_t";
-    if (std::is_integral_v<T>) return "celobrojni";
-    if (std::is_floating_point_v<T>) return "realni";
-    if (std::is_array_v<T>) return "niz";
-    if (std::is_function_v<T>) return "funkcija";
-    if (std::is_member_pointer_v<T>) return "pokazivač na člana";
-    if (std::is_pointer_v<T>) return "pokazivač";
-    if (std::is_lvalue_reference_v<T>) return "lvalue referenca";
-    if (std::is_rvalue_reference_v<T>) return "rvalue referenca";
+    if (std::is_integral_v<T>) return "integral";
+    if (std::is_floating_point_v<T>) return "floating point";
+    if (std::is_array_v<T>) return "array";
+    if (std::is_function_v<T>) return "function";
+    if (std::is_member_pointer_v<T>) return "pointer to member";
+    if (std::is_pointer_v<T>) return "pointer";
+    if (std::is_lvalue_reference_v<T>) return "lvalue reference";
+    if (std::is_rvalue_reference_v<T>) return "rvalue reference";
     if (std::is_enum_v<T>) return "enum";
     if (std::is_union_v<T>) return "union";
-    if (std::is_class_v<T>) return "klasa";
+    if (std::is_class_v<T>) return "class";
     return "?";
 }
 
 template <typename T>
 void classify(const char* name) {
-    std::cout << "  " << name << (std::is_fundamental_v<T> ? "  -> fundamentalni, " : "  -> SLOŽENI, ")
+    std::cout << "  " << name << (std::is_fundamental_v<T> ? "  -> fundamental, " : "  -> COMPOUND, ")
               << category<T>() << "\n";
 }
 
 void s01_typeCategories() {
-    std::cout << "-- 1. podela tipova --\n";
+    std::cout << "-- 1. type categories --\n";
     classify<int>("int");
     classify<bool>("bool");
     classify<double>("double");
@@ -81,13 +81,13 @@ void s01_typeCategories() {
 
 // ---------------------------------------------------------------- 2
 void s02_cArrays() {
-    std::cout << "-- 2. C nizovi --\n";
+    std::cout << "-- 2. C arrays --\n";
     int a[5] = {1, 2, 3};      // ostatak se popuni nulama
     int b[]{4, 5, 6};          // veličina 3 se dedukuje
     char s[] = "abc";          // 4 elementa: 'a','b','c','\0'
     std::cout << "  int a[5]={1,2,3}: ";
     for (int v : a) std::cout << v << ' ';
-    std::cout << "  std::size(b)=" << std::size(b) << "  sizeof(\"abc\" niz)=" << sizeof(s) << " (i '\\0')\n";
+    std::cout << "  std::size(b)=" << std::size(b) << "  sizeof(\"abc\" array)=" << sizeof(s) << " (plus '\\0')\n";
 
     int grid[2][3] = {{1, 2, 3}, {4, 5, 6}}; // niz od 2 niza od po 3 int-a, redom u memoriji
     std::cout << "  grid[1][2]=" << grid[1][2] << " sizeof(grid)=" << sizeof(grid) << "\n";
@@ -97,7 +97,7 @@ void s02_cArrays() {
     std::copy(std::begin(b), std::end(b), std::begin(copy));
     bool same = std::equal(std::begin(b), std::end(b), std::begin(copy));
     std::cout << "  std::copy + std::equal: " << std::boolalpha << same << std::noboolalpha
-              << "  (a == b bi poredio ADRESE, ne sadržaj)\n";
+              << "  (a == b would compare ADDRESSES, not contents)\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -108,15 +108,15 @@ void s03_stdArray() {
     std::array<int, 3> a{1, 2, 3};
     auto b = a;          // kopija
     b[0] = 99;
-    std::cout << "  posle b = a; b[0] = 99: a[0]=" << a[0] << " b[0]=" << b[0]
-              << "  a == b: " << std::boolalpha << (a == b) << std::noboolalpha << " (poredi sadržaj)\n";
+    std::cout << "  after b = a; b[0] = 99: a[0]=" << a[0] << " b[0]=" << b[0]
+              << "  a == b: " << std::boolalpha << (a == b) << std::noboolalpha << " (compares contents)\n";
     a = makeArray();     // dodela radi
     std::cout << "  a = makeArray(): " << a[0] << a[1] << a[2] << "  a.size()=" << a.size()
-              << "  *a.data()=" << *a.data() << " (pokazivač za C API)\n";
+              << "  *a.data()=" << *a.data() << " (pointer for a C API)\n";
     try {
         std::cout << a.at(5);                     // proverava granice
     } catch (const std::out_of_range&) {
-        std::cout << "  a.at(5) -> std::out_of_range (a[5] bi bio UB -- ub/u01)\n";
+        std::cout << "  a.at(5) -> std::out_of_range (a[5] would be UB -- ub/u01)\n";
     }
     std::array c{1, 2, 3};                        // C++17 CTAD -> std::array<int, 3>
     static_assert(std::is_same_v<decltype(c), std::array<int, 3>>);
@@ -144,13 +144,13 @@ std::string describe(Status s) {
 }
 
 void s04_enums() {
-    std::cout << "-- 4. enum i enum class (EMC Item 10) --\n";
+    std::cout << "-- 4. enum and enum class (EMC Item 10) --\n";
     // Obična enum: imena "cure" u okolni scope, a vrednost se tiho pretvara u int.
     int n = Green;                     // 1 -- bez cast-a
     Color c = Blue;
     bool weird = c < 14.5;             // kompajlira se: Color -> int -> double
                                        // (C++20 ovo proglašava zastarelim -- oba kompajlera upozore)
-    std::cout << "  obična: int n = Green -> " << n << "; Blue < 14.5 -> " << std::boolalpha << weird << "\n";
+    std::cout << "  plain: int n = Green -> " << n << "; Blue < 14.5 -> " << std::boolalpha << weird << "\n";
 
     // enum class: imena u svom scope-u, bez implicitne konverzije (errors/e07, e08, e09).
     Status st = Status::Error;
@@ -160,7 +160,7 @@ void s04_enums() {
     static_assert(toUType(Later::Second) == 1);
 
     // Kad ti treba broj (npr. indeks u tuple), toUType ga daje bez ručnog tipa.
-    std::tuple<std::string, std::string, int> info{"Ana", "ana@example.com", 42};
+    std::tuple<std::string, std::string, int> info{"Ann", "ann@example.com", 42};
     std::cout << "  std::get<toUType(UserField::Email)>(info) = " << std::get<toUType(UserField::Email)>(info)
               << std::noboolalpha << "\n";
 }
@@ -170,18 +170,18 @@ void s05_union() {
     std::cout << "-- 5. union --\n";
     Number num;
     num.i = 42;                        // aktivan član: i
-    std::cout << "  sizeof(Number)=" << sizeof(Number) << " (najveći član), num.i=" << num.i;
+    std::cout << "  sizeof(Number)=" << sizeof(Number) << " (largest member), num.i=" << num.i;
     num.f = 1.5f;                      // sada je aktivan f -- num.i više ne sme da se čita
-    std::cout << ", posle num.f = 1.5f: num.f=" << num.f << "\n";
+    std::cout << ", after num.f = 1.5f: num.f=" << num.f << "\n";
 
     // "Type punning" (čitanje bitova kao drugog tipa) preko union-a je UB u C++-u.
     // Ispravno: std::memcpy, ili std::bit_cast u C++20.
     float value = 1.0f;
     std::uint32_t bits = 0;
     std::memcpy(&bits, &value, sizeof bits);
-    std::cout << "  bitovi od 1.0f preko memcpy: 0x" << std::hex << bits << std::dec;
+    std::cout << "  bits of 1.0f via memcpy: 0x" << std::hex << bits << std::dec;
 #if __cplusplus >= 202002L
-    std::cout << ", preko std::bit_cast: 0x" << std::hex << std::bit_cast<std::uint32_t>(value) << std::dec;
+    std::cout << ", via std::bit_cast: 0x" << std::hex << std::bit_cast<std::uint32_t>(value) << std::dec;
 #endif
     std::cout << "\n";
 }
@@ -197,23 +197,23 @@ overloaded(Ts...) -> overloaded<Ts...>;
 void s06_variant() {
     std::cout << "-- 6. std::variant (C++17) --\n";
     std::variant<int, std::string> v;  // podrazumevano: prva alternativa, int{} = 0
-    std::cout << "  podrazumevano: index=" << v.index() << " vrednost=" << std::get<int>(v) << "\n";
+    std::cout << "  default: index=" << v.index() << " value=" << std::get<int>(v) << "\n";
     v = 42;
     std::cout << "  v = 42: holds int? " << std::boolalpha << std::holds_alternative<int>(v);
-    v = std::string("tekst");
-    std::cout << "; v = \"tekst\": holds int? " << std::holds_alternative<int>(v)
+    v = std::string("text");
+    std::cout << "; v = \"text\": holds int? " << std::holds_alternative<int>(v)
               << " get_if<int> == nullptr? " << (std::get_if<int>(&v) == nullptr) << std::noboolalpha << "\n";
     try {
         std::cout << std::get<int>(v);  // pogrešna alternativa: izuzetak, ne UB
     } catch (const std::bad_variant_access&) {
-        std::cout << "  std::get<int> na string -> std::bad_variant_access\n";
+        std::cout << "  std::get<int> on a string -> std::bad_variant_access\n";
     }
     auto print = overloaded{
         [](int i) { return "int " + std::to_string(i); },
         [](const std::string& s) { return "string \"" + s + "\""; },
     };
     std::cout << "  std::visit: " << std::visit(print, v) << "; sizeof(variant)=" << sizeof(v)
-              << " > sizeof(std::string)=" << sizeof(std::string) << " (čuva i koji je aktivan)\n";
+              << " > sizeof(std::string)=" << sizeof(std::string) << " (also stores which one is active)\n";
 }
 
 // ---------------------------------------------------------------- 7
@@ -250,7 +250,7 @@ void onStart(int code) { std::cout << "  onStart(" << code << ")\n"; }
 void onStop(int code) { std::cout << "  onStop(" << code << ")\n"; }
 
 void s08_functionTypes() {
-    std::cout << "-- 8. funkcijski tipovi --\n";
+    std::cout << "-- 8. function types --\n";
     using Handler = void(int);          // tip FUNKCIJE (nije pokazivač)
     static_assert(std::is_function_v<Handler>);
     Handler* ptr = onStart;             // pokazivač na funkciju (ime se raspada u pokazivač)

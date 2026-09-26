@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO spolja: opšta greška
+// DEMO-OUT: NAIVE spolja: opšta greška
 //
 // Zadatak 2 -- zašto catch po const& i "throw;" (sekcije 1, 5)
 // Rešenje: exercises/solutions/ex2_hvatanje_po_vrednosti.cpp
@@ -8,7 +8,7 @@
 // Spolja se očekuje GreskaSenzora (sa id-jem senzora).
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/18-exceptions/exercises/ex2_hvatanje_po_vrednosti.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/18-exceptions/exercises/ex2_hvatanje_po_vrednosti.cpp -DNAIVE
 //   Spolja stiže "opšta greška" -- GreskaSenzora je nestala.
 //   a) catch (std::runtime_error e) -- PO VREDNOSTI: e je nova kopija
 //      samo runtime_error dela (slicing, lekcija 16). g++ -Wall upozori
@@ -32,7 +32,7 @@ private:
     int id_;
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 void obradi() {
     try {
         throw GreskaSenzora(7, "timeout");

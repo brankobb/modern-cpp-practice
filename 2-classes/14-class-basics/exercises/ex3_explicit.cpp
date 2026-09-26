@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO šaljem paket od 42 bajta
+// DEMO-OUT: NAIVE šaljem paket od 42 bajta
 // DEMO-ERR: EXPLICIT could not convert|invalid initialization|no viable conversion|no matching function
 //
 // Zadatak 3 -- zašto explicit na konstruktoru sa jednim argumentom
@@ -10,7 +10,7 @@
 // posalji(const Paket&) šalje paket.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 2-classes/14-class-basics/exercises/ex3_explicit.cpp -DNAIVNO
+//     ./build.sh 2-classes/14-class-basics/exercises/ex3_explicit.cpp -DNAIVE
 //   Programer je hteo da pošalje BAJT 42, a napisao posalji(42). Kompajler
 //   je tiho napravio privremeni Paket od 42 prazna bajta (konstruktor sa
 //   jednim argumentom je i implicitna konverzija size_t -> Paket).
@@ -27,7 +27,7 @@
 #include <iostream>
 #include <vector>
 
-#if defined(NAIVNO) || defined(EXPLICIT)
+#if defined(NAIVE) || defined(EXPLICIT)
 class Paket {
 public:
 #ifdef EXPLICIT

@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-UB: NAIVNO bad-free|attempting double-free
+// DEMO-UB: NAIVE bad-free|attempting double-free
 //
 // Zadatak 3 -- zašto enable_shared_from_this, a ne shared_ptr(this)
 // (sekcija 8)
@@ -9,7 +9,7 @@
 // sesija živi dok je registrovana).
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 6-smart-pointers/32-smart-pointers/exercises/ex3_shared_from_this.cpp -DNAIVNO
+//     ./build.sh 6-smart-pointers/32-smart-pointers/exercises/ex3_shared_from_this.cpp -DNAIVE
 //   std::shared_ptr<Sesija>(this) pravi NOVI kontrolni blok sa sopstvenim
 //   brojačem -- ne zna za shared_ptr u main-u. Dva nezavisna brojača, oba
 //   padnu na 0, dva brisanja istog objekta. ASan prijavi "attempting free
@@ -30,7 +30,7 @@
 #include <memory>
 #include <vector>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Sesija;
 std::vector<std::shared_ptr<Sesija>> registar;
 

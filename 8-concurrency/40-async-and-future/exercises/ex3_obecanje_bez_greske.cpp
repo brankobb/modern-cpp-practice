@@ -1,6 +1,6 @@
 // KIND: why
 // SANITIZER: thread
-// DEMO-OUT: NAIVNO greška: broken promise
+// DEMO-OUT: NAIVE greška: broken promise
 //
 // Zadatak 3 -- zašto promise mora da dobije i GREŠKU, ne samo vrednost
 // (sekcije 5, 6)
@@ -10,7 +10,7 @@
 // negativno merenje ne može da izračuna.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 8-concurrency/40-async-and-future/exercises/ex3_obecanje_bez_greske.cpp -DNAIVNO
+//     ./build.sh 8-concurrency/40-async-and-future/exercises/ex3_obecanje_bez_greske.cpp -DNAIVE
 //   Pozivalac dobije samo "broken promise": nit je izašla (return) bez
 //   set_value, promise je uništen, a pravi razlog -- negativno merenje --
 //   je izgubljen.
@@ -28,7 +28,7 @@
 #include <string>
 #include <thread>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 void racunaj(std::promise<double> p, int x) {
     if (x < 0) return;
     p.set_value(std::sqrt(x));

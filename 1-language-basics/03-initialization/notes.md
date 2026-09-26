@@ -23,7 +23,7 @@ i `{}`) i **Item 21** (`make_unique`/`make_shared`).
 `errors/` sadrži po jedan fajl za svaki **pogrešan** slučaj (e01–e23). Svaki
 se NE kompajlira, a `check_cases.sh` proverava da pada na g++ i clang++, i
 to baš iz razloga opisanog u fajlu. Na Windows-u pogledaj grešku za jedan
-fajl ovako: `.\build.ps1 1-language-basics\03-initialization\errors\e01_narrowing_promenljiva.cpp -Compiler clang++`.
+fajl ovako: `.\build.ps1 1-language-basics\03-initialization\errors\e01_narrowing_from_variable.cpp -Compiler clang++`.
 
 > **Napomena o kompajlerima.** Za neki kod standard kaže da je *neispravan*,
 > ali od kompajlera traži samo "dijagnostiku", a warning se računa kao
@@ -124,7 +124,7 @@ Konstruktor se poziva direktno sa datim argumentima. Direct-init je i
 
 - **`explicit` konstruktori SE razmatraju:** `ExplicitOnly e(5);` ✅
 - Na argumente se primenjuju obične implicitne konverzije:
-  `Name n("Marko");` ✅ (`"Marko"` → `std::string` je jedna korisnička
+  `Name n("John");` ✅ (`"John"` → `std::string` je jedna korisnička
   konverzija, u argumentu konstruktora).
 - Narrowing se **tiho** dozvoljava: `int t(3.99);` daje 3, bez warning-a čak
   i uz `-Wall -Wextra`. Upozorenje daje tek `-Wconversion`.
@@ -150,9 +150,9 @@ Pravila koja je razlikuju od direct-init:
   `ExplicitOnly e = 5;` ne radi (`errors/e06`).
   Posledica koja iznenadi: kad klasa ima `explicit S(int)` i `S(long)`,
   onda `S a = 1;` bira **`S(long)`**, jer je `S(int)` izbačen iz izbora.
-- ❌ **Najviše JEDNA korisnička konverzija:** `Name n = "Marko";` ne radi
-  (`errors/e08`). Put je `"Marko"` → `std::string` → `Name`, a to su dve
-  korisničke konverzije. `Name n("Marko");` radi (sekcija 3).
+- ❌ **Najviše JEDNA korisnička konverzija:** `Name n = "John";` ne radi
+  (`errors/e08`). Put je `"John"` → `std::string` → `Name`, a to su dve
+  korisničke konverzije. `Name n("John");` radi (sekcija 3).
 - ✅ **Od C++17 garantovani copy elision:** `std::atomic<int> a = 0;` radi,
   iako `std::atomic` nije kopirljiv. Objekat se pravi direktno, bez kopije.
   U C++14 (za koji je pisan EMC) ovo je bila greška (`errors/e23`).
@@ -248,7 +248,7 @@ private:
     int m_age;
 };
 
-Person p{"Marko", 30};
+Person p{"John", 30};
 ```
 
 `std::move(name)`: parametar je već kopija, pa ga premeštamo u član umesto
@@ -440,7 +440,7 @@ auto p4 = new int();      // value-init: 0   (ovde () NIJE most vexing parse)
 auto p5 = new int{};      // value-init: 0
 auto a1 = new int[5]{};       // 0 0 0 0 0
 auto a2 = new int[5]{1, 2};   // 1 2 0 0 0
-auto person = new Person{"Marko", 30};
+auto person = new Person{"John", 30};
 ```
 
 Bitna razlika je između `new int` (garbage) i `new int()` / `new int{}`
@@ -561,7 +561,7 @@ pravi vektor sa 10 elemenata.
 
 ```cpp
 int count{0};
-std::string name{"Marko"};
+std::string name{"John"};
 std::vector<int> values{1, 2, 3};
 MyClass obj{arg1, arg2};
 
@@ -627,13 +627,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_uart_config`](exercises/ex1_uart_config.cpp) | usage | inicijalizacija članova (sekcije 8, 9, 14) | — |
-| [`ex2_narrowing_senzor`](exercises/ex2_narrowing_senzor.cpp) | why | zašto {} zabranjuje narrowing (sekcija 6) | `-DNAIVNO`, `-DZAGRADE` |
-| [`ex3_vector_zagrade`](exercises/ex3_vector_zagrade.cpp) | why | () i {} kod vector-a nisu isto (sekcije 10, 11) | `-DNAIVNO` |
+| [`ex2_narrowing_sensor`](exercises/ex2_narrowing_sensor.cpp) | why | zašto {} zabranjuje narrowing (sekcija 6) | `-DNAIVE`, `-DZAGRADE` |
+| [`ex3_vector_parentheses`](exercises/ex3_vector_parentheses.cpp) | why | () i {} kod vector-a nisu isto (sekcije 10, 11) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

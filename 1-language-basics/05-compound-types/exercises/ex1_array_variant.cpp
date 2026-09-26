@@ -7,16 +7,16 @@
 // main() i uporedi izlaz sa blokom EXPECTED OUTPUT na dnu fajla.
 // Rešenje: exercises/solutions/ex1_array_variant.cpp
 //
-// Korak 1: double prosek(const std::array<int, 5>& a) -- prosek elemenata.
+// Korak 1: double average(const std::array<int, 5>& a) -- prosek elemenata.
 //   U testu: size(), front(), back(), i at(5) koji baca
 //   std::out_of_range (za razliku od [5], koji je UB).
-// Korak 2: using Poruka = std::variant<int, double, std::string>;
-//   void opisi(const Poruka& p) ispisuje "int 42" / "double 3.5" /
-//   "string zdravo". Koristi std::get_if (vraća nullptr kad variant ne
+// Korak 2: using Message = std::variant<int, double, std::string>;
+//   void describe(const Message& m) ispisuje "int 42" / "double 3.5" /
+//   "string hello". Koristi std::get_if (vraća nullptr kad variant ne
 //   drži taj tip).
-// Korak 3: using Obrada = int (*)(int); -- alias za pokazivač na funkciju.
-//   Napiši int udvostruci(int) i int dodajJedan(int), i
-//   int primeni(const std::array<Obrada, 2>& koraci, int x) koja redom
+// Korak 3: using Step = int (*)(int); -- alias za pokazivač na funkciju.
+//   Napiši int twice(int) i int addOne(int), i
+//   int applySteps(const std::array<Step, 2>& steps, int x) koja redom
 //   primeni korake.
 
 #include <array>
@@ -29,31 +29,31 @@
 
 int main() {
     // Korak 1 -- otkomentariši:
-    // std::array<int, 5> ocitavanja{10, 20, 30, 40, 50};
-    // std::cout << "broj: " << ocitavanja.size() << " prvi: " << ocitavanja.front()
-    //           << " poslednji: " << ocitavanja.back() << '\n';
-    // std::cout << "prosek: " << prosek(ocitavanja) << '\n';
+    // std::array<int, 5> readings{10, 20, 30, 40, 50};
+    // std::cout << "count: " << readings.size() << " first: " << readings.front()
+    //           << " last: " << readings.back() << '\n';
+    // std::cout << "average: " << average(readings) << '\n';
     // try {
-    //     std::cout << ocitavanja.at(5);
+    //     std::cout << readings.at(5);
     // } catch (const std::out_of_range&) {
     //     std::cout << "at(5): out_of_range\n";
     // }
 
     // Korak 2 -- otkomentariši:
-    // for (const Poruka& p : {Poruka{42}, Poruka{3.5}, Poruka{std::string("zdravo")}})
-    //     opisi(p);
+    // for (const Message& m : {Message{42}, Message{3.5}, Message{std::string("hello")}})
+    //     describe(m);
 
     // Korak 3 -- otkomentariši:
-    // std::array<Obrada, 2> koraci{udvostruci, dodajJedan};
-    // std::cout << "10 -> " << primeni(koraci, 10) << '\n';
+    // std::array<Step, 2> steps{twice, addOne};
+    // std::cout << "10 -> " << applySteps(steps, 10) << '\n';
 }
 
 /* EXPECTED OUTPUT
-broj: 5 prvi: 10 poslednji: 50
-prosek: 30
+count: 5 first: 10 last: 50
+average: 30
 at(5): out_of_range
 int 42
 double 3.5
-string zdravo
+string hello
 10 -> 21
 */

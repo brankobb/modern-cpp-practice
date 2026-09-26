@@ -5,7 +5,7 @@
 namespace { // anonimni namespace: sve ovde ima INTERNAL linkage
 // main.cpp ima SVOJ describe() u svom anonimnom namespace-u. Dve različite
 // funkcije istog imena, bez sukoba, jer nijedna nije vidljiva linkeru.
-std::string describe() { return "describe() iz util.cpp"; }
+std::string describe() { return "describe() from util.cpp"; }
 } // namespace
 
 namespace util { // isti namespace kao u util.h -- namespace se sme "ponovo otvoriti"
@@ -18,7 +18,7 @@ int add(int a, int b) {
 }
 
 const std::string& defaultName() {
-    static const std::string name = "svete"; // inicijalizuje se pri PRVOM pozivu
+    static const std::string name = "world"; // inicijalizuje se pri PRVOM pozivu
     return name;
 }
 

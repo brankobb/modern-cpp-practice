@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-UB: NAIVNO heap-use-after-free
+// DEMO-UB: NAIVE heap-use-after-free
 //
 // Zadatak 2 -- zašto string_view ne sme da bude član koji "čuva" ime (sekcija 3; ub/u01)
 // Rešenje: exercises/solutions/ex2_pogled_u_prazno.cpp
@@ -7,11 +7,11 @@
 // Kanal pamti svoje ime. Ime se sastavlja u funkciji napravi().
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/38-string-view-and-filesystem/exercises/ex2_pogled_u_prazno.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/38-string-view-and-filesystem/exercises/ex2_pogled_u_prazno.cpp -DNAIVE
 //   ASan: heap-use-after-free. Član ime je string_view -- pokazuje na
 //   lokalni std::string iz napravi(), koji je uništen na izlasku iz
 //   funkcije. Kanal "ima ime" koje više ne postoji.
-//   Bez ASan-a (npr. g++ -std=c++17 -DNAIVNO ...) ispis je smeće:
+//   Bez ASan-a (npr. g++ -std=c++17 -DNAIVE ...) ispis je smeće:
 //   nasumični bajtovi i komad imena drugog kanala. Šta se tačno vidi
 //   zavisi od toga šta je u međuvremenu prepisalo tu memoriju.
 // Korak 2: u #else grani napiši Kanal i napravi() tako da Kanal POSEDUJE
@@ -23,7 +23,7 @@
 #include <string_view>
 #include <vector>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Kanal {
     std::string_view ime;
     int broj;

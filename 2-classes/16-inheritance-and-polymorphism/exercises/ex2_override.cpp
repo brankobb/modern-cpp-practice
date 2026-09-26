@@ -1,12 +1,12 @@
 // KIND: why
-// DEMO-OUT: NAIVNO Senzor::ocitaj -- podrazumevano
+// DEMO-OUT: NAIVE Senzor::ocitaj -- podrazumevano
 // DEMO-ERR: OVERRIDE marked 'override', but does not override|marked 'override' hides virtual
 //
 // Zadatak 2 -- zašto override (sekcija 4, EMC Item 12)
 // Rešenje: exercises/solutions/ex2_override.cpp
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 2-classes/16-inheritance-and-polymorphism/exercises/ex2_override.cpp -DNAIVNO
+//     ./build.sh 2-classes/16-inheritance-and-polymorphism/exercises/ex2_override.cpp -DNAIVE
 //   TermoSenzor "nadjačava" ocitaj(), ali je zaboravio const. To je nova
 //   funkcija sa drugim potpisom -- NE nadjačava. Poziv preko Senzor& ide u
 //   Senzor::ocitaj. Program se kompajlira; g++ 13 i clang daju samo
@@ -32,7 +32,7 @@ struct Senzor {
     }
 };
 
-#if defined(NAIVNO)
+#if defined(NAIVE)
 struct TermoSenzor : Senzor {
     double ocitaj() {                     // fali const: nova funkcija
         std::cout << "TermoSenzor::ocitaj\n";
@@ -53,7 +53,7 @@ void izvestaj(const Senzor& s) {
 }
 
 int main() {
-#if defined(NAIVNO) || defined(OVERRIDE)
+#if defined(NAIVE) || defined(OVERRIDE)
     TermoSenzor t;
     izvestaj(t);
 #else

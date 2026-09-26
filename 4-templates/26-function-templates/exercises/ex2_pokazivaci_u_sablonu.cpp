@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO maks: banana
+// DEMO-OUT: NAIVE maks: banana
 //
 // Zadatak 2 -- zašto opšti šablon "radi" i kad ne treba (sekcije 1, 5)
 // Rešenje: exercises/solutions/ex2_pokazivaci_u_sablonu.cpp
@@ -9,7 +9,7 @@
 // poredi ADRESE, ne tekst.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 4-templates/26-function-templates/exercises/ex2_pokazivaci_u_sablonu.cpp -DNAIVNO
+//     ./build.sh 4-templates/26-function-templates/exercises/ex2_pokazivaci_u_sablonu.cpp -DNAIVE
 //   "jabuka" je abecedno posle "banana", a maks vrati "banana". Dva niza
 //   su članovi iste strukture, pa je b na većoj adresi od a (članovi su u
 //   memoriji redom deklaracije) -- maks je vratio veću ADRESU.
@@ -29,8 +29,8 @@ T maks(T a, T b) {
     return b < a ? a : b;
 }
 
-#ifndef NAIVNO
-// TODO korak 2: overload piši OVDE. Sa -DNAIVNO se preskače, pa problem
+#ifndef NAIVE
+// TODO korak 2: overload piši OVDE. Sa -DNAIVE se preskače, pa problem
 // možeš da vidiš i posle rešenja.
 #endif
 

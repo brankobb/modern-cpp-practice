@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO preostalo od 100 posle 10, 3, 2 i 1: 94
+// DEMO-OUT: NAIVE preostalo od 100 posle 10, 3, 2 i 1: 94
 //
 // Zadatak 2 -- zašto reduce nije "brži accumulate" (sekcije 2, 4)
 // Rešenje: exercises/solutions/ex2_reduce_nije_accumulate.cpp
@@ -7,7 +7,7 @@
 // Budžet 100, troškovi 10, 3, 2 i 1 -- ostaje 84.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 8-concurrency/41-parallel-algorithms/exercises/ex2_reduce_nije_accumulate.cpp -DNAIVNO
+//     ./build.sh 8-concurrency/41-parallel-algorithms/exercises/ex2_reduce_nije_accumulate.cpp -DNAIVE
 //   Ispadne 94 -- a ovde je std::reduce čak BEZ politike (sekvencijalno).
 //   reduce sme da grupiše i premešta operande (zato može paralelno);
 //   libstdc++ to radi i sekvencijalno, po 4 elementa:
@@ -25,7 +25,7 @@
 #include <numeric>
 #include <vector>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 int preostalo(int budzet, const std::vector<int>& t) {
     return std::reduce(t.begin(), t.end(), budzet, [](int a, int b) { return a - b; });
 }

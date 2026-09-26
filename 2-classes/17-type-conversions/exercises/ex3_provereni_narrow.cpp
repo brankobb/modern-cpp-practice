@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO kalibracija = -31072
+// DEMO-OUT: NAIVE kalibracija = -31072
 //
 // Zadatak 3 -- zašto static_cast nije provera (sekcija 8)
 // Rešenje: exercises/solutions/ex3_provereni_narrow.cpp
@@ -8,7 +8,7 @@
 // uređaja je short.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 2-classes/17-type-conversions/exercises/ex3_provereni_narrow.cpp -DNAIVNO
+//     ./build.sh 2-classes/17-type-conversions/exercises/ex3_provereni_narrow.cpp -DNAIVE
 //   100000 postane -31072. static_cast samo kaže kompajleru "znam šta
 //   radim" -- ne proverava opseg. (100000 - 2 * 65536 = -31072.)
 // Korak 2: u #else grani napiši
@@ -26,7 +26,7 @@
 
 long izKonfiguracije() { return 100000; }
 
-#ifdef NAIVNO
+#ifdef NAIVE
 int main() {
     short kal = static_cast<short>(izKonfiguracije());
     std::cout << "kalibracija = " << kal << '\n';

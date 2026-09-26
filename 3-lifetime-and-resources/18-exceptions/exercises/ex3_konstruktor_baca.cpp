@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO port 0: zdravo
+// DEMO-OUT: NAIVE port 0: zdravo
 //
 // Zadatak 3 -- zašto konstruktor baca, umesto init() koji vraća bool
 // (sekcija 7)
@@ -8,7 +8,7 @@
 // Uređaj ima portove 0..3.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/18-exceptions/exercises/ex3_konstruktor_baca.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/18-exceptions/exercises/ex3_konstruktor_baca.cpp -DNAIVE
 //   "Dvofazna inicijalizacija": Port se napravi prazan, pa se otvori
 //   pozivom otvori(), koji vraća false za nepostojeći port. Pozivalac je
 //   zaboravio da proveri rezultat -- i poruka je tiho otišla na port 0.
@@ -26,7 +26,7 @@
 #include <stdexcept>
 #include <string>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 class Port {
 public:
     bool otvori(int broj) {

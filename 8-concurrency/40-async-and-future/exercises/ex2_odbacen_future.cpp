@@ -1,6 +1,6 @@
 // KIND: why
 // SANITIZER: thread
-// DEMO-OUT: NAIVNO A je sreo B: false, B je sreo A: true
+// DEMO-OUT: NAIVE A je sreo B: false, B je sreo A: true
 //
 // Zadatak 2 -- zašto "pokreni i zaboravi" sa std::async ne radi
 // paralelno (sekcija 4, EMC Item 38)
@@ -10,7 +10,7 @@
 // promise) i čeka do 300 ms da stigne i drugi.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 8-concurrency/40-async-and-future/exercises/ex2_odbacen_future.cpp -DNAIVNO
+//     ./build.sh 8-concurrency/40-async-and-future/exercises/ex2_odbacen_future.cpp -DNAIVE
 //   Prvo: kompajler upozori "ignoring return value ... nodiscard" --
 //   libstdc++ označava std::async sa [[nodiscard]], i to baš zbog ovoga.
 //   Zatim: A čeka B 300 ms uzalud, i tek onda počne B.
@@ -39,7 +39,7 @@ void zadatakB() {
     bSreoA = signalA.wait_for(std::chrono::milliseconds(300)) == std::future_status::ready;
 }
 
-#ifdef NAIVNO
+#ifdef NAIVE
 void pokreniOba() {
     std::async(std::launch::async, zadatakA);
     std::async(std::launch::async, zadatakB);

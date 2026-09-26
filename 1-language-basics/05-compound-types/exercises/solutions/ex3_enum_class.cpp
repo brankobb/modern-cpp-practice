@@ -5,28 +5,28 @@
 
 // Ako koristiš obični enum i int u API-ju (nije dobro): svaki enum, i svaki
 // broj, prolazi kao "komanda", pa pogrešna vrednost stigne do uređaja.
-// Treba ovako: enum class -- imena su u svom opsegu (Komanda::Kreni), nema
+// Treba ovako: enum class -- imena su u svom opsegu (Command::Start), nema
 // tihe konverzije, a podloženi tip biraš sam (ovde 1 bajt, kao na žici).
-enum class Stanje : std::uint8_t { Iskljuceno, Rad, Greska };
-enum class Komanda : std::uint8_t { Stani, Kreni, Resetuj };
+enum class State : std::uint8_t { Off, Running, Fault };
+enum class Command : std::uint8_t { Stop, Start, Reset };
 
-const char* ime(Komanda k) {
-    switch (k) {   // -Wall upozori ako neki enumerator nije pokriven
-        case Komanda::Stani: return "Stani";
-        case Komanda::Kreni: return "Kreni";
-        case Komanda::Resetuj: return "Resetuj";
+const char* name(Command c) {
+    switch (c) {   // -Wall upozori ako neki enumerator nije pokriven
+        case Command::Stop: return "Stop";
+        case Command::Start: return "Start";
+        case Command::Reset: return "Reset";
     }
     return "?";
 }
 
-void posalji(Komanda k) {
+void send(Command c) {
     // Broj tražiš eksplicitno, tačno na mestu gde ti treba (protokol).
-    auto bajt = static_cast<std::uint8_t>(k);
-    std::cout << "šaljem komandu " << ime(k) << ", bajt " << int(bajt) << '\n';
+    auto byte = static_cast<std::uint8_t>(c);
+    std::cout << "sending command " << name(c) << ", byte " << int(byte) << '\n';
 }
 
 int main() {
-    posalji(Komanda::Resetuj);
-    posalji(Komanda::Kreni);
-    std::cout << "sizeof(Komanda) = " << sizeof(Komanda) << '\n';
+    send(Command::Reset);
+    send(Command::Start);
+    std::cout << "sizeof(Command) = " << sizeof(Command) << '\n';
 }

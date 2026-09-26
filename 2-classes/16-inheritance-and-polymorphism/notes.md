@@ -334,14 +334,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_oblici`](exercises/ex1_oblici.cpp) | usage | interfejs, override, final, virtualni destruktor i clone() (sekcije 4, 5, 9, 12) | — |
-| [`ex2_override`](exercises/ex2_override.cpp) | why | zašto override (sekcija 4, EMC Item 12) | `-DNAIVNO`, `-DOVERRIDE` |
-| [`ex3_slicing`](exercises/ex3_slicing.cpp) | why | zašto se polimorfni objekti ne čuvaju po vrednosti (sekcija 8) | `-DNAIVNO` |
+| [`ex2_override`](exercises/ex2_override.cpp) | why | zašto override (sekcija 4, EMC Item 12) | `-DNAIVE`, `-DOVERRIDE` |
+| [`ex3_slicing`](exercises/ex3_slicing.cpp) | why | zašto se polimorfni objekti ne čuvaju po vrednosti (sekcija 8) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

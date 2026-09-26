@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-ERR: NAIVNO incomplete
+// DEMO-ERR: NAIVE incomplete
 //
 // Zadatak 3 -- zašto paralelni for_each ne vraća funktor (sekcija 4; errors/e01)
 // Rešenje: exercises/solutions/ex3_for_each_bez_stanja.cpp
@@ -8,7 +8,7 @@
 // radi: for_each vrati funktor, a u njemu je nakupljen broj.
 //
 // Korak 1: pokušaj da prevedeš naivnu (paralelnu) verziju:
-//     ./build.sh 8-concurrency/41-parallel-algorithms/exercises/ex3_for_each_bez_stanja.cpp -DNAIVNO
+//     ./build.sh 8-concurrency/41-parallel-algorithms/exercises/ex3_for_each_bez_stanja.cpp -DNAIVE
 //   Greška: rezultat for_each(par, ...) je void. U paralelnom izvršavanju
 //   svaka nit dobije svoju KOPIJU funktora i broji svoj deo -- ne postoji
 //   jedan brojač koji bi mogao da se vrati. (Sa referencom na zajednički
@@ -29,7 +29,7 @@ struct BrojacAlarma {
     }
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 long alarmi(const std::vector<double>& v, double prag) {
     auto b = std::for_each(std::execution::par, v.begin(), v.end(), BrojacAlarma{prag});
     return b.n;

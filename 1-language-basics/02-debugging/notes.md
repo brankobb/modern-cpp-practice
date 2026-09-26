@@ -43,8 +43,9 @@ g++ -std=c++17 -g -O0 -fno-omit-frame-pointer main.cpp -o dbg
 | `-fno-omit-frame-pointer` | pouzdan stek poziva (`bt`, i stekovi u ASan izveštaju) |
 
 ⚠️ Sa `-O2` kod je preuređen: funkcije se ubacuju (inline) u pozivaoce,
-redovi se spajaju i menjaju redosled. Test: `break zbir` na `-O2` build-u
-javi "(2 locations)", jer je `zbir` i inline-ovan u `prosek`. Debuguj na
+redovi se spajaju i menjaju redosled. Test: `break sum` na `-g -O2` build-u
+javi "(3 locations)": pored same funkcije `sum`, gdb nađe i njene kopije
+ubačene (inline) u pozivaoce. Debuguj na
 `-O0`, a bag koji se javlja samo na `-O2` je gotovo uvek UB (sekcija 6).
 
 `build.sh` briše izvršni fajl posle pokretanja, pa za gdb kompajliraj
@@ -56,13 +57,13 @@ ručno, kao gore.
 
 | Komanda | Skraćeno | Šta radi |
 |---|---|---|
-| `break zbir` / `break main.cpp:21` | `b` | breakpoint na funkciji / redu |
+| `break sum` / `break main.cpp:21` | `b` | breakpoint na funkciji / redu |
 | `run` | `r` | pokreni program (do prvog breakpoint-a) |
 | `next` | `n` | sledeći red, PREKO poziva funkcija |
 | `step` | `s` | sledeći red, ULAZI u pozvanu funkciju |
 | `finish` | `fin` | završi tekuću funkciju, ispiši povratnu vrednost |
 | `continue` | `c` | nastavi do sledećeg breakpoint-a |
-| `print izraz` | `p` | ispiši vrednost (i `p v.size()`, `p *ptr`, `p niz[2]`) |
+| `print izraz` | `p` | ispiši vrednost (i `p v.size()`, `p *ptr`, `p arr[2]`) |
 | `info locals` | `i lo` | sve lokalne promenljive |
 | `bt` | | stek poziva (backtrace) |
 | `frame N`, `up`, `down` | `f` | pređi na okvir N u steku (pa `p` vidi njegove promenljive) |
@@ -71,14 +72,14 @@ ručno, kao gore.
 Transkript (`main.cpp` ove lekcije):
 
 ```
-(gdb) break zbir
+(gdb) break sum
 Breakpoint 1 at 0x12b9: file main.cpp, line 19.
 (gdb) run
-Breakpoint 1, zbir (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:19
+Breakpoint 1, sum (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:19
 19	    int s = 0;
 (gdb) bt
-#0  zbir (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:19
-#1  0x... in prosek (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:27
+#0  sum (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:19
+#1  0x... in average (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:27
 #2  0x... in main () at main.cpp:45
 (gdb) next
 20	    for (std::size_t i = 0; i < v.size(); ++i) {
@@ -91,8 +92,8 @@ $2 = std::vector of length 4, capacity 4 = {10, 20, 30, 40}
 (gdb) print v.size()
 $3 = 4
 (gdb) finish
-0x... in prosek (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:27
-27	    int s = zbir(v);
+0x... in average (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:27
+27	    int s = sum(v);
 Value returned is $4 = 100
 ```
 
@@ -110,7 +111,7 @@ Kad bag nastaje tek u N-toj iteraciji, ne kucaš `next` N puta:
 (gdb) break 21 if i == 2
 Breakpoint 1 at 0x12ca: file main.cpp, line 21.
 (gdb) run
-Breakpoint 1, zbir (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:21
+Breakpoint 1, sum (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:21
 21	        s += v[i];
 (gdb) info locals
 i = 2
@@ -122,7 +123,7 @@ Hardware watchpoint 2: s
 
 Old value = 30
 New value = 60
-zbir (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:20
+sum (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:20
 20	    for (std::size_t i = 0; i < v.size(); ++i) {
 ```
 
@@ -138,21 +139,21 @@ zbir (v=std::vector of length 4, capacity 4 = {...}) at main.cpp:20
 # 4. Posle pada: stek poziva
 
 Program bez sanitizera padne sa "Segmentation fault". Pokreni ga u gdb-u
-(`ub/u03`, build bez sanitizera: `g++ -std=c++17 -g -O0 ub/u03_null_pokazivac.cpp -o u03`):
+(`ub/u03`, build bez sanitizera: `g++ -std=c++17 -g -O0 ub/u03_null_pointer.cpp -o u03`):
 
 ```
 (gdb) run
 Program received signal SIGSEGV, Segmentation fault.
-0x... in procitaj (s=0x0) at u03_null_pokazivac.cpp:18
-18	int procitaj(const Senzor* s) { return s->id; }
+0x... in readId (s=0x0) at u03_null_pointer.cpp:18
+18	int readId(const Sensor* s) { return s->id; }
 (gdb) bt
-#0  0x... in procitaj (s=0x0) at u03_null_pokazivac.cpp:18
-#1  0x... in main (argc=1) at u03_null_pokazivac.cpp:21
+#0  0x... in readId (s=0x0) at u03_null_pointer.cpp:18
+#1  0x... in main (argc=1) at u03_null_pointer.cpp:21
 ```
 
 `s=0x0` u #0 kaže uzrok (null pokazivač), a #1 ko ga je prosledio. Sa
 sanitizerima isti program prijavi UBSan "member access within null
-pointer of type 'const struct Senzor'" (`ub/u03`), pa ASan SEGV.
+pointer of type 'const struct Sensor'" (`ub/u03`), pa ASan SEGV.
 
 ---
 
@@ -163,13 +164,13 @@ Izveštaj za `ub/u01` (off-by-one upis u niz na steku), skraćeno:
 ```
 ==PID==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x... at pc 0x... bp 0x... sp 0x...
 WRITE of size 4 at 0x... thread T0
-    #0 0x... in popuni(int*, int) u01_off_by_one_stek.cpp:14
-    #1 0x... in main u01_off_by_one_stek.cpp:19
+    #0 0x... in fill(int*, int) u01_off_by_one_stack.cpp:14
+    #1 0x... in main u01_off_by_one_stack.cpp:19
 Address 0x... is located in stack of thread T0 at offset 52 in frame
-    #0 0x... in main u01_off_by_one_stek.cpp:17
+    #0 0x... in main u01_off_by_one_stack.cpp:17
   This frame has 1 object(s):
-    [32, 52) 'niz' (line 18) <== Memory access at offset 52 overflows this variable
-SUMMARY: AddressSanitizer: stack-buffer-overflow u01_off_by_one_stek.cpp:14 in popuni(int*, int)
+    [32, 52) 'arr' (line 18) <== Memory access at offset 52 overflows this variable
+SUMMARY: AddressSanitizer: stack-buffer-overflow u01_off_by_one_stack.cpp:14 in fill(int*, int)
 ```
 
 Čitaj odozgo:
@@ -179,7 +180,7 @@ SUMMARY: AddressSanitizer: stack-buffer-overflow u01_off_by_one_stek.cpp:14 in p
 2. **`WRITE`/`READ of size N`**: upis ili čitanje, i koliko bajtova (4 =
    jedan `int`).
 3. **Prvi red steka (`#0`)**: tačna linija gde se desilo.
-4. **Koja promenljiva**: `[32, 52) 'niz'`. Niz zauzima bajtove 32–51 u
+4. **Koja promenljiva**: `[32, 52) 'arr'`. Niz zauzima bajtove 32–51 u
    okviru funkcije, a pristup je na 52: prvi bajt POSLE niza.
 
 Za greške na **heap-u** izveštaj ima **tri steka** (`ub/u02`, skraćeno):
@@ -187,14 +188,14 @@ Za greške na **heap-u** izveštaj ima **tri steka** (`ub/u02`, skraćeno):
 ```
 ==PID==ERROR: AddressSanitizer: heap-use-after-free on address 0x... at pc 0x... bp 0x... sp 0x...
 READ of size 4 at 0x... thread T0
-    #0 0x... in main u02_referenca_posle_rasta.cpp:17
+    #0 0x... in main u02_reference_after_growth.cpp:17
 0x... is located 0 bytes inside of 12-byte region [0x...,0x...)
 freed by thread T0 here:
     #0 0x... in operator delete(void*, unsigned long) ...
     #3 0x... in std::_Vector_base<int, std::allocator<int> >::_M_deallocate(int*, unsigned long) ...
     #4 0x... in void std::vector<int, std::allocator<int> >::_M_realloc_insert<int>(...) ...
     #6 0x... in std::vector<int, std::allocator<int> >::push_back(int&&) ...
-    #7 0x... in main u02_referenca_posle_rasta.cpp:16
+    #7 0x... in main u02_reference_after_growth.cpp:16
 previously allocated by thread T0 here:
     #0 0x... in operator new(unsigned long) ...
     #3 0x... in std::_Vector_base<int, std::allocator<int> >::_M_allocate(unsigned long) ...
@@ -212,13 +213,13 @@ previously allocated by thread T0 here:
 # 6. UBSan: nastavlja posle greške
 
 ```
-ub.cpp:3:39: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int'
+ub.cpp:3:51: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int'
 -2147483648
-posle
+after
 ```
 
 - ⚠️ UBSan **podrazumevano prijavi i nastavi** (test: exit code 0, i
-  program ispiše i "posle"). Prijava se lako izgubi u ostatku izlaza.
+  program ispiše i "after"). Prijava se lako izgubi u ostatku izlaza.
   ASan, za razliku od njega, prekida program.
 - ✅ `-fno-sanitize-recover=all` pri kompajliranju: UBSan stane na prvoj
   grešci (test: exit code 1). `check_exercises.sh` gradi sa tim flegom.
@@ -242,15 +243,15 @@ posle
 Neuspeli `assert` (test):
 
 ```
-as: as.cpp:2: int main(int, char**): Assertion `n > 0 && "n mora biti pozitivan"' failed.
+as: as.cpp:2: int main(int, char**): Assertion `n > 0 && "n must be positive"' failed.
 ```
 
 (Zatim shell javi "Aborted", a exit kod je 134 = 128 + SIGABRT.)
 
 - ✅ `assert(uslov && "objašnjenje")`: string literal je uvek tačan, pa ne
   menja uslov, a ispiše se u poruci.
-- ❌ **Nikad bočni efekat u `assert`-u**: `assert(inicijalizuj())` sa
-  `-DNDEBUG` ne pozove `inicijalizuj()` uopšte (zadatak ex2).
+- ❌ **Nikad bočni efekat u `assert`-u**: `assert(initialize())` sa
+  `-DNDEBUG` ne pozove `initialize()` uopšte (zadatak ex2).
 - ✅ Za proveru koja mora da ostane i u release-u (ulaz spolja, podaci sa
   mreže), `if` + izuzetak ili kod greške, ne `assert`.
 - `-D_GLIBCXX_ASSERTIONS` uključuje `assert`-ove unutar libstdc++ (npr.
@@ -302,13 +303,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_nadji_bag_gdb`](exercises/ex1_nadji_bag_gdb.cpp) | usage | nađi logički bag gdb-om (sekcije 1, 2, 3) | — |
-| [`ex2_assert_bocni_efekat`](exercises/ex2_assert_bocni_efekat.cpp) | why | zašto u assert-u nikad nema bočnog efekta (sekcija 7) | `-DNDEBUG` |
-| [`ex3_allocated_by`](exercises/ex3_allocated_by.cpp) | why | zašto se u ASan izveštaju čita i "allocated by" (sekcija 5) | `-DNAIVNO` |
+| [`ex1_find_bug_with_gdb`](exercises/ex1_find_bug_with_gdb.cpp) | usage | nađi logički bag gdb-om (sekcije 1, 2, 3) | — |
+| [`ex2_assert_side_effect`](exercises/ex2_assert_side_effect.cpp) | why | zašto u assert-u nikad nema bočnog efekta (sekcija 7) | `-DNDEBUG` |
+| [`ex3_allocated_by`](exercises/ex3_allocated_by.cpp) | why | zašto se u ASan izveštaju čita i "allocated by" (sekcija 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

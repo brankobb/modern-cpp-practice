@@ -307,13 +307,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_kruzni_bafer`](exercises/ex1_kruzni_bafer.cpp) | usage | klasni šablon sa ne-tipskim parametrom, variadic metoda sa fold izrazom, static_assert i alias šablon (sekcije 2, 3, 6, 8) | — |
-| [`ex2_trait_i_referenca`](exercises/ex2_trait_i_referenca.cpp) | why | zašto se tip "očisti" pre pitanja traitu (sekcija 7) | `-DNAIVNO` |
-| [`ex3_rekurzija_bez_kraja`](exercises/ex3_rekurzija_bez_kraja.cpp) | why | zašto variadic rekurzija mora da ima kraj, i zašto je fold jednostavniji (sekcija 2) | `-DNAIVNO` |
+| [`ex2_trait_i_referenca`](exercises/ex2_trait_i_referenca.cpp) | why | zašto se tip "očisti" pre pitanja traitu (sekcija 7) | `-DNAIVE` |
+| [`ex3_rekurzija_bez_kraja`](exercises/ex3_rekurzija_bez_kraja.cpp) | why | zašto variadic rekurzija mora da ima kraj, i zašto je fold jednostavniji (sekcija 2) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

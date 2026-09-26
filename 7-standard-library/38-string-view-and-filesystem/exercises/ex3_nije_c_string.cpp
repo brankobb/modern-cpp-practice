@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO poslato: \[temp=21;vlaga=40\]
+// DEMO-OUT: NAIVE poslato: \[temp=21;vlaga=40\]
 //
 // Zadatak 3 -- zašto data() od string_view-a nije C string (sekcija 3; errors/e03)
 // Rešenje: exercises/solutions/ex3_nije_c_string.cpp
@@ -8,7 +8,7 @@
 // C funkciji posaljiNaPort(const char*) -- kao drajver serijskog porta.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/38-string-view-and-filesystem/exercises/ex3_nije_c_string.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/38-string-view-and-filesystem/exercises/ex3_nije_c_string.cpp -DNAIVE
 //   Prvi deo je "temp=21", a poslato je "temp=21;vlaga=40". data() je
 //   samo pokazivač na PRVI znak pogleda; C funkcija čita do '\0', a '\0'
 //   postoji tek na kraju celog originala. Nije UB samo zato što je
@@ -23,7 +23,7 @@
 
 void posaljiNaPort(const char* poruka) { std::printf("poslato: [%s]\n", poruka); }   // "C API"
 
-#ifdef NAIVNO
+#ifdef NAIVE
 void posalji(std::string_view deo) { posaljiNaPort(deo.data()); }
 #else
 // TODO korak 2 (dok ne napišeš, šalje se "?")

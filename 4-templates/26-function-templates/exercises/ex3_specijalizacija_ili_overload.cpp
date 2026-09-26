@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO poziv sa int\*: opšti T\*
+// DEMO-OUT: NAIVE poziv sa int\*: opšti T\*
 //
 // Zadatak 3 -- zašto overload umesto eksplicitne specijalizacije
 // funkcijskog šablona (sekcija 5)
@@ -9,7 +9,7 @@
 // ponašanje, pa je neko napisao template<> specijalizaciju.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 4-templates/26-function-templates/exercises/ex3_specijalizacija_ili_overload.cpp -DNAIVNO
+//     ./build.sh 4-templates/26-function-templates/exercises/ex3_specijalizacija_ili_overload.cpp -DNAIVE
 //   Specijalizacija se NE pozove. Zašto:
 //   a) template<> void obradi<>(int*) specijalizuje šablon koji je u tom
 //      trenutku VIDLJIV -- ovde samo obradi(T), sa T = int*;
@@ -31,7 +31,7 @@ void obradi(T) {
     std::cout << "opšti T\n";
 }
 
-#ifdef NAIVNO
+#ifdef NAIVE
 template <>
 void obradi<>(int*) {
     std::cout << "specijalizacija za int*\n";

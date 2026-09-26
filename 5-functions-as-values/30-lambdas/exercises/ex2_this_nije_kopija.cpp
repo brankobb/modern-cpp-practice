@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO 15 ispod praga: false
+// DEMO-OUT: NAIVE 15 ispod praga: false
 //
 // Zadatak 2 -- zašto [=] u metodi ne pravi snimak članova (sekcija 7)
 // Rešenje: exercises/solutions/ex2_this_nije_kopija.cpp
@@ -8,7 +8,7 @@
 // JE BIO kad je provera napravljena (npr. za pravilo zakazano unapred).
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 5-functions-as-values/30-lambdas/exercises/ex2_this_nije_kopija.cpp -DNAIVNO
+//     ./build.sh 5-functions-as-values/30-lambdas/exercises/ex2_this_nije_kopija.cpp -DNAIVE
 //   Provera je napravljena sa pragom 20, prag je zatim promenjen na 10,
 //   a provera koristi 10. [=] ne kopira članove: zarobi pokazivač this, pa
 //   prag_ u lambdi znači this->prag_ -- uvek trenutna vrednost. (Da je
@@ -26,7 +26,7 @@ public:
     void postaviPrag(int p) { prag_ = p; }
     int prag() const { return prag_; }
 
-#ifdef NAIVNO
+#ifdef NAIVE
     auto napraviProveru() const {
         return [=](int t) { return t < prag_; };
     }

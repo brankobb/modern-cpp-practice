@@ -25,16 +25,16 @@ struct A {
 void s01_defaultInit() {
     std::cout << "-- 1. default initialization --\n";
     static int s_local; // takođe statičko trajanje -> 0
-    std::cout << "globalni int: " << g_global << ", static lokalni int: " << s_local << "\n";
+    std::cout << "global int: " << g_global << ", static local int: " << s_local << "\n";
 
     int x; // lokalni: NEODREĐENA vrednost -- čitanje pre upisa je UB
     A a;   // a.x takođe neodređen
     x = 1; // zato uvek prvo upis
     a.x = 2;
-    std::cout << "lokalni posle upisa: x=" << x << " a.x=" << a.x << "\n";
+    std::cout << "local after assignment: x=" << x << " a.x=" << a.x << "\n";
 
     std::string s; // klasa sa default ctor-om: uvek ispravno inicijalizovana
-    std::cout << "std::string s; -> size()=" << s.size() << " (prazan, ne garbage)\n";
+    std::cout << "std::string s; -> size()=" << s.size() << " (empty, not garbage)\n";
 }
 
 // ---------------------------------------------------------------- 2
@@ -69,7 +69,7 @@ void s03_directInit() {
     std::string s("hello");
     std::vector<int> v(10); // 10 elemenata, svi 0
     ExplicitOnly e(5);      // explicit ctor SE razmatra kod direct-init
-    Name n("Marko");        // "Marko" -> std::string je JEDNA korisnička konverzija -- OK
+    Name n("John");        // "John" -> std::string je JEDNA korisnička konverzija -- OK
     std::cout << "x=" << x << " s=" << s << " v.size()=" << v.size()
               << " e.v_=" << e.v_ << " n.v_=" << n.v_ << "\n";
 }
@@ -87,7 +87,7 @@ void s04_copyInit() {
     std::cout << "x=" << x << " s=" << s << "\n";
 
     // explicit S(int) se kod copy-init uopšte NE razmatra -> bira se S(long),
-    // iako je S(int) tačniji match. (Name n = "Marko"; ne radi -- errors/e08.)
+    // iako je S(int) tačniji match. (Name n = "John"; ne radi -- errors/e08.)
     std::cout << "S a = 1;\n";
     S a = 1;
     (void)a;
@@ -116,7 +116,7 @@ void s05_listInit() {
 
 // ---------------------------------------------------------------- 6
 void s06_narrowing() {
-    std::cout << "-- 6. narrowing: () i = ga tiho puštaju, {} ga zabranjuje --\n";
+    std::cout << "-- 6. narrowing: () and = let it through silently, {} forbids it --\n";
     double d = 3.99;
     int a(d);  // 3 -- tiho odsecanje, BEZ warning-a čak i uz -Wall -Wextra
     int b = d; // 3 -- isto (upozorenje daje tek -Wconversion)
@@ -153,8 +153,8 @@ private:
 };
 
 void s07_objects() {
-    std::cout << "-- 7. {} za objekte --\n";
-    Person p{"Marko", 30};
+    std::cout << "-- 7. {} for objects --\n";
+    Person p{"John", 30};
     p.print();
 }
 
@@ -216,7 +216,7 @@ struct Mandatory {
 };
 
 struct Named {
-    explicit Named(const char* n) { std::cout << "  konstruisan " << n << "\n"; }
+    explicit Named(const char* n) { std::cout << "  constructed " << n << "\n"; }
 };
 
 struct Order {
@@ -229,14 +229,14 @@ struct Order {
 
 void s09_ctorInitList() {
     std::cout << "-- 9. constructor initializer list --\n";
-    std::cout << "ViaBody (dodela u telu):\n";
+    std::cout << "ViaBody (assignment in the body):\n";
     ViaBody vb;
-    std::cout << "ViaInitList (init lista):\n";
+    std::cout << "ViaInitList (init list):\n";
     ViaInitList vil;
     int x = 7;
     Mandatory m(5, x);
     std::cout << "Mandatory: c=" << m.c << " r_=" << m.r_ << "\n";
-    std::cout << "Order (init lista: a, b):\n";
+    std::cout << "Order (init list: a, b):\n";
     Order o;
     (void)vb;
     (void)vil;
@@ -245,18 +245,18 @@ void s09_ctorInitList() {
 
 // ---------------------------------------------------------------- 10
 void s10_stlTrap() {
-    std::cout << "-- 10. STL zamka: () vs {} --\n";
+    std::cout << "-- 10. STL trap: () vs {} --\n";
     std::vector<int> v1(10);               // 10 elemenata, svi 0
     std::vector<int> v2{10};               // 1 element: 10
     std::vector<int> v3(10, 20);           // 10 elemenata, svi 20
     std::vector<int> v4{10, 20};           // 2 elementa: 10, 20
     std::vector<std::string> v5{10};       // 10 PRAZNIH stringova -- vidi sekciju 11
     std::vector<std::string> v6{"a", "b"}; // 2 elementa
-    std::cout << "vector<int>(10)=" << v1.size() << " el.  vector<int>{10}=" << v2.size()
-              << " el. (v2[0]=" << v2[0] << ")\n";
-    std::cout << "vector<int>(10,20)=" << v3.size() << " el.  vector<int>{10,20}=" << v4.size() << " el.\n";
-    std::cout << "vector<string>{10}=" << v5.size() << " el. (!)  vector<string>{\"a\",\"b\"}="
-              << v6.size() << " el.\n";
+    std::cout << "vector<int>(10)=" << v1.size() << " elem.  vector<int>{10}=" << v2.size()
+              << " elem. (v2[0]=" << v2[0] << ")\n";
+    std::cout << "vector<int>(10,20)=" << v3.size() << " elem.  vector<int>{10,20}=" << v4.size() << " elem.\n";
+    std::cout << "vector<string>{10}=" << v5.size() << " elem. (!)  vector<string>{\"a\",\"b\"}="
+              << v6.size() << " elem.\n";
 }
 
 // ---------------------------------------------------------------- 11
@@ -292,7 +292,7 @@ struct WidgetEmpty {
 };
 
 void s11_initializerListPriority() {
-    std::cout << "-- 11. initializer_list ima prioritet (EMC Item 7) --\n";
+    std::cout << "-- 11. initializer_list takes priority (EMC Item 7) --\n";
     std::cout << "Basic a(1, 2); / Basic b{1, 2};\n";
     Basic a(1, 2);
     Basic b{1, 2};
@@ -324,7 +324,7 @@ void s11_initializerListPriority() {
     //   clang 18: copy ctor / move ctor
     // Pouka: ne pravi klasu sa initializer_list ctor-om i konverzijom u
     // njegov element-tip, i za kopiju piši Widget w5(w4) sa zagradama.
-    std::cout << "Widget w5{w4}; / Widget w6{std::move(w4)};  (zavisi od kompajlera):\n";
+    std::cout << "Widget w5{w4}; / Widget w6{std::move(w4)};  (compiler dependent):\n";
     Widget w5{w4};
     Widget w6{std::move(w4)};
     (void)w1; (void)w2; (void)w3; (void)w5; (void)w6; (void)f; (void)e1; (void)e2; (void)e3;
@@ -342,13 +342,13 @@ void s12_auto() {
     static_assert(std::is_same_v<decltype(c), int>);
     static_assert(std::is_same_v<decltype(d), std::initializer_list<int>>);
     std::cout << "auto a{5} -> int, auto b = {5} -> initializer_list<int>, "
-              << "auto d = {1,2,3} -> initializer_list<int> (proverava static_assert)\n";
+              << "auto d = {1,2,3} -> initializer_list<int> (checked by static_assert)\n";
     (void)a; (void)b; (void)c; (void)d;
 }
 
 // ---------------------------------------------------------------- 13
 void s13_dynamic() {
-    std::cout << "-- 13. dinamička alokacija --\n";
+    std::cout << "-- 13. dynamic allocation --\n";
     int* p1 = new int(42);
     int* p2 = new int{42};
     int* p3 = new int;   // default-init: NEODREĐENA vrednost
@@ -357,13 +357,13 @@ void s13_dynamic() {
     *p3 = 7;             // pre čitanja mora upis
     int* arr1 = new int[5]{};     // svi 0
     int* arr2 = new int[5]{1, 2}; // 1 2 0 0 0
-    Person* person = new Person{"Marko", 30};
+    Person* person = new Person{"John", 30};
     std::cout << "new int(42)=" << *p1 << " new int{42}=" << *p2 << " new int()=" << *p4
               << " new int{}=" << *p5 << "\nnew int[5]{1,2} = ";
     for (int i = 0; i < 5; ++i) std::cout << arr2[i] << ' ';
     std::cout << "  new int[5]{} = ";
     for (int i = 0; i < 5; ++i) std::cout << arr1[i] << ' ';
-    std::cout << "\nnew Person{\"Marko\", 30} -> ";
+    std::cout << "\nnew Person{\"John\", 30} -> ";
     person->print();
     delete p1; delete p2; delete p3; delete p4; delete p5;
     delete[] arr1; delete[] arr2;
@@ -403,7 +403,7 @@ void s14_aggregate() {
         int y;
     };
     Defaulted dd{1, 2};
-    std::cout << "C++17: Defaulted{1,2} (ima = default ctor) je agregat: (" << dd.x << "," << dd.y << ")\n";
+    std::cout << "C++17: Defaulted{1,2} (has an = default ctor) is an aggregate: (" << dd.x << "," << dd.y << ")\n";
 #else
     // C++20 (P0960): agregat može i sa (). U C++17 greška -- errors/e16.
     Point paren(1, 2);
@@ -429,7 +429,7 @@ void s15_designated() {
 }
 #else
 void s15_designated() {
-    std::cout << "-- 15. designated initializers (C++20) -- PRESKOČENO, pokreni sa -std=c++20 --\n";
+    std::cout << "-- 15. designated initializers (C++20) -- SKIPPED, run with -std=c++20 --\n";
 }
 #endif
 
@@ -455,7 +455,7 @@ void s16_mostVexingParse() {
     MyClass ok2;              // objekat
     TimerWidget ok3{Timer{}}; // objekat
     TimerWidget ok4((Timer())); // objekat -- i dodatne zagrade rešavaju
-    std::cout << "obj i w su funkcije (static_assert); ok1.value=" << ok1.value
+    std::cout << "obj and w are functions (static_assert); ok1.value=" << ok1.value
               << " ok2.value=" << ok2.value << "\n";
     (void)ok3;
     (void)ok4;
@@ -476,11 +476,11 @@ T makeWithBraces(Ts&&... params) {
 }
 
 void s17_genericCode() {
-    std::cout << "-- 17. generički kod: () vs {} za isti poziv --\n";
+    std::cout << "-- 17. generic code: () vs {} for the same call --\n";
     auto v1 = makeWithParens<std::vector<int>>(10, 20);
     auto v2 = makeWithBraces<std::vector<int>>(10, 20);
     std::cout << "makeWithParens<vector<int>>(10, 20) -> " << v1.size()
-              << " el.   makeWithBraces<vector<int>>(10, 20) -> " << v2.size() << " el.\n";
+              << " elem.   makeWithBraces<vector<int>>(10, 20) -> " << v2.size() << " elem.\n";
 }
 
 int main() {

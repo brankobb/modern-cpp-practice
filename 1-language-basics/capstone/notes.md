@@ -22,13 +22,13 @@ rezultat. Očekuj 2–3 sedenja.
 ## Ulaz
 
 ```
-kanal temp min=-20 max=60 jedinica=C      <- konfiguracija kanala
+channel temp min=-20 max=60 unit=C        <- konfiguracija kanala
 temp 21.5                                 <- merenje: ime i vrednost
 # komentar                                <- preskače se, kao i prazan red
 ```
 
 - Kanal je ispravan ako ima `min` i `max` i ako je `min < max`; red
-  `kanal los min=5` nije, i broji se kao neispravan red konfiguracije.
+  `channel broken min=5` nije, i broji se kao neispravan red konfiguracije.
 - Merenje ima najviše jednu grešku, proverenu ovim redom: **loš format**
   (nije tačno dve reči), **nepoznat kanal**, **nije broj** (`abc`, `2x`),
   **van opsega** kanala.
@@ -41,16 +41,16 @@ temp 21.5                                 <- merenje: ime i vrednost
 | 2 | čitanje red po red, validacija, brojanje grešaka po vrsti | lekcija 04, sekcija 10; lekcija 09, sekcija 3; lekcija 07 |
 | 2 | vrste grešaka kao `enum class`, nazivi u `constexpr` tabeli uz `static_assert` | lekcija 05, sekcija 4; lekcija 12, sekcija 6 |
 | 3 | statistika po kanalu, range-for sa structured bindings | lekcija 10, sekcija 7 |
-| 4 | formatiran izveštaj, overload `kolona` za broj i tekst | lekcija 01, sekcija 8; lekcija 11, sekcija 1 |
-| — | sve u `namespace merenja`; ulaz kao raw string literal | lekcija 08, sekcija 1; lekcija 06, sekcija 2 |
+| 4 | formatiran izveštaj, overload `column` za broj i tekst | lekcija 01, sekcija 8; lekcija 11, sekcija 1 |
+| — | sve u `namespace measurements`; ulaz kao raw string literal | lekcija 08, sekcija 1; lekcija 06, sekcija 2 |
 
 ## Na šta da paziš
 
 - ⚠️ `std::stod("2x")` vrati 2 i ćuti; zato provera da posle broja ništa
-  nije ostalo (`in >> visak` ne sme da uspe).
+  nije ostalo (`in >> extra` ne sme da uspe).
 - ⚠️ Merenje pamti **indeks** kanala, a ne pokazivač na element vektora
   -- pokazivač bi visio čim vektor kanala naraste (lekcija 04, sekcija 12).
-- ⚠️ `static_cast<std::size_t>(greska)` kao indeks u tabelu radi samo dok
+- ⚠️ `static_cast<std::size_t>(error)` kao indeks u tabelu radi samo dok
   tabela prati enum; `static_assert` to proverava pri kompajliranju --
   dodaj novu vrstu greške i vidi šta se desi.
 - ✅ Statistika bez posebnih slučajeva za prvo merenje: `st.n == 0 || v < st.min`.
@@ -58,8 +58,8 @@ temp 21.5                                 <- merenje: ime i vrednost
 ## Posle rešenja
 
 1. Gde bi `std::optional<double>` (lekcija 37) bio bolji od
-   `bool procitajBroj(const std::string&, double&)`?
-2. Kako bi izgledao isti program kad bi `Kanal` bio klasa sa invarijantom
+   `bool readNumber(const std::string&, double&)`?
+2. Kako bi izgledao isti program kad bi `Channel` bio klasa sa invarijantom
    `min < max` (deo 2)?
 3. Šta se menja ako ulaz dolazi iz pravog fajla (`std::ifstream`)? Koliko
    koda zavisi od toga odakle je `std::istream`?

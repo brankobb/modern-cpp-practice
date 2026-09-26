@@ -177,14 +177,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_rule_of_three`](exercises/ex1_rule_of_three.cpp) | usage | rule of 3: duboka kopija, copy-and-swap, destruktor (sekcija 4) | — |
-| [`ex2_kopiraj_sve_delove`](exercises/ex2_kopiraj_sve_delove.cpp) | why | zašto ručna kopija mora da kopira i baznu klasu (sekcija 5, EC++ Item 12) | `-DNAIVNO` |
-| [`ex3_referenca_clan`](exercises/ex3_referenca_clan.cpp) | why | zašto član-referenca ukida dodelu (sekcija 3) | `-DNAIVNO` |
+| [`ex2_kopiraj_sve_delove`](exercises/ex2_kopiraj_sve_delove.cpp) | why | zašto ručna kopija mora da kopira i baznu klasu (sekcija 5, EC++ Item 12) | `-DNAIVE` |
+| [`ex3_referenca_clan`](exercises/ex3_referenca_clan.cpp) | why | zašto član-referenca ukida dodelu (sekcija 3) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

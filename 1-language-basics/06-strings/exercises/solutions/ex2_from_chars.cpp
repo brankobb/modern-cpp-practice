@@ -11,18 +11,18 @@
 // Treba ovako: from_chars javi i grešku (ec) i gde je stao (ptr); uspeh
 // je samo kad nema greške i kad je potrošen ceo tekst. Bez izuzetaka,
 // bez alokacije, ne zavisi od locale-a.
-bool parsiraj(const std::string& s, int& out) {
-    const char* kraj = s.data() + s.size();
-    auto [ptr, ec] = std::from_chars(s.data(), kraj, out);
-    return ec == std::errc{} && ptr == kraj;
+bool parseInt(const std::string& s, int& out) {
+    const char* end = s.data() + s.size();
+    auto [ptr, ec] = std::from_chars(s.data(), end, out);
+    return ec == std::errc{} && ptr == end;
 }
 
 int main() {
     for (const char* s : {"42", "0", "-7", "abc", "12abc", "", "99999999999"}) {
         int x = 0;
-        if (parsiraj(s, x))
+        if (parseInt(s, x))
             std::cout << '"' << s << "\" -> " << x << '\n';
         else
-            std::cout << '"' << s << "\" -> greška\n";
+            std::cout << '"' << s << "\" -> error\n";
     }
 }

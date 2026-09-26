@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-ERR: NAIVNO use of deleted function|implicitly deleted
+// DEMO-ERR: NAIVE use of deleted function|implicitly deleted
 //
 // Zadatak 3 -- zašto član-referenca ukida dodelu (sekcija 3)
 // Rešenje: exercises/solutions/ex3_referenca_clan.cpp
@@ -7,7 +7,7 @@
 // Merenje pamti iz kog senzora je stiglo (referenca na Senzor) i vrednost.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/20-copying/exercises/ex3_referenca_clan.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/20-copying/exercises/ex3_referenca_clan.cpp -DNAIVE
 //   std::sort mora da DODELJUJE elemente, a Merenje nema dodelu:
 //   referenca se ne može preusmeriti, pa kompajler dodelu obriše
 //   ([class.copy.assign]). Greška se pojavi duboko u <algorithm>; traži
@@ -30,7 +30,7 @@ struct Senzor {
     std::string ime;
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Merenje {
     const Senzor& izvor;
     double vrednost;

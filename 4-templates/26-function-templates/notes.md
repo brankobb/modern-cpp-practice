@@ -243,13 +243,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_genericke_funkcije`](exercises/ex1_genericke_funkcije.cpp) | usage | funkcijski šabloni, dedukcija i ne-tipski parametri (sekcije 1, 2, 4, 6) | — |
-| [`ex2_pokazivaci_u_sablonu`](exercises/ex2_pokazivaci_u_sablonu.cpp) | why | zašto opšti šablon "radi" i kad ne treba (sekcije 1, 5) | `-DNAIVNO` |
-| [`ex3_specijalizacija_ili_overload`](exercises/ex3_specijalizacija_ili_overload.cpp) | why | zašto overload umesto eksplicitne specijalizacije funkcijskog šablona (sekcija 5) | `-DNAIVNO` |
+| [`ex2_pokazivaci_u_sablonu`](exercises/ex2_pokazivaci_u_sablonu.cpp) | why | zašto opšti šablon "radi" i kad ne treba (sekcije 1, 5) | `-DNAIVE` |
+| [`ex3_specijalizacija_ili_overload`](exercises/ex3_specijalizacija_ili_overload.cpp) | why | zašto overload umesto eksplicitne specijalizacije funkcijskog šablona (sekcija 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

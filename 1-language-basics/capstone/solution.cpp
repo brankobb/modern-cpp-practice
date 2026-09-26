@@ -8,122 +8,122 @@
 #include <string>
 #include <vector>
 
-namespace merenja {
+namespace measurements {
 
-struct Kanal {
-    std::string ime;
+struct Channel {
+    std::string name;
     double min = 0;
     double max = 0;
-    std::string jedinica;
+    std::string unit;
 };
 
-struct Merenje {
-    std::size_t kanal;   // indeks u vektoru kanala
-    double vrednost;
+struct Measurement {
+    std::size_t channel;   // indeks u vektoru kanala
+    double value;
 };
 
-enum class Greska { NepoznatKanal, NijeBroj, VanOpsega, LosFormat };
+enum class Error { UnknownChannel, NotANumber, OutOfRange, BadFormat };
 
 // Jedna tabela za sve nazive; static_assert čuva da prati enum.
-constexpr std::array<const char*, 4> kNaziviGresaka{"nepoznat kanal", "nije broj", "van opsega", "loš format"};
-static_assert(kNaziviGresaka.size() == static_cast<std::size_t>(Greska::LosFormat) + 1,
-              "tabela naziva mora da prati enum Greska");
+constexpr std::array<const char*, 4> kErrorNames{"unknown channel", "not a number", "out of range", "bad format"};
+static_assert(kErrorNames.size() == static_cast<std::size_t>(Error::BadFormat) + 1,
+              "the name table must follow enum Error");
 
-constexpr const char* naziv(Greska g) { return kNaziviGresaka[static_cast<std::size_t>(g)]; }
+constexpr const char* errorName(Error e) { return kErrorNames[static_cast<std::size_t>(e)]; }
 
-struct Podaci {
-    std::vector<Kanal> kanali;
-    std::vector<Merenje> merenja;
-    std::array<int, kNaziviGresaka.size()> greske{};   // brojač po vrsti greške
-    int redovaMerenja = 0;
-    int losihRedovaKonfiguracije = 0;
+struct Data {
+    std::vector<Channel> channels;
+    std::vector<Measurement> measurements;
+    std::array<int, kErrorNames.size()> errors{};   // brojač po vrsti greške
+    int measurementLines = 0;
+    int badConfigLines = 0;
 };
 
 // ---------------------------------------------------------------- korak 1
 // Ceo tekst mora da bude broj: "21.5" da, "2x" i "" ne.
-bool procitajBroj(const std::string& tekst, double& izlaz) {
-    std::istringstream in(tekst);
-    char visak = 0;
-    return (in >> izlaz) && !(in >> visak);
+bool readNumber(const std::string& text, double& out) {
+    std::istringstream in(text);
+    char extra = 0;
+    return (in >> out) && !(in >> extra);
 }
 
-// "kanal temp min=-20 max=60 jedinica=C"
-bool parsirajKanal(const std::string& red, Kanal& k) {
-    std::istringstream in(red);
-    std::string rec;
-    if (!(in >> rec) || rec != "kanal" || !(in >> k.ime)) return false;
-    bool imaMin = false, imaMax = false;
-    while (in >> rec) {
-        const auto jednako = rec.find('=');
-        if (jednako == std::string::npos) return false;
-        const std::string kljuc = rec.substr(0, jednako);
-        const std::string vrednost = rec.substr(jednako + 1);
-        if (kljuc == "min")
-            imaMin = procitajBroj(vrednost, k.min);
-        else if (kljuc == "max")
-            imaMax = procitajBroj(vrednost, k.max);
-        else if (kljuc == "jedinica")
-            k.jedinica = vrednost;
+// "channel temp min=-20 max=60 unit=C"
+bool parseChannel(const std::string& line, Channel& c) {
+    std::istringstream in(line);
+    std::string word;
+    if (!(in >> word) || word != "channel" || !(in >> c.name)) return false;
+    bool hasMin = false, hasMax = false;
+    while (in >> word) {
+        const auto eq = word.find('=');
+        if (eq == std::string::npos) return false;
+        const std::string key = word.substr(0, eq);
+        const std::string value = word.substr(eq + 1);
+        if (key == "min")
+            hasMin = readNumber(value, c.min);
+        else if (key == "max")
+            hasMax = readNumber(value, c.max);
+        else if (key == "unit")
+            c.unit = value;
         else
             return false;
     }
-    return imaMin && imaMax && k.min < k.max;
+    return hasMin && hasMax && c.min < c.max;
 }
 
 // ---------------------------------------------------------------- korak 2
-int nadjiKanal(const std::vector<Kanal>& kanali, const std::string& ime) {
-    for (std::size_t i = 0; i < kanali.size(); ++i)
-        if (kanali[i].ime == ime) return static_cast<int>(i);
+int findChannel(const std::vector<Channel>& channels, const std::string& name) {
+    for (std::size_t i = 0; i < channels.size(); ++i)
+        if (channels[i].name == name) return static_cast<int>(i);
     return -1;
 }
 
-void zabeleziGresku(Podaci& p, Greska g) { ++p.greske[static_cast<std::size_t>(g)]; }
+void recordError(Data& d, Error e) { ++d.errors[static_cast<std::size_t>(e)]; }
 
-void obradiMerenje(Podaci& p, const std::string& red) {
-    ++p.redovaMerenja;
-    std::istringstream in(red);
-    std::string ime, tekst, visak;
-    if (!(in >> ime >> tekst) || (in >> visak)) return zabeleziGresku(p, Greska::LosFormat);
-    const int k = nadjiKanal(p.kanali, ime);
-    if (k < 0) return zabeleziGresku(p, Greska::NepoznatKanal);
+void processMeasurement(Data& d, const std::string& line) {
+    ++d.measurementLines;
+    std::istringstream in(line);
+    std::string name, text, extra;
+    if (!(in >> name >> text) || (in >> extra)) return recordError(d, Error::BadFormat);
+    const int c = findChannel(d.channels, name);
+    if (c < 0) return recordError(d, Error::UnknownChannel);
     double v = 0;
-    if (!procitajBroj(tekst, v)) return zabeleziGresku(p, Greska::NijeBroj);
-    const Kanal& kanal = p.kanali[static_cast<std::size_t>(k)];
-    if (v < kanal.min || v > kanal.max) return zabeleziGresku(p, Greska::VanOpsega);
-    p.merenja.push_back({static_cast<std::size_t>(k), v});
+    if (!readNumber(text, v)) return recordError(d, Error::NotANumber);
+    const Channel& channel = d.channels[static_cast<std::size_t>(c)];
+    if (v < channel.min || v > channel.max) return recordError(d, Error::OutOfRange);
+    d.measurements.push_back({static_cast<std::size_t>(c), v});
 }
 
-Podaci ucitaj(std::istream& ulaz) {
-    Podaci p;
-    std::string red;
-    while (std::getline(ulaz, red)) {
-        if (red.empty() || red[0] == '#') continue;
-        if (red.compare(0, 6, "kanal ") == 0) {
-            Kanal k;
-            if (parsirajKanal(red, k))
-                p.kanali.push_back(k);
+Data load(std::istream& input) {
+    Data d;
+    std::string line;
+    while (std::getline(input, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        if (line.compare(0, 8, "channel ") == 0) {
+            Channel c;
+            if (parseChannel(line, c))
+                d.channels.push_back(c);
             else
-                ++p.losihRedovaKonfiguracije;
+                ++d.badConfigLines;
         } else {
-            obradiMerenje(p, red);
+            processMeasurement(d, line);
         }
     }
-    return p;
+    return d;
 }
 
 // ---------------------------------------------------------------- korak 3
-struct Statistika {
+struct Stats {
     int n = 0;
-    double min = 0, max = 0, zbir = 0;
+    double min = 0, max = 0, sum = 0;
 };
 
-std::vector<Statistika> statistika(const Podaci& p) {
-    std::vector<Statistika> s(p.kanali.size());
-    for (const auto& [kanal, v] : p.merenja) {
-        Statistika& st = s[kanal];
+std::vector<Stats> stats(const Data& d) {
+    std::vector<Stats> s(d.channels.size());
+    for (const auto& [channel, v] : d.measurements) {
+        Stats& st = s[channel];
         if (st.n == 0 || v < st.min) st.min = v;
         if (st.n == 0 || v > st.max) st.max = v;
-        st.zbir += v;
+        st.sum += v;
         ++st.n;
     }
     return s;
@@ -131,61 +131,60 @@ std::vector<Statistika> statistika(const Podaci& p) {
 
 // ---------------------------------------------------------------- korak 4
 // Overload: isti posao ("kolona širine w"), različit tip.
-void kolona(std::ostream& out, double v, int w) { out << std::setw(w) << std::fixed << std::setprecision(1) << v; }
-void kolona(std::ostream& out, const std::string& s, int w) { out << std::setw(w) << s; }
+void column(std::ostream& out, double v, int w) { out << std::setw(w) << std::fixed << std::setprecision(1) << v; }
+void column(std::ostream& out, const std::string& s, int w) { out << std::setw(w) << s; }
 
-void ispisiIzvestaj(std::ostream& out, const Podaci& p) {
-    const int ispravnih = static_cast<int>(p.merenja.size());
-    out << "kanala: " << p.kanali.size() << " (neispravnih redova konfiguracije: " << p.losihRedovaKonfiguracije
-        << ")\n";
-    out << "merenja: " << ispravnih << " ispravnih od " << p.redovaMerenja << '\n';
-    out << "greške:";
+void printReport(std::ostream& out, const Data& d) {
+    const int valid = static_cast<int>(d.measurements.size());
+    out << "channels: " << d.channels.size() << " (invalid configuration lines: " << d.badConfigLines << ")\n";
+    out << "measurements: " << valid << " valid of " << d.measurementLines << '\n';
+    out << "errors:";
     const char* sep = " ";
-    for (std::size_t i = 0; i < p.greske.size(); ++i) {
-        out << sep << naziv(static_cast<Greska>(i)) << ' ' << p.greske[i];
+    for (std::size_t i = 0; i < d.errors.size(); ++i) {
+        out << sep << errorName(static_cast<Error>(i)) << ' ' << d.errors[i];
         sep = ", ";
     }
-    out << "\n\n" << std::left << std::setw(10) << "kanal" << std::right << std::setw(3) << "n" << std::setw(10)
-        << "min" << std::setw(10) << "max" << std::setw(10) << "prosek" << '\n';
-    const auto st = statistika(p);
-    for (std::size_t i = 0; i < p.kanali.size(); ++i) {
-        const Kanal& k = p.kanali[i];
-        out << std::left << std::setw(10) << k.ime << std::right << std::setw(3) << st[i].n;
+    out << "\n\n" << std::left << std::setw(10) << "channel" << std::right << std::setw(3) << "n" << std::setw(10)
+        << "min" << std::setw(10) << "max" << std::setw(10) << "average" << '\n';
+    const auto st = stats(d);
+    for (std::size_t i = 0; i < d.channels.size(); ++i) {
+        const Channel& c = d.channels[i];
+        out << std::left << std::setw(10) << c.name << std::right << std::setw(3) << st[i].n;
         if (st[i].n > 0) {
-            kolona(out, st[i].min, 10);
-            kolona(out, st[i].max, 10);
-            kolona(out, st[i].zbir / st[i].n, 10);
+            column(out, st[i].min, 10);
+            column(out, st[i].max, 10);
+            column(out, st[i].sum / st[i].n, 10);
         } else {
-            for (int j = 0; j < 3; ++j) kolona(out, "-", 10);
+            for (int j = 0; j < 3; ++j) column(out, "-", 10);
         }
-        out << ' ' << k.jedinica << '\n';
+        out << ' ' << c.unit << '\n';
     }
 }
 
-}  // namespace merenja
+}  // namespace measurements
 
-const char* const kUlaz = R"(# konfiguracija
-kanal temp min=-20 max=60 jedinica=C
-kanal vlaga min=0 max=100 jedinica=%
-kanal pritisak min=900 max=1100 jedinica=hPa
-kanal struja min=0 max=10 jedinica=A
-kanal los min=5
+const char* const kInput = R"(# configuration
+channel temp min=-20 max=60 unit=C
+channel humidity min=0 max=100 unit=%
+channel pressure min=900 max=1100 unit=hPa
+channel current min=0 max=10 unit=A
+channel broken min=5
 
-# merenja
+# measurements
 temp 21.5
-vlaga 40
+humidity 40
 temp 85
-pritisak 1013.2
-vlaga abc
-napon 12
+pressure 1013.2
+humidity abc
+voltage 12
 temp 22
-pritisak
-vlaga 55
+pressure
+humidity 55
 temp 21.8
 )";
 
 int main() {
-    std::istringstream ulaz(kUlaz);
-    const merenja::Podaci p = merenja::ucitaj(ulaz);
-    merenja::ispisiIzvestaj(std::cout, p);
+    std::istringstream input(kInput);
+    const measurements::Data d = measurements::load(input);
+    measurements::printReport(std::cout, d);
 }

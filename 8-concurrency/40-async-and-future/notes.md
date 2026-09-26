@@ -215,13 +215,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_citanje_senzora`](exercises/ex1_citanje_senzora.cpp) | usage | paralelno čitanje senzora preko std::async, izuzeci kroz future, čekanje sa rokom (sekcije 1, 4, 6) | — |
-| [`ex2_odbacen_future`](exercises/ex2_odbacen_future.cpp) | why | zašto "pokreni i zaboravi" sa std::async ne radi paralelno (sekcija 4, EMC Item 38) | `-DNAIVNO` |
-| [`ex3_obecanje_bez_greske`](exercises/ex3_obecanje_bez_greske.cpp) | why | zašto promise mora da dobije i GREŠKU, ne samo vrednost (sekcije 5, 6) | `-DNAIVNO` |
+| [`ex2_odbacen_future`](exercises/ex2_odbacen_future.cpp) | why | zašto "pokreni i zaboravi" sa std::async ne radi paralelno (sekcija 4, EMC Item 38) | `-DNAIVE` |
+| [`ex3_obecanje_bez_greske`](exercises/ex3_obecanje_bez_greske.cpp) | why | zašto promise mora da dobije i GREŠKU, ne samo vrednost (sekcije 5, 6) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

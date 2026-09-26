@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-UB: NAIVNO stack-use-after-return
+// DEMO-UB: NAIVE stack-use-after-return
 //
 // Zadatak 3 -- zašto [&] u lambdi koja nadživi funkciju visi
 // (sekcija 7, EMC Item 31)
@@ -8,7 +8,7 @@
 // napraviBrojac() vraća funkciju koja pri svakom pozivu vrati sledeći broj.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 4-templates/27-forwarding-and-lifetime/exercises/ex3_lambda_referenca.cpp -DNAIVNO
+//     ./build.sh 4-templates/27-forwarding-and-lifetime/exercises/ex3_lambda_referenca.cpp -DNAIVE
 //   Lambda hvata lokalnu promenljivu stanje PO REFERENCI, a vraća se iz
 //   funkcije -- stanje je nestalo zajedno sa okvirom funkcije. ASan
 //   prijavi stack-use-after-return. (Sa g++ 13 na Linux-u je ta provera
@@ -23,7 +23,7 @@
 #include <functional>
 #include <iostream>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 std::function<int()> napraviBrojac() {
     int stanje = 0;
     return [&stanje] { return ++stanje; };      // referenca na lokalnu

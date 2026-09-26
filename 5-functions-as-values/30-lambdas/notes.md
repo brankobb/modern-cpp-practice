@@ -265,13 +265,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_slusaoci`](exercises/ex1_slusaoci.cpp) | usage | tri vrste callback-a u std::function, i lambde sa STL algoritmima (sekcije 1, 2, 3, 5, 9) | — |
-| [`ex2_this_nije_kopija`](exercises/ex2_this_nije_kopija.cpp) | why | zašto [=] u metodi ne pravi snimak članova (sekcija 7) | `-DNAIVNO` |
-| [`ex3_referenca_u_petlji`](exercises/ex3_referenca_u_petlji.cpp) | why | zašto [&] za callback koji se čuva za kasnije visi (sekcije 5, 6; lekcija 27, sekcija 7) | `-DNAIVNO` |
+| [`ex2_this_nije_kopija`](exercises/ex2_this_nije_kopija.cpp) | why | zašto [=] u metodi ne pravi snimak članova (sekcija 7) | `-DNAIVE` |
+| [`ex3_referenca_u_petlji`](exercises/ex3_referenca_u_petlji.cpp) | why | zašto [&] za callback koji se čuva za kasnije visi (sekcije 5, 6; lekcija 27, sekcija 7) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

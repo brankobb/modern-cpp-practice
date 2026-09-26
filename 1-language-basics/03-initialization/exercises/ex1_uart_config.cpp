@@ -20,7 +20,7 @@
 // Korak 3: dodaj član bool open_ = false; (NSDMI), metode open() i
 //   send(const char*) -- send broji poslate poruke u txCounter_ samo ako je
 //   port otvoren, i print() koji ispisuje "uart <id>: <baud> <parity>
-//   <stopBits>, poslato <n>".
+//   <stopBits>, sent <n>".
 
 #include <iostream>
 
@@ -44,18 +44,18 @@ int main() {
     // Korak 2 i 3 -- otkomentariši:
     // int sent = 0;
     // Uart u(3, c, sent);
-    // u.send("pre open");   // port zatvoren: ne broji se
+    // u.send("before open");   // port zatvoren: ne broji se
     // u.open();
     // u.send("a");
     // u.send("b");
     // u.print();
-    // std::cout << "brojač kod pozivaoca: " << sent << '\n';
+    // std::cout << "caller's counter: " << sent << '\n';
 }
 
 /* EXPECTED OUTPUT
 9600 N 1
 115200 N 1
 115200 E 2
-uart 3: 115200 E 2, poslato 2
-brojač kod pozivaoca: 2
+uart 3: 115200 E 2, sent 2
+caller's counter: 2
 */

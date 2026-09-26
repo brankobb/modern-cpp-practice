@@ -183,14 +183,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_vector_operacije`](exercises/ex1_vector_operacije.cpp) | usage | erase-remove, insert, reserve i praćenje realokacija (sekcije 2, 3, 5) | — |
-| [`ex2_reserve_resize`](exercises/ex2_reserve_resize.cpp) | why | zašto reserve nije resize (sekcije 3, 7) | `-DNAIVNO`, `-DNAIVNO_ASAN` |
-| [`ex3_erase_u_petlji`](exercises/ex3_erase_u_petlji.cpp) | why | zašto erase(it) u petlji ne ide uz ++it (sekcija 5) | `-DNAIVNO`, `-DNAIVNO_DEBUG` |
+| [`ex1_vector_operations`](exercises/ex1_vector_operations.cpp) | usage | erase-remove, insert, reserve i praćenje realokacija (sekcije 2, 3, 5) | — |
+| [`ex2_reserve_resize`](exercises/ex2_reserve_resize.cpp) | why | zašto reserve nije resize (sekcije 3, 7) | `-DNAIVE`, `-DNAIVE_ASAN` |
+| [`ex3_erase_in_loop`](exercises/ex3_erase_in_loop.cpp) | why | zašto erase(it) u petlji ne ide uz ++it (sekcija 5) | `-DNAIVE`, `-DNAIVE_DEBUG` |
 
 ## Zapažanja posle vežbe
 

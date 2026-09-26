@@ -147,14 +147,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_parametri_i_povratak`](exercises/ex1_parametri_i_povratak.cpp) | usage | vraćanje po vrednosti, sink parametar, emplace_back (sekcije 1, 3, 4) | — |
-| [`ex2_return_std_move`](exercises/ex2_return_std_move.cpp) | why | zašto NE pisati return std::move(lokalna) (sekcije 1, 2) | `-DNAIVNO` |
-| [`ex3_const_lokalna`](exercises/ex3_const_lokalna.cpp) | why | zašto lokalna koju vraćaš ne treba da bude const (sekcija 2) | `-DNAIVNO` |
+| [`ex2_return_std_move`](exercises/ex2_return_std_move.cpp) | why | zašto NE pisati return std::move(lokalna) (sekcije 1, 2) | `-DNAIVE` |
+| [`ex3_const_lokalna`](exercises/ex3_const_lokalna.cpp) | why | zašto lokalna koju vraćaš ne treba da bude const (sekcija 2) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

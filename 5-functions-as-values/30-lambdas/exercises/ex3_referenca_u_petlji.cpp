@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-UB: NAIVNO stack-use-after-scope
+// DEMO-UB: NAIVE stack-use-after-scope
 //
 // Zadatak 3 -- zašto [&] za callback koji se čuva za kasnije visi
 // (sekcije 5, 6; lekcija 27, sekcija 7)
@@ -8,7 +8,7 @@
 // U petlji se pravi lista zadataka (callback-ova) koji se izvrše kasnije.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 5-functions-as-values/30-lambdas/exercises/ex3_referenca_u_petlji.cpp -DNAIVNO
+//     ./build.sh 5-functions-as-values/30-lambdas/exercises/ex3_referenca_u_petlji.cpp -DNAIVE
 //   ASan prijavi stack-use-after-scope. Lambda sa [&] zarobi REFERENCU na
 //   id -- promenljivu tela petlje, koja nestaje na kraju svake iteracije.
 //   Zadaci se izvršavaju posle petlje, kad nijedan id više ne postoji.
@@ -28,7 +28,7 @@ int main() {
     std::vector<std::function<void()>> zadaci;
     for (int i = 0; i < 3; ++i) {
         int id = 100 + i;
-#ifdef NAIVNO
+#ifdef NAIVE
         zadaci.push_back([&] { std::cout << "zadatak " << id << '\n'; });
 #else
         // TODO korak 2

@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO vlaga: nije pronađen
+// DEMO-OUT: NAIVE vlaga: nije pronađen
 //
 // Zadatak 3 -- zašto CTAD od string literala ne daje std::string (sekcija 1)
 // Rešenje: exercises/solutions/ex3_ctad_literal.cpp
@@ -8,7 +8,7 @@
 // C API-ja ili sa serijskog porta).
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 4-templates/29-cpp17-templates/exercises/ex3_ctad_literal.cpp -DNAIVNO
+//     ./build.sh 4-templates/29-cpp17-templates/exercises/ex3_ctad_literal.cpp -DNAIVE
 //   Nijedan kanal nije pronađen, a oba su u tabeli. std::pair{"temp", 21} je
 //   pair<const char*, int> -- CTAD uzme tip literala posle "raspadanja"
 //   niza u pokazivač. Mapa je zato std::map<const char*, int>: ključevi
@@ -27,7 +27,7 @@
 #include <string>
 #include <utility>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 auto napraviTabelu() { return std::map{std::pair{"temp", 21}, std::pair{"vlaga", 40}}; }
 #else
 // TODO korak 2 (dok ne napišeš, tabela je prazna)

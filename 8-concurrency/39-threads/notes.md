@@ -256,13 +256,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_paralelna_obrada`](exercises/ex1_paralelna_obrada.cpp) | usage | podela posla na niti, bezbedan deljeni dnevnik, join u destruktoru (sekcije 2, 4, 6; runtime/r01) | — |
-| [`ex2_izgubljena_uvecanja`](exercises/ex2_izgubljena_uvecanja.cpp) | why | zašto ++ nad deljenom promenljivom treba mutex (sekcije 5, 6; ub/u01) | `-DNAIVNO` |
-| [`ex3_izuzetak_drzi_mutex`](exercises/ex3_izuzetak_drzi_mutex.cpp) | why | zašto lock_guard, a ne lock()/unlock() (sekcija 6) | `-DNAIVNO` |
+| [`ex2_izgubljena_uvecanja`](exercises/ex2_izgubljena_uvecanja.cpp) | why | zašto ++ nad deljenom promenljivom treba mutex (sekcije 5, 6; ub/u01) | `-DNAIVE` |
+| [`ex3_izuzetak_drzi_mutex`](exercises/ex3_izuzetak_drzi_mutex.cpp) | why | zašto lock_guard, a ne lock()/unlock() (sekcija 6) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

@@ -9,7 +9,7 @@
 // zauzeta).
 // Treba ovako: a) reserve samo da izbegneš realokacije, a elemente dodaj
 // sa push_back / emplace_back.
-std::vector<int> ocitajA(std::size_t n) {
+std::vector<int> readSamplesA(std::size_t n) {
     std::vector<int> v;
     v.reserve(n);
     for (std::size_t i = 0; i < n; ++i) v.push_back(static_cast<int>(i * i));
@@ -17,7 +17,7 @@ std::vector<int> ocitajA(std::size_t n) {
 }
 
 // Možeš i ovako: b) resize(n) napravi n elemenata (nule), pa ih menjaš.
-std::vector<int> ocitajB(std::size_t n) {
+std::vector<int> readSamplesB(std::size_t n) {
     std::vector<int> v;
     v.resize(n);
     for (std::size_t i = 0; i < n; ++i) v[i] = static_cast<int>(i * i);
@@ -25,7 +25,7 @@ std::vector<int> ocitajB(std::size_t n) {
 }
 
 int main() {
-    for (const auto& v : {ocitajA(4), ocitajB(4)}) {
+    for (const auto& v : {readSamplesA(4), readSamplesB(4)}) {
         std::cout << "size=" << v.size() << ':';
         for (int x : v) std::cout << ' ' << x;
         std::cout << '\n';

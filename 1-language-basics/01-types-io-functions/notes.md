@@ -163,8 +163,8 @@ while (in >> x) { ... }                                  // ✅ čitaj dok uspev
 ```
 
 ⚠️ **`>>` pa `getline`:** `in >> n` ostavi `'\n'` u baferu, pa sledeći
-`std::getline(in, ime)` odmah pročita **prazan** red (test: `ime=[]`).
-Rešenje: `std::getline(in >> std::ws, ime)`. `std::ws` preskoči sve
+`std::getline(in, name)` odmah pročita **prazan** red (test: `name=[]`).
+Rešenje: `std::getline(in >> std::ws, name)`. `std::ws` preskoči sve
 praznine pre čitanja (zadatak ex3).
 
 ---
@@ -248,13 +248,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_statistika_ulaza`](exercises/ex1_statistika_ulaza.cpp) | usage | čitanje brojeva sa proverom, struct kao rezultat, formatiran ispis (sekcije 7, 8, 9) | — |
-| [`ex2_signed_unsigned`](exercises/ex2_signed_unsigned.cpp) | why | zašto se signed i unsigned ne mešaju u poređenju (sekcija 3) | `-DNAIVNO` |
-| [`ex3_getline_posle_citanja`](exercises/ex3_getline_posle_citanja.cpp) | why | zašto getline posle >> pročita prazan red (sekcija 7) | `-DNAIVNO` |
+| [`ex1_input_statistics`](exercises/ex1_input_statistics.cpp) | usage | čitanje brojeva sa proverom, struct kao rezultat, formatiran ispis (sekcije 7, 8, 9) | — |
+| [`ex2_signed_unsigned`](exercises/ex2_signed_unsigned.cpp) | why | zašto se signed i unsigned ne mešaju u poređenju (sekcija 3) | `-DNAIVE` |
+| [`ex3_getline_after_extraction`](exercises/ex3_getline_after_extraction.cpp) | why | zašto getline posle >> pročita prazan red (sekcija 7) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

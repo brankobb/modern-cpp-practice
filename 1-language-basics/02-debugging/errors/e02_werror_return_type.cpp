@@ -6,8 +6,8 @@
 // Upozorenje se lako previdi među ostalima; kao greška ne može.
 // Ispravno: return na svakoj putanji. U svom projektu razmisli o -Werror
 // (bar za -Wreturn-type), i drži build bez ijednog upozorenja.
-int ocena(int poeni) {
-    if (poeni >= 90) return 10;
-    if (poeni >= 50) return 6;
+int grade(int points) {
+    if (points >= 90) return 10;
+    if (points >= 50) return 6;
 }
-int main() { return ocena(95) == 10 ? 0 : 1; }
+int main() { return grade(95) == 10 ? 0 : 1; }

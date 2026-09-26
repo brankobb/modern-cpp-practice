@@ -299,14 +299,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_cast_dynamic`](exercises/ex1_cast_dynamic.cpp) | usage | static_cast, dynamic_cast i konverzija između tipova (sekcije 2, 4, 5, 7) | — |
-| [`ex2_explicit_bool`](exercises/ex2_explicit_bool.cpp) | why | zašto explicit operator bool (sekcija 6, C.164) | `-DNAIVNO`, `-DEXPLICIT` |
-| [`ex3_provereni_narrow`](exercises/ex3_provereni_narrow.cpp) | why | zašto static_cast nije provera (sekcija 8) | `-DNAIVNO` |
+| [`ex2_explicit_bool`](exercises/ex2_explicit_bool.cpp) | why | zašto explicit operator bool (sekcija 6, C.164) | `-DNAIVE`, `-DEXPLICIT` |
+| [`ex3_provereni_narrow`](exercises/ex3_provereni_narrow.cpp) | why | zašto static_cast nije provera (sekcija 8) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO alarm postavljen na 9h
+// DEMO-OUT: NAIVE alarm postavljen na 9h
 //
 // Zadatak 3 -- zašto bind računa argumente ODMAH, a lambda pri pozivu
 // (sekcija 5, EMC Item 34)
@@ -9,7 +9,7 @@
 // vremena od TRENUTKA PRITISKA.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 5-functions-as-values/31-function-and-bind/exercises/ex3_bind_racuna_odmah.cpp -DNAIVNO
+//     ./build.sh 5-functions-as-values/31-function-and-bind/exercises/ex3_bind_racuna_odmah.cpp -DNAIVE
 //   Callback je napravljen u 8h, dugme je pritisnuto u 12h, a alarm je
 //   postavljen na 9h. Izraz trenutnoVreme() + 1 je argument bind-a, pa se
 //   izračunao kad je bind POZVAN (u 8h), a ne kad je callback pozvan.
@@ -25,7 +25,7 @@ void postaviAlarm(int kada) { std::cout << "alarm postavljen na " << kada << "h\
 
 int main() {
     std::function<void()> odlozi;
-#ifdef NAIVNO
+#ifdef NAIVE
     odlozi = std::bind(postaviAlarm, trenutnoVreme() + 1);
 #else
     // TODO korak 2

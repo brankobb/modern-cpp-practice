@@ -210,14 +210,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_predvidi_traitove`](exercises/ex1_predvidi_traitove.cpp) | usage | pročitaj tabelu generisanja preko type traits (sekcija 1) | — |
-| [`ex2_destruktor_ukida_move`](exercises/ex2_destruktor_ukida_move.cpp) | why | zašto "samo dodajem destruktor za log" menja performanse (sekcija 2) | `-DNAIVNO` |
-| [`ex3_noexcept_vector`](exercises/ex3_noexcept_vector.cpp) | why | zašto move konstruktor treba noexcept (sekcija 4, EMC Item 14) | `-DNAIVNO` |
+| [`ex2_destruktor_ukida_move`](exercises/ex2_destruktor_ukida_move.cpp) | why | zašto "samo dodajem destruktor za log" menja performanse (sekcija 2) | `-DNAIVE` |
+| [`ex3_noexcept_vector`](exercises/ex3_noexcept_vector.cpp) | why | zašto move konstruktor treba noexcept (sekcija 4, EMC Item 14) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

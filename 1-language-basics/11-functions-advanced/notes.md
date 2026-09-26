@@ -141,8 +141,8 @@ je greška. Tako se zabranjuju implicitne konverzije koje ne želiš.
 
 ```cpp
 void createUser(const std::string& name, int id = nextId());
-createUser("Ana");      // id = nextId() -- izračunato SADA
-createUser("Marko");    // id = nextId() -- izračunato ponovo
+createUser("Ann");      // id = nextId() -- izračunato SADA
+createUser("John");     // id = nextId() -- izračunato ponovo
 createUser("Vera", 99);
 ```
 
@@ -218,7 +218,7 @@ niko neće proslediti `double`.
 ⚠️ Ne menjaj podrazumevane argumente u override-u virtual funkcije
 (EC++ Item 37).
 
-⚠️ `g("tekst")` sa overload-ima `bool` i `std::string` bira `bool`.
+⚠️ `g("text")` sa overload-ima `bool` i `std::string` bira `bool`.
 
 **Rezime:** overload resolution je rangiranje konverzija: tačan match, pa
 promocija, pa konverzija, pa korisnička konverzija. Većina iznenađenja
@@ -233,13 +233,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_overload_callback`](exercises/ex1_overload_callback.cpp) | usage | overloading, podrazumevani argumenti, callback (sekcije 1, 2, 6, 7) | — |
-| [`ex2_delete_konverzije`](exercises/ex2_delete_konverzije.cpp) | why | zašto "= delete" na overload-u (sekcija 5, EMC Item 11) | `-DNAIVNO` |
-| [`ex3_univerzalna_referenca`](exercises/ex3_univerzalna_referenca.cpp) | why | zašto ne overload-ovati sa univerzalnom referencom (sekcija 4, EMC Item 26) | `-DNAIVNO` |
+| [`ex2_delete_conversions`](exercises/ex2_delete_conversions.cpp) | why | zašto "= delete" na overload-u (sekcija 5, EMC Item 11) | `-DNAIVE` |
+| [`ex3_universal_reference`](exercises/ex3_universal_reference.cpp) | why | zašto ne overload-ovati sa univerzalnom referencom (sekcija 4, EMC Item 26) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

@@ -325,14 +325,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_namespace_adl`](exercises/ex1_namespace_adl.cpp) | usage | namespace, ADL, anonimni i inline namespace (sekcije 1, 3, 4, 6) | — |
-| [`ex2_swap_adl`](exercises/ex2_swap_adl.cpp) | why | zašto "using std::swap; swap(a, b);" (sekcija 3, EC++ Item 25) | `-DNAIVNO` |
-| [`ex3_redosled_globalnih`](exercises/ex3_redosled_globalnih.cpp) | why | zašto globalna ne sme da zavisi od globalne (sekcija 7, EC++ Item 4) | `-DNAIVNO` |
+| [`ex2_swap_adl`](exercises/ex2_swap_adl.cpp) | why | zašto "using std::swap; swap(a, b);" (sekcija 3, EC++ Item 25) | `-DNAIVE` |
+| [`ex3_global_init_order`](exercises/ex3_global_init_order.cpp) | why | zašto globalna ne sme da zavisi od globalne (sekcija 7, EC++ Item 4) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

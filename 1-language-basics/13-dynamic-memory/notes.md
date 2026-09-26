@@ -280,14 +280,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_new_i_blok`](exercises/ex1_new_i_blok.cpp) | usage | new[]/delete[], unique_ptr<T[]> i 2D u jednom bloku (sekcije 5, 6, 7) | — |
-| [`ex2_dinamicki_niz`](exercises/ex2_dinamicki_niz.cpp) | usage | sopstveni rastući niz: šta std::vector radi za tebe (sekcija 5) | — |
-| [`ex3_curenje_pri_izuzetku`](exercises/ex3_curenje_pri_izuzetku.cpp) | why | zašto ručni new curi čim nešto baci izuzetak (sekcija 7, R.11) | `-DNAIVNO` |
+| [`ex1_new_and_single_block`](exercises/ex1_new_and_single_block.cpp) | usage | new[]/delete[], unique_ptr<T[]> i 2D u jednom bloku (sekcije 5, 6, 7) | — |
+| [`ex2_dynamic_array`](exercises/ex2_dynamic_array.cpp) | usage | sopstveni rastući niz: šta std::vector radi za tebe (sekcija 5) | — |
+| [`ex3_leak_on_exception`](exercises/ex3_leak_on_exception.cpp) | why | zašto ručni new curi čim nešto baci izuzetak (sekcija 7, R.11) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

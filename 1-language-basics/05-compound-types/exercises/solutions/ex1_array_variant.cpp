@@ -8,7 +8,7 @@
 
 // Korak 1: std::array se prosleđuje kao i svaki objekat (const&), i NE
 // raspada se u pokazivač -- veličina je deo tipa.
-double prosek(const std::array<int, 5>& a) {
+double average(const std::array<int, 5>& a) {
     int s = 0;
     for (int x : a) s += x;
     return static_cast<double>(s) / static_cast<double>(a.size());
@@ -16,42 +16,44 @@ double prosek(const std::array<int, 5>& a) {
 
 // Korak 2: variant zna koji tip trenutno drži. get_if je provera i pristup
 // u jednom koraku; std::get<T> bi bacio std::bad_variant_access za pogrešan tip.
-using Poruka = std::variant<int, double, std::string>;
+using Message = std::variant<int, double, std::string>;
 
-void opisi(const Poruka& p) {
-    if (const int* i = std::get_if<int>(&p))
+void describe(const Message& m) {
+    if (const int* i = std::get_if<int>(&m))
         std::cout << "int " << *i << '\n';
-    else if (const double* d = std::get_if<double>(&p))
+    else if (const double* d = std::get_if<double>(&m))
         std::cout << "double " << *d << '\n';
-    else if (const std::string* s = std::get_if<std::string>(&p))
+    else if (const std::string* s = std::get_if<std::string>(&m))
         std::cout << "string " << *s << '\n';
 }
 
-// Korak 3: using je čitljiviji od typedef int (*Obrada)(int); (EMC Item 9).
-using Obrada = int (*)(int);
+// Korak 3: using je čitljiviji od typedef int (*Step)(int); (EMC Item 9).
+using Step = int (*)(int);
 
-int udvostruci(int x) { return 2 * x; }
-int dodajJedan(int x) { return x + 1; }
+int twice(int x) { return 2 * x; }
+int addOne(int x) { return x + 1; }
 
-int primeni(const std::array<Obrada, 2>& koraci, int x) {
-    for (Obrada f : koraci) x = f(x);
+// Ime applySteps, a ne apply: argument je std::array, pa bi ADL za
+// apply(steps, 10) našao i std::apply, koji bolje odgovara i ne kompajlira se.
+int applySteps(const std::array<Step, 2>& steps, int x) {
+    for (Step f : steps) x = f(x);
     return x;
 }
 
 int main() {
-    std::array<int, 5> ocitavanja{10, 20, 30, 40, 50};
-    std::cout << "broj: " << ocitavanja.size() << " prvi: " << ocitavanja.front()
-              << " poslednji: " << ocitavanja.back() << '\n';
-    std::cout << "prosek: " << prosek(ocitavanja) << '\n';
+    std::array<int, 5> readings{10, 20, 30, 40, 50};
+    std::cout << "count: " << readings.size() << " first: " << readings.front()
+              << " last: " << readings.back() << '\n';
+    std::cout << "average: " << average(readings) << '\n';
     try {
-        std::cout << ocitavanja.at(5);
+        std::cout << readings.at(5);
     } catch (const std::out_of_range&) {
         std::cout << "at(5): out_of_range\n";
     }
 
-    for (const Poruka& p : {Poruka{42}, Poruka{3.5}, Poruka{std::string("zdravo")}})
-        opisi(p);
+    for (const Message& m : {Message{42}, Message{3.5}, Message{std::string("hello")}})
+        describe(m);
 
-    std::array<Obrada, 2> koraci{udvostruci, dodajJedan};
-    std::cout << "10 -> " << primeni(koraci, 10) << '\n';
+    std::array<Step, 2> steps{twice, addOne};
+    std::cout << "10 -> " << applySteps(steps, 10) << '\n';
 }

@@ -285,10 +285,10 @@ for (auto it = v.cbegin(); it != v.cend(); ++it) sum += *it;  // const_iterator
 const std::vector<int> cv{1, 2, 3};
 cv.push_back(4);                                               // ❌ errors/e09
 
-const std::map<std::string, int> ages{{"Ana", 30}};
-ages["Ana"];              // ❌ errors/e08 -- operator[] UBACUJE element kad ga nema
-ages.at("Ana");           // ✅ baca std::out_of_range ako nema ključa
-ages.find("Marko");       // ✅ vraća end() ako nema ključa
+const std::map<std::string, int> ages{{"Ann", 30}};
+ages["Ann"];              // ❌ errors/e08 -- operator[] UBACUJE element kad ga nema
+ages.at("Ann");           // ✅ baca std::out_of_range ako nema ključa
+ages.find("John");        // ✅ vraća end() ako nema ključa
 
 std::as_const(obj)[0];    // C++17: nateraj izbor const overload-a
 for (const auto& x : v)   // podrazumevani oblik za čitanje
@@ -422,13 +422,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_const_metode`](exercises/ex1_const_metode.cpp) | usage | const metode, mutable keš i const/non-const par (sekcije 4, 5, 7) | — |
-| [`ex2_const_zarazno`](exercises/ex2_const_zarazno.cpp) | why | zašto const metode od samog početka (sekcije 3, 4) | `-DNAIVNO` |
-| [`ex3_mutable_lambda`](exercises/ex3_mutable_lambda.cpp) | why | zašto je operator() lambde podrazumevano const (sekcija 11) | `-DNAIVNO`, `-DMUTABLE` |
+| [`ex1_const_methods`](exercises/ex1_const_methods.cpp) | usage | const metode, mutable keš i const/non-const par (sekcije 4, 5, 7) | — |
+| [`ex2_const_is_contagious`](exercises/ex2_const_is_contagious.cpp) | why | zašto const metode od samog početka (sekcije 3, 4) | `-DNAIVE` |
+| [`ex3_mutable_lambda`](exercises/ex3_mutable_lambda.cpp) | why | zašto je operator() lambde podrazumevano const (sekcija 11) | `-DNAIVE`, `-DMUTABLE` |
 
 ## Zapažanja posle vežbe

@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO druga obrada: deadlock
+// DEMO-OUT: NAIVE druga obrada: deadlock
 //
 // Zadatak 2 -- zašto lock_guard, a ne lock() ... unlock() (sekcije 1, 2)
 // Rešenje: exercises/solutions/ex2_lock_unlock.cpp
@@ -8,7 +8,7 @@
 // izuzetak "deadlock" -- pravi std::mutex bi u tom slučaju zauvek čekao.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/21-raii/exercises/ex2_lock_unlock.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/21-raii/exercises/ex2_lock_unlock.cpp -DNAIVE
 //   Prva obrada baci izuzetak između lock() i unlock(). Izuzetak je
 //   uhvaćen, program ide dalje -- ali unlock() se nikad nije izvršio.
 //   Sledeća obrada zaglavi. Svaki "return" ili izuzetak između lock i
@@ -31,7 +31,7 @@ struct Mutex {
     void unlock() { zakljucan = false; }
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 void obradi(Mutex& m, int x) {
     m.lock();
     if (x < 0) throw std::invalid_argument("negativna vrednost");

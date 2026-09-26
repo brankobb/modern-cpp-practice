@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO posle greške: kanali 4 5 6, ime staro
+// DEMO-OUT: NAIVE posle greške: kanali 4 5 6, ime staro
 //
 // Zadatak 3 -- zašto "sve ili ništa" (strong guarantee, sekcija 4, EC++ Item 29)
 // Rešenje: exercises/solutions/ex3_jaka_garancija.cpp
@@ -8,7 +8,7 @@
 // i može da bude neispravno (baci izuzetak).
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/21-raii/exercises/ex3_jaka_garancija.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/21-raii/exercises/ex3_jaka_garancija.cpp -DNAIVE
 //   Posle neuspelog primeni() konfiguracija ima NOVE kanale i STARO ime --
 //   stanje koje nikad nije trebalo da postoji. Nema curenja (basic
 //   guarantee je ispunjen), ali pozivalac ne zna u kakvom je stanju objekat.
@@ -39,7 +39,7 @@ void ispisi(const char* opis, const Konfiguracija& k) {
     std::cout << ", ime " << k.ime << '\n';
 }
 
-#ifdef NAIVNO
+#ifdef NAIVE
 void primeni(Konfiguracija& k, const std::vector<int>& kanali, const std::string& ime) {
     k.kanali = kanali;      // uspe
     proveriIme(ime);        // baci -- kanali su već promenjeni

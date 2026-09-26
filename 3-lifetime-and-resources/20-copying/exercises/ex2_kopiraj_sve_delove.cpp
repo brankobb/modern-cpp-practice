@@ -1,12 +1,12 @@
 // KIND: why
-// DEMO-OUT: NAIVNO kopija: bez imena, kal 1.5
+// DEMO-OUT: NAIVE kopija: bez imena, kal 1.5
 //
 // Zadatak 2 -- zašto ručna kopija mora da kopira i baznu klasu
 // (sekcija 5, EC++ Item 12)
 // Rešenje: exercises/solutions/ex2_kopiraj_sve_delove.cpp
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/20-copying/exercises/ex2_kopiraj_sve_delove.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/20-copying/exercises/ex2_kopiraj_sve_delove.cpp -DNAIVE
 //   Senzor ima ručno napisan copy konstruktor (npr. da broji kopije) koji
 //   kopira samo SVOJ član. Kopija dobije ime "bez imena": kad init lista
 //   ne pomene baznu klasu, ona se pravi PODRAZUMEVANIM konstruktorom, ne
@@ -30,7 +30,7 @@ struct Uredjaj {
     explicit Uredjaj(std::string i) : ime(std::move(i)) {}
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Senzor : Uredjaj {
     double kal;
     Senzor(std::string i, double k) : Uredjaj(std::move(i)), kal(k) {}

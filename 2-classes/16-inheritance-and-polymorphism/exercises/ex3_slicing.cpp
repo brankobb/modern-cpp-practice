@@ -1,11 +1,11 @@
 // KIND: why
-// DEMO-OUT: NAIVNO senzor opšti, vrednost 0
+// DEMO-OUT: NAIVE senzor opšti, vrednost 0
 //
 // Zadatak 3 -- zašto se polimorfni objekti ne čuvaju po vrednosti (sekcija 8)
 // Rešenje: exercises/solutions/ex3_slicing.cpp
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 2-classes/16-inheritance-and-polymorphism/exercises/ex3_slicing.cpp -DNAIVNO
+//     ./build.sh 2-classes/16-inheritance-and-polymorphism/exercises/ex3_slicing.cpp -DNAIVE
 //   Ubačena su dva TermoSenzor-a, a oba se ispišu kao "senzor opšti".
 //   std::vector<Senzor> čuva objekte tipa TAČNO Senzor: push_back kopira
 //   samo Senzor deo TermoSenzor-a (slicing). Deo sa temperaturom i vptr
@@ -23,7 +23,7 @@
 #include <utility>
 #include <vector>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Senzor {
     virtual ~Senzor() = default;
     virtual std::string opis() const { return "senzor opšti, vrednost 0"; }

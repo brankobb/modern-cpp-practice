@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-UB: NAIVNO heap-use-after-free
+// DEMO-UB: NAIVE heap-use-after-free
 //
 // Zadatak 3 -- zašto izbor kontejnera određuje da li pokazivači "drže"
 // (sekcije 3, 4, 5)
@@ -9,7 +9,7 @@
 // pokazivač na "master" uređaj (prvi dodat). Uređaji se dodaju stalno.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/34-sequence-containers/exercises/ex3_stabilne_adrese.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/34-sequence-containers/exercises/ex3_stabilne_adrese.cpp -DNAIVE
 //   ASan: heap-use-after-free. Uređaji su u std::vector: kad vector
 //   poraste, svi elementi se premeste u novi blok, a master pokazuje u
 //   stari, oslobođeni blok. (Lekcija 04, ex2 je ovo rešila indeksom.)
@@ -30,7 +30,7 @@ struct Uredjaj {
 };
 
 int main() {
-#ifdef NAIVNO
+#ifdef NAIVE
     std::vector<Uredjaj> magistrala;
 #else
     // TODO korak 2 (ovde promeni tip kontejnera)

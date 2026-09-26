@@ -243,14 +243,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_vlasnistvo`](exercises/ex1_vlasnistvo.cpp) | usage | unique_ptr, shared_ptr i weak_ptr po nameni (sekcije 1-4) | — |
-| [`ex2_kruzna_referenca`](exercises/ex2_kruzna_referenca.cpp) | why | zašto weak_ptr za "pokazivač nazad" (sekcija 5) | `-DNAIVNO` |
-| [`ex3_shared_from_this`](exercises/ex3_shared_from_this.cpp) | why | zašto enable_shared_from_this, a ne shared_ptr(this) (sekcija 8) | `-DNAIVNO` |
+| [`ex2_kruzna_referenca`](exercises/ex2_kruzna_referenca.cpp) | why | zašto weak_ptr za "pokazivač nazad" (sekcija 5) | `-DNAIVE` |
+| [`ex3_shared_from_this`](exercises/ex3_shared_from_this.cpp) | why | zašto enable_shared_from_this, a ne shared_ptr(this) (sekcija 8) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

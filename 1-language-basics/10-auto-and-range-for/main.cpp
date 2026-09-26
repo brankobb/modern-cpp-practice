@@ -45,19 +45,19 @@ std::string typeName() {
 
 // ---------------------------------------------------------------- 1
 void s01_whyAuto() {
-    std::cout << "-- 1. zašto auto (EMC Item 5) --\n";
-    std::map<std::string, int> ages{{"Ana", 30}};
+    std::cout << "-- 1. why auto (EMC Item 5) --\n";
+    std::map<std::string, int> ages{{"Ann", 30}};
     const std::string* stored = &ages.begin()->first;
 
     // Element mape je std::pair<const std::string, int>, a ne
     // std::pair<std::string, int>. Sa pogrešno napisanim tipom kompajler
     // za SVAKI element pravi privremenu kopiju, a referenca se veže za nju.
     for (const std::pair<std::string, int>& p : ages) {
-        std::cout << "pogrešan tip: &p.first == adresa u mapi? " << std::boolalpha
-                  << (&p.first == stored) << "  (kopija!)\n";
+        std::cout << "wrong type:   &p.first == address in the map? " << std::boolalpha
+                  << (&p.first == stored) << "  (a copy!)\n";
     }
     for (const auto& p : ages) {
-        std::cout << "const auto&:  &p.first == adresa u mapi? " << (&p.first == stored)
+        std::cout << "const auto&:  &p.first == address in the map? " << (&p.first == stored)
                   << std::noboolalpha << "\n";
     }
 
@@ -66,7 +66,7 @@ void s01_whyAuto() {
     auto square = [](int x) { return x * x; };
     std::function<int(int)> boxed = square;
     std::cout << "sizeof(lambda)=" << sizeof(square) << " sizeof(std::function)=" << sizeof(boxed)
-              << " (zavisi od biblioteke), rezultat " << square(4) << "/" << boxed(4) << "\n";
+              << " (library dependent), result " << square(4) << "/" << boxed(4) << "\n";
 }
 
 // ---------------------------------------------------------------- 2
@@ -91,42 +91,42 @@ constexpr std::size_t arraySize(T (&)[N]) noexcept { // T(&)[N]: referenca čuva
 }
 
 void s02_templateDeduction() {
-    std::cout << "-- 2. dedukcija za template (EMC Item 1) --\n";
+    std::cout << "-- 2. template type deduction (EMC Item 1) --\n";
     int x = 27;
     const int cx = x;
     const int& rx = x;
-    const char* const ptr = "tekst";
+    const char* const ptr = "text";
     const char name[] = "J. P. Briggs";
 
-    std::cout << "  slučaj 1 -- f(T& param): referenca se odbacuje, const ostaje\n";
+    std::cout << "  case 1 -- f(T& param): the reference is dropped, const stays\n";
     byRef(x);
     byRef(cx);
     byRef(rx);
 
-    std::cout << "  slučaj 2 -- f(T&& param) (univerzalna referenca): lvalue -> T je referenca\n";
+    std::cout << "  case 2 -- f(T&& param) (universal reference): lvalue -> T is a reference\n";
     byUniversal(x);
     byUniversal(cx);
     byUniversal(rx);
     byUniversal(27);
 
-    std::cout << "  slučaj 3 -- f(T param) (po vrednosti): odbacuju se referenca i const (kopija je nova)\n";
+    std::cout << "  case 3 -- f(T param) (by value): reference and const are dropped (the copy is new)\n";
     byValue(x);
     byValue(cx);
     byValue(rx);
     byValue(ptr); // const na POKAZIVAČU (top-level) nestaje, const na podacima ostaje
 
-    std::cout << "  nizovi i funkcije: po vrednosti se raspadaju u pokazivač, po referenci ne\n";
+    std::cout << "  arrays and functions: by value they decay to a pointer, by reference they do not\n";
     byValue(name);
     byRef(name);
     byValue(someFunc);
     byRef(someFunc);
     static_assert(arraySize(name) == 13);
-    std::cout << "  arraySize(name) = " << arraySize(name) << " (izračunato pri kompajliranju)\n";
+    std::cout << "  arraySize(name) = " << arraySize(name) << " (computed at compile time)\n";
 }
 
 // ---------------------------------------------------------------- 3
 void s03_autoDeduction() {
-    std::cout << "-- 3. dedukcija za auto (EMC Item 2) --\n";
+    std::cout << "-- 3. auto type deduction (EMC Item 2) --\n";
     int x = 27;
     const int cx = x;
     const char name[] = "J. P. Briggs";
@@ -173,7 +173,7 @@ void s04_decltype() {
     int x = 0;
     const int& cw = x;
     std::cout << "  decltype(x)   -> " << typeName<decltype(x)>() << "\n"
-              << "  decltype((x)) -> " << typeName<decltype((x))>() << "   <- (x) je izraz (lvalue), ne ime\n"
+              << "  decltype((x)) -> " << typeName<decltype((x))>() << "   <- (x) is an expression (lvalue), not a name\n"
               << "  decltype(cw)  -> " << typeName<decltype(cw)>() << "\n";
 
     auto copy = cw;           // auto: const i & se odbacuju
@@ -190,33 +190,33 @@ void s04_decltype() {
 
 // ---------------------------------------------------------------- 5
 void s05_viewTypes() {
-    std::cout << "-- 5. kako videti dedukovani tip (EMC Item 4) --\n";
+    std::cout << "-- 5. how to see the deduced type (EMC Item 4) --\n";
     const int x = 0;
     auto& y = x;
     std::cout << "  typeName<decltype(y)>()                = " << typeName<decltype(y)>() << "\n";
     // typeid NIJE pouzdan: po pravilima jezika odbacuje referencu i const.
     std::cout << "  typeid(const int&) == typeid(int)?       " << std::boolalpha
-              << (typeid(const int&) == typeid(int)) << std::noboolalpha << "  <- typeid laže\n";
+              << (typeid(const int&) == typeid(int)) << std::noboolalpha << "  <- typeid lies\n";
     // Najpouzdanije: namerna greška -- TD<decltype(y)> (errors/e08).
 }
 
 // ---------------------------------------------------------------- 6
 void s06_whenAutoLies() {
-    std::cout << "-- 6. kada auto daje pogrešan tip (EMC Item 6) --\n";
+    std::cout << "-- 6. when auto deduces the wrong type (EMC Item 6) --\n";
     std::vector<bool> flags(10, true);
     auto proxy = flags[5]; // NIJE bool, nego std::vector<bool>::reference (proxy)
     static_assert(!std::is_same_v<decltype(proxy), bool>);
     static_assert(std::is_same_v<decltype(proxy), std::vector<bool>::reference>);
     proxy = false;         // menja VEKTOR, ne kopiju!
     std::cout << "  auto proxy = flags[5]; proxy = false; -> flags[5]=" << flags[5]
-              << "  (proxy piše u vektor)\n";
+              << "  (the proxy writes into the vector)\n";
 
     bool copy = flags[6];                          // eksplicitan tip: prava kopija
     auto alsoCopy = static_cast<bool>(flags[7]);   // "explicitly typed initializer" idiom
     copy = false;
     alsoCopy = false;
-    std::cout << "  bool/static_cast<bool> kopije = " << copy << "," << alsoCopy
-              << " -> flags[6]=" << flags[6] << " flags[7]=" << flags[7] << " (vektor netaknut)\n";
+    std::cout << "  bool/static_cast<bool> copies = " << copy << "," << alsoCopy
+              << " -> flags[6]=" << flags[6] << " flags[7]=" << flags[7] << " (vector untouched)\n";
     // Proxy od PRIVREMENOG vektora visi -- ub/u01.
 }
 
@@ -233,22 +233,22 @@ void s07_rangeFor() {
     std::vector<Item> items{{1}, {2}, {3}};
 
     for (auto item : items) item.doubleIt();   // kopija -- original se NE menja
-    std::cout << "  posle for (auto item ...):  ";
+    std::cout << "  after for (auto item ...):  ";
     for (const auto& item : items) std::cout << item.value << ' ';
     std::cout << "\n";
 
     for (auto& item : items) item.doubleIt();  // referenca -- menja original
-    std::cout << "  posle for (auto& item ...): ";
+    std::cout << "  after for (auto& item ...): ";
     for (const auto& item : items) std::cout << item.value << ' ';
     std::cout << "\n";
 
     std::vector<bool> flags{true, false, true};
     for (auto&& b : flags) b = !b;              // auto&& radi i sa proxy-jem (auto& ne -- errors/e06)
-    std::cout << "  vector<bool> posle for (auto&& b ...): ";
+    std::cout << "  vector<bool> after for (auto&& b ...): ";
     for (bool b : flags) std::cout << b << ' ';
     std::cout << "\n";
 
-    std::map<std::string, int> ages{{"Ana", 30}, {"Marko", 25}};
+    std::map<std::string, int> ages{{"Ann", 30}, {"John", 25}};
     for (const auto& [name, age] : ages) {      // C++17 structured bindings
         std::cout << "  " << name << "=" << age;
     }
@@ -256,8 +256,8 @@ void s07_rangeFor() {
 
     int sum = 0;
     for (int v : makeVector()) sum += v;        // OK: život vraćenog vektora se produžava
-    std::cout << "  for (int v : makeVector()) suma=" << sum
-              << "  (ali Holder{}.items() visi -- ub/u03)\n";
+    std::cout << "  for (int v : makeVector()) sum=" << sum
+              << "  (but Holder{}.items() dangles -- ub/u03)\n";
 }
 
 // ---------------------------------------------------------------- 8
@@ -265,7 +265,7 @@ auto twice(int x) { return 2 * x; }               // C++14: tip povratne vrednos
 auto add(int a, int b) -> int { return a + b; }   // trailing return type (C++11)
 
 void s08_otherPlaces() {
-    std::cout << "-- 8. auto na drugim mestima --\n";
+    std::cout << "-- 8. auto in other places --\n";
     static_assert(std::is_same_v<decltype(twice(1)), int>);
     auto plus = [](auto a, auto b) { return a + b; }; // generička lambda (C++14)
     std::cout << "  twice(21)=" << twice(21) << " add(2,3)=" << add(2, 3)

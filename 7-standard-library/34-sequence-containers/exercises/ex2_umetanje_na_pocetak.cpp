@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO pomeranja elemenata: [1-9][0-9][0-9]
+// DEMO-OUT: NAIVE pomeranja elemenata: [1-9][0-9][0-9]
 //
 // Zadatak 2 -- zašto vector nije za umetanje na početak (sekcije 3, 4)
 // Rešenje: exercises/solutions/ex2_umetanje_na_pocetak.cpp
@@ -8,7 +8,7 @@
 // kontejner premesti POSTOJEĆI element).
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/34-sequence-containers/exercises/ex2_umetanje_na_pocetak.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/34-sequence-containers/exercises/ex2_umetanje_na_pocetak.cpp -DNAIVE
 //   100 poruka umetnuto na početak vektora -- a elementi su pomereni
 //   hiljadama puta (test, libstdc++: 5042). Svako umetanje na početak
 //   pomeri sve postojeće za jedno mesto (0 + 1 + ... + 99 = 4950), uz
@@ -42,7 +42,7 @@ struct Poruka {
 };
 
 int main() {
-#ifdef NAIVNO
+#ifdef NAIVE
     std::vector<Poruka> red;
     for (int i = 0; i < 100; ++i) red.emplace(red.begin(), i);
     std::cout << "prvi: " << red.front().id << ", poslednji: " << red.back().id << '\n';

@@ -1,6 +1,6 @@
 // KIND: why
-// DEMO-OUT: NAIVNO velicina: 3, count\(\{1, 2\}\): 0
-// DEMO-UB: NAIVNO_SORT heap-buffer-overflow
+// DEMO-OUT: NAIVE velicina: 3, count\(\{1, 2\}\): 0
+// DEMO-UB: NAIVE_SORT heap-buffer-overflow
 //
 // Zadatak 3 -- zašto operator< mora biti STROG (sekcija 5)
 // Rešenje: exercises/solutions/ex3_strogo_manje.cpp
@@ -10,13 +10,13 @@
 // Naivna verzija koristi <= za minor, pa je v < v tačno.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 2-classes/15-operator-overloading/exercises/ex3_strogo_manje.cpp -DNAIVNO
+//     ./build.sh 2-classes/15-operator-overloading/exercises/ex3_strogo_manje.cpp -DNAIVE
 //   Ubačeno je {1, 2} dva puta i {2, 0} jednom: set ima 3 elementa, a
 //   count({1, 2}) je 0! set dva elementa smatra jednakim kad
 //   !(a < b) && !(b < a) -- sa <= to nikad nije tačno, pa se duplikat
 //   ubaci, a traženje ga ne nađe.
 // Korak 2: isto pravilo, gora posledica:
-//     ./build.sh .../ex3_strogo_manje.cpp -DNAIVNO_SORT
+//     ./build.sh .../ex3_strogo_manje.cpp -DNAIVE_SORT
 //   std::sort 40 jednakih elemenata: ASan prijavi heap-buffer-overflow.
 //   libstdc++ u unutrašnjoj petlji ne proverava granice, jer se oslanja
 //   na to da a < a nije tačno (zato je kršenje pravila UB, a ne samo
@@ -37,7 +37,7 @@ struct Verzija {
     int minor;
 };
 
-#if defined(NAIVNO) || defined(NAIVNO_SORT)
+#if defined(NAIVE) || defined(NAIVE_SORT)
 bool operator<(const Verzija& a, const Verzija& b) {
     return a.major < b.major || (a.major == b.major && a.minor <= b.minor);
 }
@@ -46,10 +46,10 @@ bool operator<(const Verzija& a, const Verzija& b) {
 #endif
 
 int main() {
-#if defined(NAIVNO)
+#if defined(NAIVE)
     std::set<Verzija> s{{1, 2}, {1, 2}, {2, 0}};
     std::cout << "velicina: " << s.size() << ", count({1, 2}): " << s.count({1, 2}) << '\n';
-#elif defined(NAIVNO_SORT)
+#elif defined(NAIVE_SORT)
     std::vector<Verzija> v(40, Verzija{1, 1});
     std::sort(v.begin(), v.end());
     std::cout << "sortirano\n";

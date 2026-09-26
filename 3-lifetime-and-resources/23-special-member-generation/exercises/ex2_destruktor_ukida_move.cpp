@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO kopija: 1, pomeranja: 0
+// DEMO-OUT: NAIVE kopija: 1, pomeranja: 0
 //
 // Zadatak 2 -- zašto "samo dodajem destruktor za log" menja performanse
 // (sekcija 2)
@@ -9,7 +9,7 @@
 // destruktor da loguje uništavanje.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/23-special-member-generation/exercises/ex2_destruktor_ukida_move.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/23-special-member-generation/exercises/ex2_destruktor_ukida_move.cpp -DNAIVE
 //   std::move(p) KOPIRA. Korisnički destruktor ukida generisanje move
 //   operacija (tabela, sekcija 1), pa poziv ide na copy konstruktor. Nema
 //   greške ni upozorenja (-Wdeprecated-copy-dtor nije u -Wall -Wextra).
@@ -43,7 +43,7 @@ struct Tekst {
 
 int unistenih = 0;
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Poruka {
     Tekst t;
     ~Poruka() { ++unistenih; }           // "samo log"
@@ -63,7 +63,7 @@ int main() {
         (void)q;
         std::cout << "kopija: " << brojac.kopija << ", pomeranja: " << brojac.pomeranja << '\n';
     }
-#ifndef NAIVNO
+#ifndef NAIVE
     // Korak 2 -- otkomentariši:
     // std::cout << "uništenih: " << unistenih << '\n';
 #endif

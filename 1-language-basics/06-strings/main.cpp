@@ -18,32 +18,32 @@
 
 // ---------------------------------------------------------------- 1
 void s01_literals() {
-    std::cout << "-- 1. string literali --\n";
+    std::cout << "-- 1. string literals --\n";
     // "abc" je const char[4]: tri znaka + '\0'. Živi ceo program.
-    std::cout << "  sizeof(\"abc\")=" << sizeof("abc") << " (3 znaka + '\\0')\n";
-    const char* joined = "Zdravo, " "svete"; // susedni literali se spoje PRI KOMPAJLIRANJU
-    std::cout << "  \"Zdravo, \" \"svete\" -> " << joined << "  (\"a\" + \"b\" se ne kompajlira, errors/e01)\n";
-    std::cout << "  escape: tab[\t] navodnik[\"] backslash[\\]\n";
+    std::cout << "  sizeof(\"abc\")=" << sizeof("abc") << " (3 characters + '\\0')\n";
+    const char* joined = "Hello, " "world"; // susedni literali se spoje PRI KOMPAJLIRANJU
+    std::cout << "  \"Hello, \" \"world\" -> " << joined << "  (\"a\" + \"b\" does not compile, errors/e01)\n";
+    std::cout << "  escape: tab[\t] quote[\"] backslash[\\]\n";
 }
 
 // ---------------------------------------------------------------- 2
 void s02_rawStrings() {
-    std::cout << "-- 2. raw string literali (C++11) --\n";
-    const char* path = R"(C:\Users\ana\novi fajl.txt)";         // backslash nije escape
+    std::cout << "-- 2. raw string literals (C++11) --\n";
+    const char* path = R"(C:\Users\ann\new file.txt)";         // backslash nije escape
     const char* regex = R"(\d{3}-\d{4})";                       // regex bez udvostručavanja
-    const char* quoted = R"x(poziv f(")") -- sadrži )" )x";      // sopstveni graničnik x kad tekst sadrži )"
-    const char* multiline = R"(prvi red
-drugi red)";                                                   // novi red je deo stringa
+    const char* quoted = R"x(call f(")") -- contains )" )x";      // sopstveni graničnik x kad tekst sadrži )"
+    const char* multiline = R"(first line
+second line)";                                                   // novi red je deo stringa
     std::cout << "  " << path << "\n  " << regex << "\n  " << quoted << "\n  " << multiline << "\n";
 }
 
 // ---------------------------------------------------------------- 3
 void s03_stdString() {
-    std::cout << "-- 3. std::string: osnovne operacije --\n";
-    std::string s = "Dobar dan";
-    s += ", svete";              // dodavanje
+    std::cout << "-- 3. std::string: basic operations --\n";
+    std::string s = "Good day";
+    s += ", world";              // dodavanje
     s.insert(0, ">> ");          // umetanje
-    s.replace(3, 5, "Lep");      // zameni 5 znakova od pozicije 3
+    s.replace(3, 4, "Nice");     // zameni 4 znaka od pozicije 3
     std::cout << "  s=\"" << s << "\" size=" << s.size() << " front='" << s.front() << "' back='" << s.back() << "'\n";
 
     std::size_t comma = s.find(',');
@@ -51,29 +51,29 @@ void s03_stdString() {
     std::cout << "  find(',')=" << comma << " substr(0, " << comma << ")=\"" << before << "\"\n";
 
     std::size_t missing = s.find('z');
-    std::cout << "  find('z')=" << (missing == std::string::npos ? "npos" : "nađeno")
-              << " -- uvek poredi sa std::string::npos (to je najveći size_t, ne -1 tipa int)\n";
+    std::cout << "  find('z')=" << (missing == std::string::npos ? "npos" : "found")
+              << " -- always compare with std::string::npos (the largest size_t, not an int -1)\n";
 
     try {
         std::cout << "  s.at(100): ";
         std::cout << s.at(100);
     } catch (const std::out_of_range&) {
-        std::cout << "std::out_of_range  (s[100] bi bio UB, ub/u03)\n";
+        std::cout << "std::out_of_range  (s[100] would be UB, ub/u03)\n";
     }
 
-    std::string a = "jabuka";
-    std::string b = "kruška";
-    std::cout << std::boolalpha << "  a < b: " << (a < b) << " (leksikografski, po bajtovima), a == \"jabuka\": " << (a == "jabuka")
+    std::string a = "apple";
+    std::string b = "pear";
+    std::cout << std::boolalpha << "  a < b: " << (a < b) << " (lexicographic, byte by byte), a == \"apple\": " << (a == "apple")
               << std::noboolalpha << "\n";
 }
 
 // ---------------------------------------------------------------- 4
 void s04_bytesNotCharacters() {
-    std::cout << "-- 4. size() broji bajtove, ne slova --\n";
-    std::string ascii = "casa";
-    std::string utf8 = "čaša"; // izvorni fajl je UTF-8: č i š su po 2 bajta
-    std::cout << "  \"casa\".size()=" << ascii.size() << "  \"čaša\".size()=" << utf8.size()
-              << "  <- std::string čuva bajtove; broj slova zahteva UTF-8 dekodiranje\n";
+    std::cout << "-- 4. size() counts bytes, not letters --\n";
+    std::string ascii = "cafe";
+    std::string utf8 = "café"; // izvorni fajl je UTF-8: é je 2 bajta
+    std::cout << "  \"cafe\".size()=" << ascii.size() << "  \"café\".size()=" << utf8.size()
+              << "  <- std::string stores bytes; counting letters needs UTF-8 decoding\n";
     std::string s;
     s = 65; // kompajlira se: dodela jednog char-a ('A'). Tiha zamka.
     std::cout << "  std::string s; s = 65; -> \"" << s << "\"\n";
@@ -81,12 +81,12 @@ void s04_bytesNotCharacters() {
 
 // ---------------------------------------------------------------- 5
 void s05_conversions() {
-    std::cout << "-- 5. brojevi <-> tekst --\n";
+    std::cout << "-- 5. numbers <-> text --\n";
     std::cout << "  to_string(42)=\"" << std::to_string(42) << "\" to_string(1.5)=\"" << std::to_string(1.5) << "\"\n";
 
     std::size_t used = 0;
     int partial = std::stoi("42abc", &used); // čita dok može; used kaže koliko
-    std::cout << "  stoi(\"42abc\")=" << partial << " (pročitano " << used << " znaka -- ostatak tiho ignorisan)\n";
+    std::cout << "  stoi(\"42abc\")=" << partial << " (read " << used << " characters -- the rest silently ignored)\n";
     try {
         std::stoi("abc");
     } catch (const std::invalid_argument&) {
@@ -102,29 +102,29 @@ void s05_conversions() {
     std::string_view input = "123x";
     int value = 0;
     auto [ptr, ec] = std::from_chars(input.data(), input.data() + input.size(), value);
-    std::cout << "  from_chars(\"123x\"): value=" << value << " ok=" << (ec == std::errc{} ? "da" : "ne")
-              << " ostatak=\"" << std::string_view(ptr, static_cast<std::size_t>(input.data() + input.size() - ptr)) << "\"\n";
+    std::cout << "  from_chars(\"123x\"): value=" << value << " ok=" << (ec == std::errc{} ? "yes" : "no")
+              << " rest=\"" << std::string_view(ptr, static_cast<std::size_t>(input.data() + input.size() - ptr)) << "\"\n";
 }
 
 // ---------------------------------------------------------------- 6
 void s06_cStrAndCapacity() {
-    std::cout << "-- 6. c_str() i kapacitet --\n";
-    std::string name = "Ana";
+    std::cout << "-- 6. c_str() and capacity --\n";
+    std::string name = "Ann";
     const char* c = name.c_str(); // važi dok se name ne promeni ili ne nestane (ub/u01, ub/u02)
-    std::cout << "  c_str()=\"" << c << "\" (za C API: fopen, printf)\n";
+    std::cout << "  c_str()=\"" << c << "\" (for a C API: fopen, printf)\n";
 
     std::string built;
     built.reserve(100); // jedna alokacija umesto više realokacija u petlji
     for (int i = 0; i < 10; ++i) built += std::to_string(i);
-    std::cout << "  posle reserve(100) i 10 dodavanja: size=" << built.size() << " capacity>=" << (built.capacity() >= 100 ? "100" : "?")
-              << "\n  kratak string (SSO) ne alocira: lekcija 22, sekcija 8\n";
+    std::cout << "  after reserve(100) and 10 appends: size=" << built.size() << " capacity>=" << (built.capacity() >= 100 ? "100" : "?")
+              << "\n  a short string (SSO) does not allocate: lesson 22, section 8\n";
 }
 
 // ---------------------------------------------------------------- 7
 void s07_stringStreams() {
-    std::cout << "-- 7. string streams (kurs 88) --\n";
+    std::cout << "-- 7. string streams (course 88) --\n";
     std::ostringstream out; // pravljenje formatiranog teksta
-    out << "cena=" << std::fixed << std::setprecision(2) << 3.14159 << " kolicina=" << std::setw(4) << 7;
+    out << "price=" << std::fixed << std::setprecision(2) << 3.14159 << " quantity=" << std::setw(4) << 7;
     std::cout << "  ostringstream: \"" << out.str() << "\"\n";
 
     std::istringstream in("10 20 x 30"); // čitanje brojeva iz teksta
@@ -132,10 +132,10 @@ void s07_stringStreams() {
     in >> a >> b >> c; // "x" nije broj: c postane 0, stream u fail stanju
     std::cout << "  istringstream \"10 20 x 30\": a=" << a << " b=" << b << " c=" << c << " fail=" << in.fail() << "\n";
 
-    std::istringstream csv("Ana,23,Beograd");
+    std::istringstream csv("Ann,23,Belgrade");
     std::vector<std::string> fields;
     for (std::string field; std::getline(csv, field, ',');) fields.push_back(field); // getline sa graničnikom
-    std::cout << "  getline sa ',': " << fields.size() << " polja: " << fields[0] << " | " << fields[1] << " | " << fields[2] << "\n";
+    std::cout << "  getline with ',': " << fields.size() << " fields: " << fields[0] << " | " << fields[1] << " | " << fields[2] << "\n";
 
     std::istringstream reused("5");
     int x = 0;
@@ -143,11 +143,11 @@ void s07_stringStreams() {
     reused.str("7");  // novi sadržaj, ali stanje greške OSTAJE
     int y = 0;
     reused >> y;
-    std::cout << "  ponovna upotreba bez clear(): y=" << y;
+    std::cout << "  reuse without clear(): y=" << y;
     reused.clear();   // obriši fail/eof
     reused.str("7");
     reused >> y;
-    std::cout << "; posle clear(): y=" << y << "\n";
+    std::cout << "; after clear(): y=" << y << "\n";
 }
 
 // ---------------------------------------------------------------- 8
@@ -161,25 +161,25 @@ constexpr Meters operator""_km(long double v) { return Meters{v * 1000}; }
 constexpr Meters operator""_km(unsigned long long v) { return Meters{static_cast<long double>(v) * 1000}; }
 
 void s08_userDefinedLiterals() {
-    std::cout << "-- 8. korisnički literali (kurs 90) --\n";
+    std::cout << "-- 8. user-defined literals (course 90) --\n";
     using namespace std::string_literals;       // "..."s
     using namespace std::string_view_literals;  // "..."sv
     using namespace std::chrono_literals;       // 100ms, 2s, 5min
 
-    auto text = "tekst"s;               // std::string, ne const char*
+    auto text = "text"s;               // std::string, ne const char*
     auto withNull = "a\0b"s;            // dužina iz literala: 3 (std::string("a\0b") bi imao 1)
-    auto view = "pogled"sv;             // std::string_view
+    auto view = "view"sv;             // std::string_view
     auto timeout = 1500ms;              // std::chrono::milliseconds
-    std::cout << "  \"tekst\"s.size()=" << text.size() << "  \"a\\0b\"s.size()=" << withNull.size()
-              << " std::string(\"a\\0b\").size()=" << std::string("a\0b").size() << "  \"pogled\"sv.size()=" << view.size() << "\n";
-    std::cout << "  1500ms = " << std::chrono::duration_cast<std::chrono::seconds>(timeout).count() << " s (odsečeno) = "
+    std::cout << "  \"text\"s.size()=" << text.size() << "  \"a\\0b\"s.size()=" << withNull.size()
+              << " std::string(\"a\\0b\").size()=" << std::string("a\0b").size() << "  \"view\"sv.size()=" << view.size() << "\n";
+    std::cout << "  1500ms = " << std::chrono::duration_cast<std::chrono::seconds>(timeout).count() << " s (truncated) = "
               << timeout.count() << " ms\n";
 
     constexpr Meters run = 2.5_km;       // long double verzija
     constexpr Meters lap = 400.0_m;
     constexpr Meters walk = 3_km;        // unsigned long long verzija
     std::cout << "  2.5_km=" << static_cast<double>(run.value) << " m, 400.0_m=" << static_cast<double>(lap.value)
-              << " m, 3_km=" << static_cast<double>(walk.value) << " m (sve pri kompajliranju, constexpr)\n";
+              << " m, 3_km=" << static_cast<double>(walk.value) << " m (all at compile time, constexpr)\n";
 }
 
 int main() {

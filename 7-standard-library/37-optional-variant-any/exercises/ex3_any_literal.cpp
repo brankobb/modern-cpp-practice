@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO ime: pogrešan tip \(const char\*\)
+// DEMO-OUT: NAIVE ime: pogrešan tip \(const char\*\)
 //
 // Zadatak 3 -- zašto any_cast<std::string> ne uspe na "temp" (sekcija 7)
 // Rešenje: exercises/solutions/ex3_any_literal.cpp
@@ -7,7 +7,7 @@
 // Svojstva uređaja su u std::map<std::string, std::any>.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/37-optional-variant-any/exercises/ex3_any_literal.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/37-optional-variant-any/exercises/ex3_any_literal.cpp -DNAIVE
 //   Čitanje imena baci bad_any_cast. svojstva["ime"] = "temp" upiše
 //   const char* (literal se "raspadne" u pokazivač), a any_cast traži
 //   TAČAN tip -- bez konverzija, iako se const char* inače pretvara u
@@ -24,7 +24,7 @@
 
 using Svojstva = std::map<std::string, std::any>;
 
-#ifdef NAIVNO
+#ifdef NAIVE
 void postaviIme(Svojstva& s) { s["ime"] = "temp"; }
 #else
 // TODO korak 2 (dok ne napišeš, ime se ne postavlja)

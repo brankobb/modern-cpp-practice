@@ -385,14 +385,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_racun`](exercises/ex1_racun.cpp) | usage | klasa sa invarijantom, delegiranje, this i static (sekcije 1, 2, 5, 6, 9) | — |
-| [`ex2_redosled_clanova`](exercises/ex2_redosled_clanova.cpp) | why | zašto redosled u init listi ne odlučuje ništa (sekcija 2, "Redosled inicijalizacije", EC++ Item 4, C.47) | `-DNAIVNO` |
-| [`ex3_explicit`](exercises/ex3_explicit.cpp) | why | zašto explicit na konstruktoru sa jednim argumentom (sekcija 2, C.46) | `-DNAIVNO`, `-DEXPLICIT` |
+| [`ex2_redosled_clanova`](exercises/ex2_redosled_clanova.cpp) | why | zašto redosled u init listi ne odlučuje ništa (sekcija 2, "Redosled inicijalizacije", EC++ Item 4, C.47) | `-DNAIVE` |
+| [`ex3_explicit`](exercises/ex3_explicit.cpp) | why | zašto explicit na konstruktoru sa jednim argumentom (sekcija 2, C.46) | `-DNAIVE`, `-DEXPLICIT` |
 
 ## Zapažanja posle vežbe
 

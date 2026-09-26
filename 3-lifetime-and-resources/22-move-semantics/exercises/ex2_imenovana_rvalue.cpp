@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO kopija: 1, pomeranja: 0
+// DEMO-OUT: NAIVE kopija: 1, pomeranja: 0
 //
 // Zadatak 2 -- zašto parametar T&& unutar funkcije treba std::move
 // (sekcija 5)
@@ -9,7 +9,7 @@
 // ga preuzeti".
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/22-move-semantics/exercises/ex2_imenovana_rvalue.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/22-move-semantics/exercises/ex2_imenovana_rvalue.cpp -DNAIVE
 //   Iako je argument privremeni i parametar je Tekst&&, član se KOPIRA.
 //   Parametar t ima ime, pa je izraz "t" lvalue (kategorija vrednosti je
 //   osobina IZRAZA, ne tipa). Kompajler ne sme sam da ga pomeri -- mogao
@@ -35,7 +35,7 @@ struct Tekst {
     Tekst(Tekst&& o) noexcept : s(std::move(o.s)) { ++brojac.pomeranja; }
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Poruka {
     explicit Poruka(Tekst&& t) : t_(t) {}      // t je ovde lvalue!
     Tekst t_;

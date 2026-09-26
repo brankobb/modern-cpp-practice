@@ -331,13 +331,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_konfiguracija_greske`](exercises/ex1_konfiguracija_greske.cpp) | usage | sopstvena klasa izuzetka, prevođenje izuzetaka i lanac uzroka (sekcije 2, 3, 6) | — |
-| [`ex2_hvatanje_po_vrednosti`](exercises/ex2_hvatanje_po_vrednosti.cpp) | why | zašto catch po const& i "throw;" (sekcije 1, 5) | `-DNAIVNO` |
-| [`ex3_konstruktor_baca`](exercises/ex3_konstruktor_baca.cpp) | why | zašto konstruktor baca, umesto init() koji vraća bool (sekcija 7) | `-DNAIVNO` |
+| [`ex2_hvatanje_po_vrednosti`](exercises/ex2_hvatanje_po_vrednosti.cpp) | why | zašto catch po const& i "throw;" (sekcije 1, 5) | `-DNAIVE` |
+| [`ex3_konstruktor_baca`](exercises/ex3_konstruktor_baca.cpp) | why | zašto konstruktor baca, umesto init() koji vraća bool (sekcija 7) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

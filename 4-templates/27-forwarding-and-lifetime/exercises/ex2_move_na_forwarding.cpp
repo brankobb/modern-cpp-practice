@@ -1,12 +1,12 @@
 // KIND: why
-// DEMO-OUT: NAIVNO ime pozivaoca posle: ""
+// DEMO-OUT: NAIVE ime pozivaoca posle: ""
 //
 // Zadatak 2 -- zašto std::forward, a ne std::move, na forwarding referenci
 // (sekcije 1, 3, EMC Item 25)
 // Rešenje: exercises/solutions/ex2_move_na_forwarding.cpp
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 4-templates/27-forwarding-and-lifetime/exercises/ex2_move_na_forwarding.cpp -DNAIVNO
+//     ./build.sh 4-templates/27-forwarding-and-lifetime/exercises/ex2_move_na_forwarding.cpp -DNAIVE
 //   Pozivalac je prosledio svoju promenljivu (lvalue) i posle je koristi --
 //   a ona je prazna. T&& u template-u prima i lvalue, a std::move
 //   BEZUSLOVNO pravi rvalue, pa se tuđi objekat pomeri. Bez upozorenja.
@@ -21,7 +21,7 @@
 
 struct Uredjaj {
     std::string ime;
-#ifdef NAIVNO
+#ifdef NAIVE
     template <typename T>
     void postaviIme(T&& novo) { ime = std::move(novo); }    // pomeri i lvalue!
 #else

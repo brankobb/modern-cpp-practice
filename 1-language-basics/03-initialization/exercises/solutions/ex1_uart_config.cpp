@@ -32,7 +32,7 @@ public:
 
     void print() const {
         std::cout << "uart " << id_ << ": " << cfg_.baud << ' ' << cfg_.parity
-                  << ' ' << cfg_.stopBits << ", poslato " << txCounter_ << '\n';
+                  << ' ' << cfg_.stopBits << ", sent " << txCounter_ << '\n';
     }
 
 private:
@@ -51,10 +51,10 @@ int main() {
 
     int sent = 0;
     Uart u(3, c, sent);
-    u.send("pre open");
+    u.send("before open");
     u.open();
     u.send("a");
     u.send("b");
     u.print();
-    std::cout << "brojač kod pozivaoca: " << sent << '\n';
+    std::cout << "caller's counter: " << sent << '\n';
 }

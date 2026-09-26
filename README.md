@@ -45,13 +45,13 @@ od onog što piše u lekcijama.
 Build i pokretanje jednog fajla preko `./build.sh <fajl.cpp>`: kompajlira sa
 AddressSanitizer + UndefinedBehaviorSanitizer i `-pedantic-errors` (kod koji
 standard zabranjuje je uvek greška, ne samo warning). Dodatni argumenti idu
-kompajleru (`-std=c++20`, `-DNAIVNO`, drugi `.cpp` fajl). Za programe sa
+kompajleru (`-std=c++20`, `-DNAIVE`, drugi `.cpp` fajl). Za programe sa
 nitima (lekcije 39, 40) `--tsan` gradi sa ThreadSanitizer-om umesto ASan/UBSan
 (data race i redosled zaključavanja; TSan i ASan ne mogu u isti build).
 
 ```
 ./build.sh 3-lifetime-and-resources/19-object-lifetime/main.cpp
-./build.sh 1-language-basics/03-initialization/exercises/ex2_narrowing_senzor.cpp -DNAIVNO
+./build.sh 1-language-basics/03-initialization/exercises/ex2_narrowing_sensor.cpp -DNAIVE
 ./build.sh 8-concurrency/39-threads/main.cpp --tsan
 ```
 
@@ -66,12 +66,12 @@ Provere (bash; na Windows-u iz MSYS2 shell-a):
 `check_exercises.sh` gradi svaki zadatak i rešenje sa g++ i clang++, u C++17
 i C++20, sa `-Werror`: zadatak mora da se kompajlira i nerešen, izlaz rešenja
 mora da bude tačno blok EXPECTED OUTPUT iz zadatka, a demonstracije problema
-(`-DNAIVNO` i sl.) moraju da pokažu ono što tekst tvrdi.
+(`-DNAIVE` i sl.) moraju da pokažu ono što tekst tvrdi.
 
 ## Kako raditi zadatak
 
 1. Pročitaj korake u komentaru na vrhu fajla.
-2. Zadatak "why": prvo pokreni sa makroom iz koraka 1 (npr. `-DNAIVNO`) i
+2. Zadatak "why": prvo pokreni sa makroom iz koraka 1 (npr. `-DNAIVE`) i
    pogledaj problem (pogrešan izlaz, ASan izveštaj ili grešku kompajlera).
    Objasni sebi ZAŠTO se to desilo, pre nego što pišeš ispravku.
 3. Piši kod u `#else` grani / na mestu `TODO`, otkomentariši test u

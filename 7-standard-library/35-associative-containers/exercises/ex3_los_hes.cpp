@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO po traženju: [0-9]{2,}
+// DEMO-OUT: NAIVE po traženju: [0-9]{2,}
 //
 // Zadatak 3 -- zašto je kvalitet heša bitan (sekcije 4, 5)
 // Rešenje: exercises/solutions/ex3_los_hes.cpp
@@ -8,7 +8,7 @@
 // koliko puta je pozvano, pa se vidi koliko posla košta traženje.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/35-associative-containers/exercises/ex3_los_hes.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/35-associative-containers/exercises/ex3_los_hes.cpp -DNAIVE
 //   Heš (x + y) % 4 daje samo 4 različite vrednosti za 900 tačaka, pa su
 //   stotine tačaka u istom bucket-u, i svako traženje ih poredi redom:
 //   preko 100 poređenja po traženju (test, libstdc++: 113). Program je
@@ -36,7 +36,7 @@ struct Jednako {
     }
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Hes {
     std::size_t operator()(const Tacka& t) const { return static_cast<std::size_t>(t.x + t.y) % 4; }
 };

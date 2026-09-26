@@ -1,12 +1,12 @@
 // KIND: why
-// DEMO-ERR: NAIVNO no matching function for call to 'ispisi
+// DEMO-ERR: NAIVE no matching function for call to 'ispisi
 //
 // Zadatak 3 -- zašto variadic rekurzija mora da ima kraj, i zašto je fold
 // jednostavniji (sekcija 2)
 // Rešenje: exercises/solutions/ex3_rekurzija_bez_kraja.cpp
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 4-templates/28-class-templates-and-traits/exercises/ex3_rekurzija_bez_kraja.cpp -DNAIVNO
+//     ./build.sh 4-templates/28-class-templates-and-traits/exercises/ex3_rekurzija_bez_kraja.cpp -DNAIVE
 //   Greška pri KOMPAJLIRANJU: "no matching function for call to 'ispisi()'".
 //   "Rekurzija" ovde nije poziv pri izvršavanju, nego lanac
 //   instancijacija: ispisi<int, double, const char*> treba ispisi<double,
@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-#ifdef NAIVNO
+#ifdef NAIVE
 template <typename Prvi, typename... Ostali>
 void ispisi(const Prvi& p, const Ostali&... ostali) {
     std::cout << p << ' ';

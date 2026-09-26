@@ -189,7 +189,7 @@ uništi (`errors/e11`). Za takve slučajeve postoji `std::variant`.
 std::variant<int, std::string> v;     // prva alternativa, value-init: int 0
 v = 42;
 std::holds_alternative<int>(v);       // true
-v = std::string("tekst");             // aktivna je sada string
+v = std::string("text");             // aktivna je sada string
 std::get_if<int>(&v);                 // nullptr -- bezbedna provera
 std::get<int>(v);                     // pogrešna alternativa -> std::bad_variant_access (izuzetak, ne UB)
 std::get<double>(v);                  // ❌ double nije alternativa -- greška pri kompajliranju (errors/e12)
@@ -295,13 +295,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_array_variant`](exercises/ex1_array_variant.cpp) | usage | std::array, std::variant i alias za pokazivač na funkciju (sekcije 3, 6, 7, 8) | — |
-| [`ex2_niz_kao_parametar`](exercises/ex2_niz_kao_parametar.cpp) | why | zašto C niz "zaboravi" veličinu kad ga proslediš (sekcije 2, 3) | `-DNAIVNO` |
-| [`ex3_enum_class`](exercises/ex3_enum_class.cpp) | why | zašto enum class (sekcija 4, EMC Item 10) | `-DNAIVNO`, `-DENUM_CLASS` |
+| [`ex2_array_as_parameter`](exercises/ex2_array_as_parameter.cpp) | why | zašto C niz "zaboravi" veličinu kad ga proslediš (sekcije 2, 3) | `-DNAIVE` |
+| [`ex3_enum_class`](exercises/ex3_enum_class.cpp) | why | zašto enum class (sekcija 4, EMC Item 10) | `-DNAIVE`, `-DENUM_CLASS` |
 
 ## Zapažanja posle vežbe

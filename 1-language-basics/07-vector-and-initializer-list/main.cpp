@@ -26,7 +26,7 @@ void print(const char* label, const std::vector<T>& v) {
 
 // ---------------------------------------------------------------- 1
 void s01_construction() {
-    std::cout << "-- 1. pravljenje --\n";
+    std::cout << "-- 1. construction --\n";
     std::vector<int> zeros(3);          // 3 elementa, value-init -> 0
     std::vector<int> sevens(3, 7);      // 3 elementa, svaki 7
     std::vector<int> list{3, 7};        // initializer_list: 2 elementa (lekcija 03, EMC Item 7)
@@ -35,14 +35,14 @@ void s01_construction() {
     print("vector<int>(3)    ", zeros);
     print("vector<int>(3, 7) ", sevens);
     print("vector<int>{3, 7} ", list);
-    print("iz opsega raw+1.. ", fromRange);
+    print("from range raw+1..", fromRange);
 }
 
 // ---------------------------------------------------------------- 2
 void s02_sizeAndCapacity() {
     std::cout << "-- 2. size vs capacity --\n";
     std::vector<int> v;
-    std::cout << "  capacity posle push_back: ";
+    std::cout << "  capacity after push_back: ";
     std::size_t last = v.capacity();
     for (int i = 0; i < 17; ++i) {
         v.push_back(i);
@@ -51,15 +51,15 @@ void s02_sizeAndCapacity() {
             std::cout << last << " ";
         }
     }
-    std::cout << " <- libstdc++ udvostručava; svaka promena = realokacija + premeštanje\n";
+    std::cout << " <- libstdc++ doubles it; every change = reallocation + moving\n";
     v.clear();
-    std::cout << "  posle clear(): size=" << v.size() << " capacity=" << v.capacity() << " (memorija ostaje)\n";
+    std::cout << "  after clear(): size=" << v.size() << " capacity=" << v.capacity() << " (memory stays)\n";
     v.shrink_to_fit(); // zahtev, ne obaveza
-    std::cout << "  posle shrink_to_fit(): capacity=" << v.capacity() << "\n";
+    std::cout << "  after shrink_to_fit(): capacity=" << v.capacity() << "\n";
     std::vector<int> planned;
     planned.reserve(100); // jedna alokacija unapred
     for (int i = 0; i < 100; ++i) planned.push_back(i);
-    std::cout << "  reserve(100) pa 100 x push_back: capacity=" << planned.capacity() << " (bez realokacije)\n";
+    std::cout << "  reserve(100) then 100 x push_back: capacity=" << planned.capacity() << " (no reallocation)\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -86,7 +86,7 @@ void s03_reserveVsResize() {
 
 // ---------------------------------------------------------------- 4
 void s04_access() {
-    std::cout << "-- 4. pristup --\n";
+    std::cout << "-- 4. access --\n";
     std::vector<int> v{10, 20, 30};
     std::cout << "  v[1]=" << v[1] << " v.at(1)=" << v.at(1) << " front=" << v.front() << " back=" << v.back();
     try {
@@ -94,25 +94,25 @@ void s04_access() {
     } catch (const std::out_of_range&) {
         std::cout << "; v.at(10) -> std::out_of_range";
     }
-    std::cout << "\n  front()/back() na praznom vektoru: UB (ub/u02); v[10]: UB bez provere\n";
-    std::printf("  data() za C API: %d %d %d\n", v.data()[0], v.data()[1], v.data()[2]); // uzastopna memorija
+    std::cout << "\n  front()/back() on an empty vector: UB (ub/u02); v[10]: UB without a check\n";
+    std::printf("  data() for a C API: %d %d %d\n", v.data()[0], v.data()[1], v.data()[2]); // uzastopna memorija
 }
 
 // ---------------------------------------------------------------- 5
 void s05_modify() {
-    std::cout << "-- 5. izmene --\n";
+    std::cout << "-- 5. modifications --\n";
     std::vector<int> v{1, 2, 3, 4, 5, 6};
     v.insert(v.begin() + 1, 99);                   // pomera sve iza: O(n)
     v.erase(v.begin());                            // pomera sve iza: O(n)
     v.pop_back();                                  // O(1)
     print("insert(+1, 99), erase(begin), pop_back:", v);
     v.erase(std::remove_if(v.begin(), v.end(), [](int x) { return x % 2 == 0; }), v.end()); // erase-remove
-    print("posle uklanjanja parnih:               ", v);
+    print("after removing even numbers:            ", v);
     std::vector<std::string> names;
     names.emplace_back(3, 'a');                    // konstruiše std::string(3, 'a') direktno u vektoru
     names.push_back("bob");
     std::cout << "  emplace_back(3, 'a') -> \"" << names[0] << "\", push_back(\"bob\") -> \"" << names[1] << "\"\n";
-    std::cout << "  (invalidacija iteratora posle insert/erase: lekcija 27)\n";
+    std::cout << "  (iterator invalidation after insert/erase: lesson 27)\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -138,7 +138,7 @@ private:
 };
 
 void s06_initializerList() {
-    std::cout << "-- 6. std::initializer_list (kurs 92) --\n";
+    std::cout << "-- 6. std::initializer_list (course 92) --\n";
     std::cout << "  sum({1, 2, 3, 4})=" << sum({1, 2, 3, 4}) << ", sum({})=" << sum({}) << "\n";
     Polygon triangle{3, 4, 5};
     std::cout << "  Polygon{3, 4, 5}.count()=" << triangle.count() << "\n";
@@ -150,14 +150,14 @@ void s06_initializerList() {
     std::vector<Tracked> built;
     built.reserve(3);
     for (int i = 0; i < 3; ++i) built.emplace_back();
-    std::cout << "  vector<Tracked>{t, t, t}: kopija=" << listCopies << "; reserve + 3 x emplace_back: kopija=" << Tracked::copies
+    std::cout << "  vector<Tracked>{t, t, t}: copies=" << listCopies << "; reserve + 3 x emplace_back: copies=" << Tracked::copies
               << " move=" << Tracked::moves << "\n";
-    std::cout << "  <- iz initializer_list se ne može pomerati; zato vector<unique_ptr<T>>{...} ne radi (errors/e01)\n";
+    std::cout << "  <- you cannot move out of an initializer_list; that is why vector<unique_ptr<T>>{...} fails (errors/e01)\n";
 
     std::vector<std::unique_ptr<int>> owners;
     owners.push_back(std::make_unique<int>(1)); // move-only tipovi: push_back / emplace_back
     owners.push_back(std::make_unique<int>(2));
-    std::cout << "  vector<unique_ptr<int>> preko push_back: " << *owners[0] << " " << *owners[1] << "\n";
+    std::cout << "  vector<unique_ptr<int>> via push_back: " << *owners[0] << " " << *owners[1] << "\n";
 }
 
 int main() {

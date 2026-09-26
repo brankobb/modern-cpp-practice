@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO vrednost: motor
+// DEMO-OUT: NAIVE vrednost: motor
 //
 // Zadatak 2 -- zašto se tip "očisti" pre pitanja traitu (sekcija 7)
 // Rešenje: exercises/solutions/ex2_trait_i_referenca.cpp
@@ -8,7 +8,7 @@
 // prima sve (forwarding referenca) i stringove ispisuje pod navodnicima.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 4-templates/28-class-templates-and-traits/exercises/ex2_trait_i_referenca.cpp -DNAIVNO
+//     ./build.sh 4-templates/28-class-templates-and-traits/exercises/ex2_trait_i_referenca.cpp -DNAIVE
 //   Samo privremeni string je prepoznat kao tekst. Za imenovani string T je
 //   std::string& (lvalue u T&&, lekcija 27), za const string T je const std::string&
 //   -- a jeString<std::string&> i jeString<const std::string&> su DRUGI
@@ -30,7 +30,7 @@ struct jeString : std::false_type {};
 template <>
 struct jeString<std::string> : std::true_type {};
 
-#ifdef NAIVNO
+#ifdef NAIVE
 template <typename T>
 inline constexpr bool jeString_v = jeString<T>::value;
 #else

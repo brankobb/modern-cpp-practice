@@ -365,13 +365,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_structured_bindings`](exercises/ex1_structured_bindings.cpp) | usage | auto, range-for i structured bindings (sekcije 1, 3, 7, 8) | — |
-| [`ex2_range_for_kopija`](exercises/ex2_range_for_kopija.cpp) | why | zašto "auto&" / "const auto&" u range-for (sekcija 7) | `-DNAIVNO` |
-| [`ex3_auto_unsigned`](exercises/ex3_auto_unsigned.cpp) | why | auto uzme TAČAN tip inicijalizatora, i kad je unsigned (sekcije 3, 6) | `-DNAIVNO` |
+| [`ex2_range_for_copy`](exercises/ex2_range_for_copy.cpp) | why | zašto "auto&" / "const auto&" u range-for (sekcija 7) | `-DNAIVE` |
+| [`ex3_auto_unsigned`](exercises/ex3_auto_unsigned.cpp) | why | auto uzme TAČAN tip inicijalizatora, i kad je unsigned (sekcije 3, 6) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

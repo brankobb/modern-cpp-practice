@@ -8,7 +8,7 @@
 // v.size() - 1 je odmah najveći size_t.
 //
 // Treba ovako: a) reverse iteratori -- nema aritmetike sa indeksom.
-void ispisUnazadA(const std::vector<int>& v) {
+void printReversedA(const std::vector<int>& v) {
     std::cout << "a:";
     for (auto it = v.rbegin(); it != v.rend(); ++it) std::cout << ' ' << *it;
     std::cout << '\n';
@@ -16,7 +16,7 @@ void ispisUnazadA(const std::vector<int>& v) {
 
 // Možeš i ovako: b) uslov "i-- > 0" proveri PRE umanjenja, pa i nikad ne
 // ode ispod nule. Za prazan vektor: 0 > 0 je netačno odmah.
-void ispisUnazadB(const std::vector<int>& v) {
+void printReversedB(const std::vector<int>& v) {
     std::cout << "b:";
     for (auto i = v.size(); i-- > 0;) std::cout << ' ' << v[i];
     std::cout << '\n';
@@ -24,9 +24,9 @@ void ispisUnazadB(const std::vector<int>& v) {
 
 int main() {
     std::vector<int> v{1, 2, 3};
-    std::vector<int> prazan;
-    ispisUnazadA(v);
-    ispisUnazadB(v);
-    ispisUnazadA(prazan);
-    ispisUnazadB(prazan);
+    std::vector<int> empty;
+    printReversedA(v);
+    printReversedB(v);
+    printReversedA(empty);
+    printReversedB(empty);
 }

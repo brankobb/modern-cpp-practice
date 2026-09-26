@@ -120,9 +120,9 @@ primeri: CRC tabele, sinusne tabele, konverzije jedinica, maske registara.
 ```cpp
 template <typename T>
 std::string describe(const T& value) {
-    if constexpr (std::is_same_v<T, std::string>) return "string dužine " + std::to_string(value.size());
-    else if constexpr (std::is_integral_v<T>)     return "ceo broj " + std::to_string(value);
-    else                                           return "nešto drugo";
+    if constexpr (std::is_same_v<T, std::string>) return "string of length " + std::to_string(value.size());
+    else if constexpr (std::is_integral_v<T>)     return "integer " + std::to_string(value);
+    else                                           return "something else";
 }
 ```
 
@@ -139,7 +139,7 @@ std::string describe(const T& value) {
 # 6. `static_assert`
 
 ```cpp
-static_assert(sizeof(T) == 4, "Register: tip mora imati tačno 4 bajta");
+static_assert(sizeof(T) == 4, "Register: the type must be exactly 4 bytes");
 static_assert(std::is_trivially_copyable_v<T>, "...");
 ```
 
@@ -199,14 +199,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_crc_tabela`](exercises/ex1_crc_tabela.cpp) | usage | constexpr funkcija, tabela pri kompajliranju, static_assert i if constexpr (sekcije 1, 4, 5, 6) | — |
-| [`ex2_ub_pri_kompajliranju`](exercises/ex2_ub_pri_kompajliranju.cpp) | why | zašto je constexpr i alat za hvatanje UB-a (sekcija 2) | `-DNAIVNO`, `-DCONSTEXPR` |
-| [`ex3_raspored_registara`](exercises/ex3_raspored_registara.cpp) | why | zašto static_assert za pretpostavke o rasporedu u memoriji (sekcija 6) | `-DNAIVNO` |
+| [`ex1_crc_table`](exercises/ex1_crc_table.cpp) | usage | constexpr funkcija, tabela pri kompajliranju, static_assert i if constexpr (sekcije 1, 4, 5, 6) | — |
+| [`ex2_ub_at_compile_time`](exercises/ex2_ub_at_compile_time.cpp) | why | zašto je constexpr i alat za hvatanje UB-a (sekcija 2) | `-DNAIVE`, `-DCONSTEXPR` |
+| [`ex3_register_layout`](exercises/ex3_register_layout.cpp) | why | zašto static_assert za pretpostavke o rasporedu u memoriji (sekcija 6) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

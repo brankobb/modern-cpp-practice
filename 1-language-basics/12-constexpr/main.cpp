@@ -22,14 +22,14 @@ constexpr int square(int n) { return n * n; }
 int readSensor() { return 7; } // nije constexpr: vrednost se zna tek pri izvršavanju
 
 void s01_constexprFunctions() {
-    std::cout << "-- 1. constexpr funkcija: pri kompajliranju ILI pri izvršavanju --\n";
+    std::cout << "-- 1. constexpr function: at compile time OR at run time --\n";
     constexpr int atCompile = square(12);   // constexpr promenljiva MORA da se izračuna pri kompajliranju
-    static_assert(atCompile == 144, "provereno pri kompajliranju");
+    static_assert(atCompile == 144, "checked at compile time");
     std::array<int, square(3)> grid{};      // i veličina niza je konstantni izraz
     int atRuntime = square(readSensor());   // ista funkcija, argument iz runtime-a -> izvršava se normalno
-    std::cout << "  square(12)=" << atCompile << " (static_assert prošao), std::array<int, square(3)>.size()=" << grid.size()
+    std::cout << "  square(12)=" << atCompile << " (static_assert passed), std::array<int, square(3)>.size()=" << grid.size()
               << ", square(readSensor())=" << atRuntime << "\n";
-    std::cout << "  <- constexpr znači \"SME pri kompajliranju\", ne \"MORA\"; mora samo kad rezultat traži konstantu\n";
+    std::cout << "  <- constexpr means \"MAY at compile time\", not \"MUST\"; it must only when the result is required as a constant\n";
 }
 
 // ---------------------------------------------------------------- 2
@@ -48,21 +48,21 @@ constexpr bool isPrime(int n) {
 }
 
 void s02_loopsAndLocals() {
-    std::cout << "-- 2. petlje i lokalne promenljive (C++14) --\n";
+    std::cout << "-- 2. loops and local variables (C++14) --\n";
     constexpr std::uint64_t f20 = factorial(20);
-    static_assert(isPrime(97) && !isPrime(91), "provera prostih brojeva pri kompajliranju");
-    std::cout << "  factorial(20)=" << f20 << ", isPrime(97) i !isPrime(91) provereni static_assert-om\n";
+    static_assert(isPrime(97) && !isPrime(91), "prime check at compile time");
+    std::cout << "  factorial(20)=" << f20 << ", isPrime(97) and !isPrime(91) checked by static_assert\n";
 }
 
 // ---------------------------------------------------------------- 3
 constexpr int add(int a, int b) { return a + b; }
 
 void s03_ubIsAnError() {
-    std::cout << "-- 3. UB u konstantnom izrazu je GREŠKA pri kompajliranju --\n";
+    std::cout << "-- 3. UB in a constant expression is a COMPILE-TIME ERROR --\n";
     constexpr int ok = add(INT_MAX - 1, 1);
     // constexpr int bad = add(INT_MAX, 1);  // ne kompajlira se: overflow (errors/e01)
-    std::cout << "  add(INT_MAX - 1, 1)=" << ok << "; add(INT_MAX, 1) u constexpr -> greška (errors/e01),\n"
-              << "  a pri izvršavanju -> tihi UB, samo UBSan ga vidi (ub/u01)\n";
+    std::cout << "  add(INT_MAX - 1, 1)=" << ok << "; add(INT_MAX, 1) in constexpr -> error (errors/e01),\n"
+              << "  and at run time -> silent UB, only UBSan sees it (ub/u01)\n";
 }
 
 // ---------------------------------------------------------------- 4
@@ -76,12 +76,12 @@ struct Point { // literal tip: constexpr konstruktor, constexpr funkcije članic
 
 constexpr Point origin(0, 0);
 constexpr Point target = origin + Point(3, -4);
-static_assert(target.manhattan() == 7, "Point radi pri kompajliranju");
+static_assert(target.manhattan() == 7, "Point works at compile time");
 
-constexpr std::string_view unitName = "kilometar"; // string_view je literal tip (C++17), std::string nije (errors/e06)
+constexpr std::string_view unitName = "kilometre"; // string_view je literal tip (C++17), std::string nije (errors/e06)
 
 void s04_literalTypes() {
-    std::cout << "-- 4. literal tipovi: sopstvene klase u constexpr --\n";
+    std::cout << "-- 4. literal types: your own classes in constexpr --\n";
     std::cout << "  constexpr Point target = origin + Point(3, -4) -> (" << target.x << ", " << target.y
               << "), manhattan=" << target.manhattan() << "; constexpr string_view: \"" << unitName << "\" (" << unitName.size()
               << ")\n";
@@ -98,20 +98,20 @@ constexpr std::array<std::uint32_t, N> makeSquares() {
 constexpr auto squares = makeSquares<16>(); // tabela u read-only memoriji; na mikrokontroleru ide u flash
 
 void s05_lookupTables() {
-    std::cout << "-- 5. tabele izračunate pri kompajliranju --\n";
-    static_assert(squares[15] == 225, "tabela je gotova pre pokretanja programa");
-    std::cout << "  squares[7]=" << squares[7] << " squares[15]=" << squares[15] << " (nijedna instrukcija za računanje pri pokretanju)\n";
+    std::cout << "-- 5. tables computed at compile time --\n";
+    static_assert(squares[15] == 225, "the table is ready before the program starts");
+    std::cout << "  squares[7]=" << squares[7] << " squares[15]=" << squares[15] << " (no instructions to compute it at startup)\n";
 }
 
 // ---------------------------------------------------------------- 6
 template <typename T>
 std::string describe(const T& value) {
     if constexpr (std::is_same_v<T, std::string>) {
-        return "string dužine " + std::to_string(value.size()); // za T = int se ova grana ni ne kompajlira
+        return "string of length " + std::to_string(value.size()); // za T = int se ova grana ni ne kompajlira
     } else if constexpr (std::is_integral_v<T>) {
-        return "ceo broj " + std::to_string(value);
+        return "integer " + std::to_string(value);
     } else {
-        return "nešto drugo";
+        return "something else";
     }
 }
 
@@ -119,22 +119,22 @@ void s06_ifConstexpr() {
     std::cout << "-- 6. if constexpr (C++17) --\n";
     std::cout << "  describe(string)=\"" << describe(std::string("abc")) << "\" describe(42)=\"" << describe(42)
               << "\" describe(1.5)=\"" << describe(1.5) << "\"\n";
-    std::cout << "  <- običan if bi kompajlirao OBE grane za svaki T, pa value.size() za int ne prolazi (errors/e05)\n";
+    std::cout << "  <- a plain if would compile BOTH branches for every T, so value.size() fails for int (errors/e05)\n";
 }
 
 // ---------------------------------------------------------------- 7
 template <typename T>
 struct Register {
-    static_assert(std::is_trivially_copyable_v<T>, "Register: tip mora biti trivijalno kopirljiv");
-    static_assert(sizeof(T) == 4, "Register: tip mora imati tačno 4 bajta"); // (errors/e09)
+    static_assert(std::is_trivially_copyable_v<T>, "Register: the type must be trivially copyable");
+    static_assert(sizeof(T) == 4, "Register: the type must be exactly 4 bytes"); // (errors/e09)
     T value;
 };
 
 void s07_staticAssert() {
-    std::cout << "-- 7. static_assert: pravila proverena pri kompajliranju --\n";
+    std::cout << "-- 7. static_assert: rules checked at compile time --\n";
     Register<std::uint32_t> reg{0xABCD};
-    std::cout << "  Register<std::uint32_t> prošao obe provere, value=0x" << std::hex << reg.value << std::dec
-              << "; Register<std::uint16_t> se ne kompajlira (errors/e09)\n";
+    std::cout << "  Register<std::uint32_t> passed both checks, value=0x" << std::hex << reg.value << std::dec
+              << "; Register<std::uint16_t> does not compile (errors/e09)\n";
 }
 
 int main() {

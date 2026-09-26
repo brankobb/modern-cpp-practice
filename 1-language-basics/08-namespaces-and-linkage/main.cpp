@@ -30,7 +30,7 @@ int answer() { return 42; }
 } // namespace company::project::detail
 
 void s01_namespaceBasics() {
-    std::cout << "-- 1. namespace: kvalifikovana imena, ugnežđeni namespace, alias --\n";
+    std::cout << "-- 1. namespace: qualified names, nested namespace, alias --\n";
     geo::Point p{3, -4};
     std::cout << "  geo::manhattan({3, -4}) = " << geo::manhattan(p) << "\n";
     std::cout << "  company::project::detail::answer() = " << company::project::detail::answer() << "\n";
@@ -40,7 +40,7 @@ void s01_namespaceBasics() {
 
     // util je "ponovo otvoren" u util.cpp -- namespace može da se proteže
     // kroz više fajlova i više blokova.
-    std::cout << "  util::add(2, 3) = " << util::add(2, 3) << " (definicija je u util.cpp)\n";
+    std::cout << "  util::add(2, 3) = " << util::add(2, 3) << " (defined in util.cpp)\n";
 }
 
 // ---------------------------------------------------------------- 2
@@ -50,7 +50,7 @@ int timeout = 30;
 } // namespace config
 
 void s02_usingDeclarationVsDirective() {
-    std::cout << "-- 2. using-deklaracija vs using-direktiva --\n";
+    std::cout << "-- 2. using-declaration vs using-directive --\n";
     {
         using config::timeout; // using-DEKLARACIJA: uvodi JEDNO ime, kao da je ovde deklarisano
         std::cout << "  using config::timeout;  timeout = " << timeout << "\n";
@@ -86,17 +86,17 @@ void swap(Buffer& a, Buffer& b) noexcept {
 void s03_adl() {
     std::cout << "-- 3. ADL: argument-dependent lookup --\n";
     geo::Point p{1, 2};
-    std::cout << "  print(p) bez geo:: -> ";
+    std::cout << "  print(p) without geo:: -> ";
     print(p); // ADL: argument je geo::Point, pa se traži i u namespace-u geo
     std::cout << "\n";
 
     // std::cout << "x" je poziv operator<<(std::ostream&, const char*).
     // Pronalazi se ADL-om, jer je std::cout iz namespace-a std.
-    std::cout << "  operator<< za std::ostream pronađen ADL-om\n";
+    std::cout << "  operator<< for std::ostream found by ADL\n";
 
     // Idiom "using std::swap; swap(a, b);": ADL nađe geo::swap ako postoji,
     // a za tipove bez svog swap-a koristi se std::swap.
-    geo::Buffer a{"prvi"}, b{"drugi"};
+    geo::Buffer a{"first"}, b{"second"};
     int i = 1, j = 2;
     using std::swap;
     std::cout << "  swap(Buffer, Buffer) -> ";
@@ -110,7 +110,7 @@ void s03_adl() {
 
 // ---------------------------------------------------------------- 4
 namespace { // internal linkage: vidi se samo u main.cpp
-std::string describe() { return "describe() iz main.cpp"; }
+std::string describe() { return "describe() from main.cpp"; }
 } // namespace
 
 // static na nivou namespace-a znači isto što i anonimni namespace (internal
@@ -120,45 +120,45 @@ static int localHelper() { return 7; }
 void s04_linkage() {
     std::cout << "-- 4. linkage: external, internal, extern --\n";
     std::cout << "  main.cpp: " << describe() << "\n";
-    std::cout << "  util.cpp: " << util::describeFromUtil() << "  <- isto ime, druga funkcija\n";
+    std::cout << "  util.cpp: " << util::describeFromUtil() << "  <- same name, different function\n";
     std::cout << "  static localHelper() = " << localHelper() << " (internal linkage)\n";
 
     // util::callCount je DEFINISAN u util.cpp, a util.h ima samo "extern int callCount;".
-    std::cout << "  util::callCount pre = " << util::callCount;
+    std::cout << "  util::callCount before = " << util::callCount;
     util::add(1, 1);
     util::add(2, 2);
-    std::cout << ", posle dva add() = " << util::callCount << " (ista promenljiva u oba TU-a)\n";
+    std::cout << ", after two add() = " << util::callCount << " (the same variable in both TUs)\n";
 }
 
 // ---------------------------------------------------------------- 5
 void s05_inline() {
-    std::cout << "-- 5. inline: ista definicija sme u više TU-ova --\n";
+    std::cout << "-- 5. inline: the same definition may appear in several TUs --\n";
     const util::Addresses u = util::addressesSeenByUtil();
-    auto same = [](const void* a, const void* b) { return a == b ? "ISTA" : "RAZLIČITA"; };
+    auto same = [](const void* a, const void* b) { return a == b ? "SAME" : "DIFFERENT"; };
 
-    std::cout << "  adresa u main.cpp vs util.cpp:\n";
+    std::cout << "  address in main.cpp vs util.cpp:\n";
     std::cout << "    inline int sharedVar              -> " << same(&util::sharedVar, u.sharedVar) << "\n";
-    std::cout << "    static int perTuVar               -> " << same(&util::perTuVar, u.perTuVar) << "  <- kopija po TU\n";
+    std::cout << "    static int perTuVar               -> " << same(&util::perTuVar, u.perTuVar) << "  <- one copy per TU\n";
     std::cout << "    const int perTuConst              -> " << same(&util::perTuConst, u.perTuConst) << "  <- const = internal linkage\n";
     std::cout << "    inline constexpr int sharedConst  -> " << same(&util::sharedConst, u.sharedConst) << "\n";
-    std::cout << "    static constexpr Config::maxUsers -> " << same(&util::Config::maxUsers, u.maxUsers) << "  <- implicitno inline (C++17)\n";
+    std::cout << "    static constexpr Config::maxUsers -> " << same(&util::Config::maxUsers, u.maxUsers) << "  <- implicitly inline (C++17)\n";
     std::cout << "    inline static Config::instances   -> " << same(&util::Config::instances, u.instances) << "\n";
 
     // inline funkcija: JEDNA funkcija u programu, pa i JEDAN static brojač.
     int t1 = util::nextTicket();
     int t2 = util::ticketsFromUtil();
     int t3 = util::nextTicket();
-    std::cout << "  inline nextTicket(): main=" << t1 << " util=" << t2 << " main=" << t3 << "  <- jedan brojač\n";
+    std::cout << "  inline nextTicket(): main=" << t1 << " util=" << t2 << " main=" << t3 << "  <- one counter\n";
 
     // static funkcija u header-u: svaki TU ima svoju funkciju i svoj brojač.
     int l1 = util::nextLocalTicket();
     int l2 = util::localTicketsFromUtil();
     int l3 = util::nextLocalTicket();
     std::cout << "  static nextLocalTicket(): main=" << l1 << " util=" << l2 << " main=" << l3
-              << "  <- dva brojača!\n";
+              << "  <- two counters!\n";
 
     util::Config cfg;
-    std::cout << "  Config::limit() definisan u klasi (implicitno inline) = " << cfg.limit() << "\n";
+    std::cout << "  Config::limit() defined in the class (implicitly inline) = " << cfg.limit() << "\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -172,8 +172,8 @@ int api() { return 1; }
 } // namespace lib
 
 void s06_inlineNamespace() {
-    std::cout << "-- 6. inline namespace: verzionisanje API-ja --\n";
-    std::cout << "  lib::api()=" << lib::api() << " (podrazumevana v2), lib::v1::api()=" << lib::v1::api()
+    std::cout << "-- 6. inline namespace: API versioning --\n";
+    std::cout << "  lib::api()=" << lib::api() << " (default v2), lib::v1::api()=" << lib::v1::api()
               << ", lib::v2::api()=" << lib::v2::api() << "\n";
     // Tako rade i std::literals (inline namespace) i verzije standardne
     // biblioteke (libstdc++ ima std::__cxx11 za novi std::string).
@@ -185,11 +185,11 @@ void s06_inlineNamespace() {
 // i util.cpp ne bi bio određen, pa bi greeting mogao da pročita još
 // nekonstruisan string (ub/u01). Funkcija sa static lokalnom promenljivom
 // (EC++ Item 4) konstruiše vrednost pri prvom pozivu, pa je ovo uvek ispravno.
-const std::string greeting = "Zdravo, " + util::defaultName();
+const std::string greeting = "Hello, " + util::defaultName();
 
 void s07_staticInitOrder() {
-    std::cout << "-- 7. redosled inicijalizacije globalnih promenljivih između TU-ova --\n";
-    std::cout << "  greeting = \"" << greeting << "\"  <- defaultName() je Meyers singleton\n";
+    std::cout << "-- 7. initialization order of globals across TUs --\n";
+    std::cout << "  greeting = \"" << greeting << "\"  <- defaultName() is a Meyers singleton\n";
 }
 
 int main() {

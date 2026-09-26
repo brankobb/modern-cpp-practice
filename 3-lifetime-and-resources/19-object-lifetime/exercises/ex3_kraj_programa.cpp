@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-UB: NAIVNO AddressSanitizer: (attempting double-free|heap-use-after-free)
+// DEMO-UB: NAIVE AddressSanitizer: (attempting double-free|heap-use-after-free)
 //
 // Zadatak 3 -- zašto je redosled uništavanja static objekata bitan (sekcija 5)
 // Rešenje: exercises/solutions/ex3_kraj_programa.cpp
@@ -8,7 +8,7 @@
 // Globalni Uredjaj u destruktoru upiše poruku u log.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/19-object-lifetime/exercises/ex3_kraj_programa.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/19-object-lifetime/exercises/ex3_kraj_programa.cpp -DNAIVE
 //   Static objekti se uništavaju obrnutim redom od ZAVRŠETKA konstrukcije.
 //   Uredjaj je završen pre main-a, a Logger tek pri prvom pozivu logger()
 //   u main-u -- pa se Logger uništi PRVI. Destruktor Uredjaja zatim piše u
@@ -39,7 +39,7 @@ Logger& logger() {
     return l;
 }
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Uredjaj {
     ~Uredjaj() { logger().log("uredjaj ugasen"); }
 };

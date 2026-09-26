@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO kopija: 1, pomeranja: 0
+// DEMO-OUT: NAIVE kopija: 1, pomeranja: 0
 //
 // Zadatak 3 -- zašto lokalna koju vraćaš ne treba da bude const (sekcija 2)
 // Rešenje: exercises/solutions/ex3_const_lokalna.cpp
@@ -8,7 +8,7 @@
 // nije moguć (kompajler ne zna unapred koju da napravi u odredištu).
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/24-copy-elision/exercises/ex3_const_lokalna.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/24-copy-elision/exercises/ex3_const_lokalna.cpp -DNAIVE
 //   Lokalne su const ("ne menjam ih, pa neka budu const"). Automatski
 //   move na return-u tretira lokalnu kao rvalue: const Tekst&& -- move
 //   konstruktor ga ne prima, pa je KOPIJA (isti razlog kao lekcija 22 ex3).
@@ -31,7 +31,7 @@ struct Tekst {
     Tekst(Tekst&& o) noexcept : s(o.s) { ++brojac.pomeranja; }
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 Tekst izaberi(bool kratko) {
     const Tekst a("kratko");
     const Tekst b("dugačko");

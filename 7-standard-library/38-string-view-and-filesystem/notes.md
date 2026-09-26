@@ -251,13 +251,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_konfig_i_logovi`](exercises/ex1_konfig_i_logovi.cpp) | usage | parsiranje bez kopija preko string_view i from_chars, pregled log fajlova preko filesystem-a (sekcije 1, 2, 5, 6) | — |
-| [`ex2_pogled_u_prazno`](exercises/ex2_pogled_u_prazno.cpp) | why | zašto string_view ne sme da bude član koji "čuva" ime (sekcija 3; ub/u01) | `-DNAIVNO` |
-| [`ex3_nije_c_string`](exercises/ex3_nije_c_string.cpp) | why | zašto data() od string_view-a nije C string (sekcija 3; errors/e03) | `-DNAIVNO` |
+| [`ex2_pogled_u_prazno`](exercises/ex2_pogled_u_prazno.cpp) | why | zašto string_view ne sme da bude član koji "čuva" ime (sekcija 3; ub/u01) | `-DNAIVE` |
+| [`ex3_nije_c_string`](exercises/ex3_nije_c_string.cpp) | why | zašto data() od string_view-a nije C string (sekcija 3; errors/e03) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

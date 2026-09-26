@@ -461,13 +461,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_parametri`](exercises/ex1_parametri.cpp) | usage | pokazivači, reference i opsezi (sekcije 3, 6, 10, 11) | — |
-| [`ex2_pokazivac_u_vector`](exercises/ex2_pokazivac_u_vector.cpp) | why | zašto pokazivač na element vector-a "ne drži" (sekcija 12) | `-DNAIVNO` |
-| [`ex3_produzenje_zivota`](exercises/ex3_produzenje_zivota.cpp) | why | const& produžava život privremenog, ali ne kroz funkciju (sekcija 8) | `-DNAIVNO` |
+| [`ex1_parameters`](exercises/ex1_parameters.cpp) | usage | pokazivači, reference i opsezi (sekcije 3, 6, 10, 11) | — |
+| [`ex2_pointer_into_vector`](exercises/ex2_pointer_into_vector.cpp) | why | zašto pokazivač na element vector-a "ne drži" (sekcija 12) | `-DNAIVE` |
+| [`ex3_lifetime_extension`](exercises/ex3_lifetime_extension.cpp) | why | const& produžava život privremenog, ali ne kroz funkciju (sekcija 8) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

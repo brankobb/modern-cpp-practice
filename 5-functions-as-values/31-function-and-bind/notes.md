@@ -198,13 +198,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_lanac_obrade`](exercises/ex1_lanac_obrade.cpp) | usage | std::function kao "bilo šta što se poziva", std::bind za delimičnu primenu i metode (sekcije 1, 3, 4) | — |
-| [`ex2_bind_kopira`](exercises/ex2_bind_kopira.cpp) | why | zašto bind "ne menja" promenljivu (sekcija 4) | `-DNAIVNO` |
-| [`ex3_bind_racuna_odmah`](exercises/ex3_bind_racuna_odmah.cpp) | why | zašto bind računa argumente ODMAH, a lambda pri pozivu (sekcija 5, EMC Item 34) | `-DNAIVNO` |
+| [`ex2_bind_kopira`](exercises/ex2_bind_kopira.cpp) | why | zašto bind "ne menja" promenljivu (sekcija 4) | `-DNAIVE` |
+| [`ex3_bind_racuna_odmah`](exercises/ex3_bind_racuna_odmah.cpp) | why | zašto bind računa argumente ODMAH, a lambda pri pozivu (sekcija 5, EMC Item 34) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

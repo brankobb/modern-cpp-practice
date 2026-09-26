@@ -201,14 +201,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_datoteka_raii`](exercises/ex1_datoteka_raii.cpp) | usage | RAII omotač, unique_ptr sa deleter-om i scope guard (sekcije 1, 6) | — |
-| [`ex2_lock_unlock`](exercises/ex2_lock_unlock.cpp) | why | zašto lock_guard, a ne lock() ... unlock() (sekcije 1, 2) | `-DNAIVNO` |
-| [`ex3_jaka_garancija`](exercises/ex3_jaka_garancija.cpp) | why | zašto "sve ili ništa" (strong guarantee, sekcija 4, EC++ Item 29) | `-DNAIVNO` |
+| [`ex2_lock_unlock`](exercises/ex2_lock_unlock.cpp) | why | zašto lock_guard, a ne lock() ... unlock() (sekcije 1, 2) | `-DNAIVE` |
+| [`ex3_jaka_garancija`](exercises/ex3_jaka_garancija.cpp) | why | zašto "sve ili ništa" (strong guarantee, sekcija 4, EC++ Item 29) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

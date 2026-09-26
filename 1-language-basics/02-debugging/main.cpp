@@ -15,7 +15,7 @@
 //   gdb ./dbg
 
 // ---------------------------------------------------------------- 2
-int zbir(const std::vector<int>& v) {
+int sum(const std::vector<int>& v) {
     int s = 0;
     for (std::size_t i = 0; i < v.size(); ++i) {
         s += v[i];
@@ -23,31 +23,31 @@ int zbir(const std::vector<int>& v) {
     return s;
 }
 
-double prosek(const std::vector<int>& v) {
-    int s = zbir(v);
+double average(const std::vector<int>& v) {
+    int s = sum(v);
     return static_cast<double>(s) / static_cast<double>(v.size());
 }
 
 // ---------------------------------------------------------------- 7
 // static_assert: provera pri KOMPAJLIRANJU -- ako ne važi, nema programa
 // (errors/e01). Za pretpostavke o tipovima i platformi.
-static_assert(sizeof(int) >= 4, "kod pretpostavlja bar 32-bitni int");
+static_assert(sizeof(int) >= 4, "code assumes at least a 32-bit int");
 
 // assert: provera pri IZVRŠAVANJU, samo u debug build-u. Sa -DNDEBUG ceo
 // izraz nestaje -- zato u njemu nikad nema bočnih efekata (zadatak ex2).
-double prosekSaProverom(const std::vector<int>& v) {
-    assert(!v.empty() && "prosek praznog niza nema smisla");
-    return prosek(v);
+double checkedAverage(const std::vector<int>& v) {
+    assert(!v.empty() && "average of an empty array makes no sense");
+    return average(v);
 }
 
 int main() {
-    std::vector<int> ocitavanja{10, 20, 30, 40};
-    double p = prosek(ocitavanja);
-    std::cout << "prosek: " << p << '\n';
-    std::cout << "prosek sa proverom: " << prosekSaProverom(ocitavanja) << '\n';
+    std::vector<int> readings{10, 20, 30, 40};
+    double p = average(readings);
+    std::cout << "average: " << p << '\n';
+    std::cout << "checked average: " << checkedAverage(readings) << '\n';
 #ifdef NDEBUG
-    std::cout << "NDEBUG: assert je isključen\n";
+    std::cout << "NDEBUG: assert is disabled\n";
 #else
-    std::cout << "assert je uključen\n";
+    std::cout << "assert is enabled\n";
 #endif
 }

@@ -212,13 +212,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_red_i_zadaci`](exercises/ex1_red_i_zadaci.cpp) | usage | deque kao red, list sa splice, array kao brojač (sekcije 2, 4, 5) | — |
-| [`ex2_umetanje_na_pocetak`](exercises/ex2_umetanje_na_pocetak.cpp) | why | zašto vector nije za umetanje na početak (sekcije 3, 4) | `-DNAIVNO` |
-| [`ex3_stabilne_adrese`](exercises/ex3_stabilne_adrese.cpp) | why | zašto izbor kontejnera određuje da li pokazivači "drže" (sekcije 3, 4, 5) | `-DNAIVNO` |
+| [`ex2_umetanje_na_pocetak`](exercises/ex2_umetanje_na_pocetak.cpp) | why | zašto vector nije za umetanje na početak (sekcije 3, 4) | `-DNAIVE` |
+| [`ex3_stabilne_adrese`](exercises/ex3_stabilne_adrese.cpp) | why | zašto izbor kontejnera određuje da li pokazivači "drže" (sekcije 3, 4, 5) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

@@ -254,13 +254,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_generican_zapis`](exercises/ex1_generican_zapis.cpp) | usage | deduction guide, fold izrazi i if constexpr u jednom generičkom zapisu merenja (sekcije 1, 2, 3, 5) | — |
-| [`ex2_smer_folda`](exercises/ex2_smer_folda.cpp) | why | zašto je bitno da li je fold levi ili desni (sekcija 2) | `-DNAIVNO` |
-| [`ex3_ctad_literal`](exercises/ex3_ctad_literal.cpp) | why | zašto CTAD od string literala ne daje std::string (sekcija 1) | `-DNAIVNO` |
+| [`ex2_smer_folda`](exercises/ex2_smer_folda.cpp) | why | zašto je bitno da li je fold levi ili desni (sekcija 2) | `-DNAIVE` |
+| [`ex3_ctad_literal`](exercises/ex3_ctad_literal.cpp) | why | zašto CTAD od string literala ne daje std::string (sekcija 1) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

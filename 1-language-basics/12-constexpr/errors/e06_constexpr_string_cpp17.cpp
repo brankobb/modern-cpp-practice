@@ -11,7 +11,7 @@
 //   constexpr const char*.
 #include <string>
 
-constexpr std::string greeting = "zdravo";
+constexpr std::string greeting = "hello";
 
 int main() {
     return static_cast<int>(greeting.size());

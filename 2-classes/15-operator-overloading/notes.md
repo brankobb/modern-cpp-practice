@@ -305,14 +305,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_razlomak`](exercises/ex1_razlomak.cpp) | usage | aritmetički operatori, poređenje i ispis (sekcije 2, 5, 6, 11) | — |
 | [`ex2_opseg_iterator`](exercises/ex2_opseg_iterator.cpp) | usage | sopstveni iterator: *, ++, != i range-for; operator[] i operator() (sekcije 7, 8, 9) | — |
-| [`ex3_strogo_manje`](exercises/ex3_strogo_manje.cpp) | why | zašto operator< mora biti STROG (sekcija 5) | `-DNAIVNO`, `-DNAIVNO_SORT` |
+| [`ex3_strogo_manje`](exercises/ex3_strogo_manje.cpp) | why | zašto operator< mora biti STROG (sekcija 5) | `-DNAIVE`, `-DNAIVE_SORT` |
 
 ## Zapažanja posle vežbe
 

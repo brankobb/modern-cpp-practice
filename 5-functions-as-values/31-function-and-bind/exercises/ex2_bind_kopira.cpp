@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO poslato poruka: 0
+// DEMO-OUT: NAIVE poslato poruka: 0
 //
 // Zadatak 2 -- zašto bind "ne menja" promenljivu (sekcija 4)
 // Rešenje: exercises/solutions/ex2_bind_kopira.cpp
@@ -8,7 +8,7 @@
 // poslatih. Callback za dugme je napravljen bind-om.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 5-functions-as-values/31-function-and-bind/exercises/ex2_bind_kopira.cpp -DNAIVNO
+//     ./build.sh 5-functions-as-values/31-function-and-bind/exercises/ex2_bind_kopira.cpp -DNAIVE
 //   Dugme je kliknuto tri puta, a brojač u main-u je 0. bind KOPIRA sve
 //   argumente u sebe (i poslato), i posalji() dobija referencu na tu
 //   unutrašnju kopiju -- koju onda uvećava. Nema greške ni upozorenja:
@@ -28,7 +28,7 @@ void posalji(int& brojac, const char* poruka) {
 int main() {
     int poslato = 0;
     std::function<void()> naKlik;
-#ifdef NAIVNO
+#ifdef NAIVE
     naKlik = std::bind(posalji, poslato, "ping");
 #else
     // TODO korak 2

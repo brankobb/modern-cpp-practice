@@ -1,11 +1,11 @@
 // KIND: why
-// DEMO-OUT: NAIVNO kopija pri rastu: [1-9]
+// DEMO-OUT: NAIVE kopija pri rastu: [1-9]
 //
 // Zadatak 3 -- zašto move konstruktor treba noexcept (sekcija 4, EMC Item 14)
 // Rešenje: exercises/solutions/ex3_noexcept_vector.cpp
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/23-special-member-generation/exercises/ex3_noexcept_vector.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/23-special-member-generation/exercises/ex3_noexcept_vector.cpp -DNAIVE
 //   Uzorak ima ručno napisan move konstruktor, ali BEZ noexcept. Kad
 //   vector raste, stare elemente KOPIRA u novi blok, iako move postoji.
 //   Razlog: push_back daje jaku garanciju (lekcija 21). Ako bi move usred
@@ -30,7 +30,7 @@ struct Brojac {
     int pomeranja = 0;
 } brojac;
 
-#ifdef NAIVNO
+#ifdef NAIVE
 struct Uzorak {
     std::string ime;
     explicit Uzorak(std::string i) : ime(std::move(i)) {}

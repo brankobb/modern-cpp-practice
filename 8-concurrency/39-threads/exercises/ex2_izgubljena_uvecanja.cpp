@@ -1,6 +1,6 @@
 // KIND: why
 // SANITIZER: thread
-// DEMO-UB: NAIVNO ThreadSanitizer: data race
+// DEMO-UB: NAIVE ThreadSanitizer: data race
 //
 // Zadatak 2 -- zašto ++ nad deljenom promenljivom treba mutex (sekcije 5, 6; ub/u01)
 // Rešenje: exercises/solutions/ex2_izgubljena_uvecanja.cpp
@@ -8,8 +8,8 @@
 // Četiri niti broje impulse sa istog senzora u jedan brojač.
 //
 // Korak 1: pokreni naivnu verziju, prvo bez TSan-a pa sa njim:
-//     ./build.sh 8-concurrency/39-threads/exercises/ex2_izgubljena_uvecanja.cpp -DNAIVNO
-//     ./build.sh 8-concurrency/39-threads/exercises/ex2_izgubljena_uvecanja.cpp -DNAIVNO --tsan
+//     ./build.sh 8-concurrency/39-threads/exercises/ex2_izgubljena_uvecanja.cpp -DNAIVE
+//     ./build.sh 8-concurrency/39-threads/exercises/ex2_izgubljena_uvecanja.cpp -DNAIVE --tsan
 //   Bez TSan-a zbir je obično manji od 200000 i menja se od pokretanja do
 //   pokretanja (ponekad i tačan -- zato se data race teško nađe testom).
 //   ++vrednost je tri koraka: pročitaj, dodaj 1, upiši. Dve niti pročitaju
@@ -22,11 +22,11 @@
 #include <iostream>
 #include <thread>
 #include <vector>
-#ifndef NAIVNO
+#ifndef NAIVE
 #include <mutex>
 #endif
 
-#ifdef NAIVNO
+#ifdef NAIVE
 class Brojac {
 public:
     void uvecaj() { ++vrednost_; }

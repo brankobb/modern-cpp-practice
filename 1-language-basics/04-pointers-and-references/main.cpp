@@ -19,17 +19,17 @@
 
 // ---------------------------------------------------------------- 1
 void s01_pointerBasics() {
-    std::cout << "-- 1. pokazivač: osnove --\n";
+    std::cout << "-- 1. pointer basics --\n";
     int x = 5;
     int* p = &x; // & -- adresa od x
     *p = 7;      // * -- pristup objektu na toj adresi
-    std::cout << "x=" << x << " (promenjen kroz *p)\n";
+    std::cout << "x=" << x << " (changed through *p)\n";
 
     // Pokazivač je i sam OBJEKAT: ima svoju adresu i veličinu, i može da
     // se preusmeri.
     int y = 9;
     p = &y;
-    std::cout << "*p posle p = &y: " << *p << "; sizeof(p)=" << sizeof(p)
+    std::cout << "*p after p = &y: " << *p << "; sizeof(p)=" << sizeof(p)
               << "; &p != &x: " << std::boolalpha << (static_cast<void*>(&p) != static_cast<void*>(&x))
               << std::noboolalpha << "\n";
 
@@ -40,7 +40,7 @@ void s01_pointerBasics() {
     static_assert(std::is_same_v<decltype(b1), int>);
     static_assert(std::is_same_v<decltype(b2), int*>);
     a1 = &x; b1 = 0; a2 = &x; b2 = &y;
-    std::cout << "int* a1, b1; -> b1 je int (static_assert)\n";
+    std::cout << "int* a1, b1; -> b1 is int (static_assert)\n";
     (void)a1; (void)b1; (void)a2; (void)b2;
 }
 
@@ -52,13 +52,13 @@ template <typename F, typename P>
 void call(F func, P param) {
     func(param);
 }
-void g(int* p) { std::cout << "  -> g(int*) dobio " << (p ? "ne-null" : "nullptr") << "\n"; }
+void g(int* p) { std::cout << "  -> g(int*) got " << (p ? "non-null" : "nullptr") << "\n"; }
 
 void s02_nullptr() {
-    std::cout << "-- 2. null pokazivač i nullptr (EMC Item 8) --\n";
+    std::cout << "-- 2. null pointer and nullptr (EMC Item 8) --\n";
     int* p = nullptr;
     int* q{}; // value-init pokazivača -> nullptr (lekcija 03)
-    if (!p && q == nullptr) std::cout << "p i q su null; uvek proveri pre dereferenciranja\n";
+    if (!p && q == nullptr) std::cout << "p and q are null; always check before dereferencing\n";
 
     std::cout << "f(0):\n";
     f(0);       // 0 je int -> f(int)
@@ -72,7 +72,7 @@ void s02_nullptr() {
 
 // ---------------------------------------------------------------- 3
 void decayed(int arr[]) { // arr je ovde int* -- niz se "raspao" u pokazivač
-    std::cout << "  sizeof(arr) u funkciji = " << sizeof(arr) << " (veličina POKAZIVAČA)\n";
+    std::cout << "  sizeof(arr) in the function = " << sizeof(arr) << " (size of a POINTER)\n";
 }
 
 template <std::size_t N>
@@ -81,24 +81,24 @@ std::size_t lengthOf(int (&)[N]) { // referenca na niz čuva veličinu u tipu
 }
 
 void s03_arithmeticAndArrays() {
-    std::cout << "-- 3. pointer arithmetic i nizovi --\n";
+    std::cout << "-- 3. pointer arithmetic and arrays --\n";
     int arr[5] = {10, 20, 30, 40, 50};
     int* p = arr; // niz -> pokazivač na prvi element (array-to-pointer decay)
     std::cout << "*p=" << *p << " *(p+1)=" << *(p + 1) << " p[2]=" << p[2] << " (p[i] == *(p+i))\n";
-    std::cout << "bajtova između p+1 i p: "
+    std::cout << "bytes between p+1 and p: "
               << reinterpret_cast<char*>(p + 1) - reinterpret_cast<char*>(p)
-              << " (= sizeof(int), korak zavisi od tipa)\n";
+              << " (= sizeof(int), the step depends on the type)\n";
 
     std::ptrdiff_t n = (arr + 5) - arr; // razlika u ELEMENTIMA, samo unutar istog niza
     std::cout << "(arr + 5) - arr = " << n << "\n";
 
     // Pokazivač "jedan iza kraja" sme da se napravi i poredi -- ne i
     // dereferencira (ub/u02). Tako rade i end() iteratori.
-    std::cout << "iteracija do arr + 5: ";
+    std::cout << "iterating up to arr + 5: ";
     for (int* it = arr; it != arr + 5; ++it) std::cout << *it << ' ';
     std::cout << "\n";
 
-    std::cout << "sizeof(arr) u main = " << sizeof(arr) << " (ceo niz)\n";
+    std::cout << "sizeof(arr) in main = " << sizeof(arr) << " (whole array)\n";
     decayed(arr);
     std::cout << "std::size(arr)=" << std::size(arr) << " lengthOf(arr)=" << lengthOf(arr) << "\n";
 
@@ -106,7 +106,7 @@ void s03_arithmeticAndArrays() {
     // rezultat; std::less garantuje dosledan (totalni) poredak.
     int a = 1, b = 2;
     bool ordered = std::less<int*>{}(&a, &b) || std::less<int*>{}(&b, &a);
-    std::cout << "std::less daje poredak za nepovezane pokazivače: " << std::boolalpha << ordered
+    std::cout << "std::less orders unrelated pointers: " << std::boolalpha << ordered
               << std::noboolalpha << "\n";
 }
 
@@ -127,7 +127,7 @@ void allocateRef(int*& out) { out = new int(2); }  // C++: referenca na pokaziva
 std::unique_ptr<int> allocateModern() { return std::make_unique<int>(3); } // najbolje: vrati vlasnika
 
 void s05_pointerToPointer() {
-    std::cout << "-- 5. pokazivač na pokazivač --\n";
+    std::cout << "-- 5. pointer to pointer --\n";
     int x = 5;
     int* p = &x;
     int** pp = &p;
@@ -147,7 +147,7 @@ void s05_pointerToPointer() {
 
 // ---------------------------------------------------------------- 6
 void s06_constAndPointers() {
-    std::cout << "-- 6. const i pokazivači (čitaj s desna na levo) --\n";
+    std::cout << "-- 6. const and pointers (read right to left) --\n";
     int x = 1, y = 2;
 
     const int* p1 = &x;       // pokazivač na const int: *p1 = ... ne (errors/e09)
@@ -165,7 +165,7 @@ void s06_constAndPointers() {
 
 // ---------------------------------------------------------------- 7
 void s07_referenceBasics() {
-    std::cout << "-- 7. reference: osnove --\n";
+    std::cout << "-- 7. reference basics --\n";
     int x = 10;
     int& r = x; // MORA odmah da se veže (errors/e12)
     r = 20;     // piše u x
@@ -175,7 +175,7 @@ void s07_referenceBasics() {
     int y = 99;
     r = y;      // NIJE preusmeravanje: kopira 99 u x, r i dalje "je" x
     y = 0;
-    std::cout << "posle r = y; y = 0;  x=" << x << " (referenca se ne preusmerava)\n";
+    std::cout << "after r = y; y = 0;  x=" << x << " (a reference is not reseated)\n";
 
     // Referenca nije objekat: nema niza referenci, pokazivača na referencu
     // ni reference na referencu (errors/e13, e14, e15). Kroz alias/template
@@ -190,11 +190,11 @@ void s07_referenceBasics() {
 
 // ---------------------------------------------------------------- 8
 void s08_bindingAndLifetime() {
-    std::cout << "-- 8. vezivanje referenci i produženje životnog veka --\n";
+    std::cout << "-- 8. binding references and lifetime extension --\n";
     const int& r1 = 5; // const& se veže za privremeni, a privremeni živi koliko i r1
-    const std::string& s1 = std::string("privremeni string");
-    std::string&& s2 = std::string("rvalue referenca");
-    s2 += " (izmenjiva)";
+    const std::string& s1 = std::string("temporary string");
+    std::string&& s2 = std::string("rvalue reference");
+    s2 += " (modifiable)";
     std::cout << "r1=" << r1 << " s1=" << s1 << " s2=" << s2 << "\n";
     // int& r = 5; ne radi (errors/e16); int&& r = x; ne radi (errors/e17).
 
@@ -202,7 +202,7 @@ void s08_bindingAndLifetime() {
     double d = 1.5;
     const int& ri = d; // ri je vezan za privremeni int(1), ne za d
     d = 2.5;
-    std::cout << "double d = 1.5; const int& ri = d; d = 2.5; -> ri=" << ri << " (ne prati d)\n";
+    std::cout << "double d = 1.5; const int& ri = d; d = 2.5; -> ri=" << ri << " (does not follow d)\n";
     // int& ri = d; ne radi uopšte (errors/e19).
 
     // Produženje NE prolazi kroz funkciju: const int& r = std::max(1, 2);
@@ -227,21 +227,21 @@ void increment(int& v) { ++v; }                // izlazni parametar -- mora da p
 void maybeIncrement(int* v) { if (v) ++*v; }   // opcioni parametar -- može nullptr
 
 void s10_parameters() {
-    std::cout << "-- 10. prosleđivanje parametara (EC++ Item 20) --\n";
+    std::cout << "-- 10. passing parameters (EC++ Item 20) --\n";
     CopyCounter c;
     CopyCounter::copies = 0;
     byValue(c);
-    std::cout << "byValue: kopija=" << CopyCounter::copies;
+    std::cout << "byValue: copies=" << CopyCounter::copies;
     CopyCounter::copies = 0;
     byConstRef(c);
-    std::cout << "  byConstRef: kopija=" << CopyCounter::copies << "\n";
+    std::cout << "  byConstRef: copies=" << CopyCounter::copies << "\n";
     byConstRef(CopyCounter{}); // const& prima i privremeni objekat
 
     int n = 1;
     increment(n);          // increment(5) ne radi (errors/e18)
     maybeIncrement(&n);
     maybeIncrement(nullptr);
-    std::cout << "n posle increment + maybeIncrement = " << n << "\n";
+    std::cout << "n after increment + maybeIncrement = " << n << "\n";
 }
 
 // ---------------------------------------------------------------- 11
@@ -256,7 +256,7 @@ private:
 };
 
 void s11_returningReferences() {
-    std::cout << "-- 11. vraćanje referenci (EC++ Item 21) --\n";
+    std::cout << "-- 11. returning references (EC++ Item 21) --\n";
     Counter c;
     c.add(1).add(2).add(3);           // chaining kroz vraćeni *this
     const int& v = c.value();         // OK: c živi duže od v
@@ -268,7 +268,7 @@ void s11_returningReferences() {
 
 // ---------------------------------------------------------------- 12
 void s12_invalidation() {
-    std::cout << "-- 12. pokazivači na elemente kontejnera --\n";
+    std::cout << "-- 12. pointers to container elements --\n";
     std::vector<int> v{1, 2, 3};
     std::size_t index = 0;   // indeks preživljava realokaciju
     for (int i = 0; i < 100; ++i) v.push_back(i);
@@ -280,13 +280,13 @@ void s12_invalidation() {
     w.push_back(1);
     int* stable = &w[0];
     for (int i = 0; i < 100; ++i) w.push_back(i);
-    std::cout << "posle reserve, *stable=" << *stable << " (i dalje validan)\n";
+    std::cout << "after reserve, *stable=" << *stable << " (still valid)\n";
     // Bez toga pokazivač visi -- ub/u06.
 }
 
 // ---------------------------------------------------------------- 13
 void s13_ownership() {
-    std::cout << "-- 13. vlasništvo: new/delete i pametni pokazivači --\n";
+    std::cout << "-- 13. ownership: new/delete and smart pointers --\n";
     int* one = new int(1);
     int* many = new int[3]{1, 2, 3};
     delete one;     // new   -> delete
@@ -307,7 +307,7 @@ struct Point {
 };
 
 void s14_pointerToMember() {
-    std::cout << "-- 14. pokazivač na člana klase --\n";
+    std::cout << "-- 14. pointer to class member --\n";
     int Point::* coord = &Point::x;          // "koji član", bez objekta
     void (Point::* shiftFn)(int) = &Point::shift;
 

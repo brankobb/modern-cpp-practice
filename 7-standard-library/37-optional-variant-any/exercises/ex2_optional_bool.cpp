@@ -1,5 +1,5 @@
 // KIND: why
-// DEMO-OUT: NAIVNO vrata B: ZATVORENA
+// DEMO-OUT: NAIVE vrata B: ZATVORENA
 //
 // Zadatak 2 -- zašto if (o) nije isto što i if (*o) za optional<bool> (sekcija 3)
 // Rešenje: exercises/solutions/ex2_optional_bool.cpp
@@ -8,7 +8,7 @@
 // (nullopt). Za troja vrata: A zatvorena, B otvorena, C ne odgovara.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 7-standard-library/37-optional-variant-any/exercises/ex2_optional_bool.cpp -DNAIVNO
+//     ./build.sh 7-standard-library/37-optional-variant-any/exercises/ex2_optional_bool.cpp -DNAIVE
 //   Vrata B su prijavljena kao ZATVORENA, a otvorena su.
 //   if (o) pita "IMA LI vrednost", ne "da li je vrednost true". Za
 //   optional<bool> = false odgovor je "ima" -- true. Isto važi za
@@ -27,7 +27,7 @@ std::optional<bool> ocitaj(char vrata) {
     return std::nullopt;
 }
 
-#ifdef NAIVNO
+#ifdef NAIVE
 std::string opis(std::optional<bool> o) {
     if (o) return "ZATVORENA";
     if (!o.has_value()) return "NEPOZNATO";

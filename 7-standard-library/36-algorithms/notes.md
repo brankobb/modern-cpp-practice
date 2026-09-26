@@ -247,13 +247,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_analiza_merenja`](exercises/ex1_analiza_merenja.cpp) | usage | mali STL projekat: analiza loga merenja (sekcije 2, 3, 4; kurs 187) | — |
-| [`ex2_accumulate_nula`](exercises/ex2_accumulate_nula.cpp) | why | zašto accumulate "gubi" decimale (sekcija 2) | `-DNAIVNO` |
-| [`ex3_remove_ne_brise`](exercises/ex3_remove_ne_brise.cpp) | why | zašto std::remove ne smanji vektor (sekcija 3) | `-DNAIVNO` |
+| [`ex2_accumulate_nula`](exercises/ex2_accumulate_nula.cpp) | why | zašto accumulate "gubi" decimale (sekcija 2) | `-DNAIVE` |
+| [`ex3_remove_ne_brise`](exercises/ex3_remove_ne_brise.cpp) | why | zašto std::remove ne smanji vektor (sekcija 3) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

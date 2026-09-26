@@ -36,7 +36,7 @@ i `[over.literal]` (korisnički literali). Uz to C++ Core Guidelines
 | `"abc"s` | `std::string` | sekcija 6 |
 | `"abc"sv` | `std::string_view` | sekcija 6 |
 
-- ❌ `"Zdravo, " + "svete"` se ne kompajlira: dva pokazivača se ne sabiraju
+- ❌ `"Hello, " + "world"` se ne kompajlira: dva pokazivača se ne sabiraju
   (`errors/e01`). `+` za tekst radi samo kad je bar jedan operand
   `std::string`.
 - Escape sekvence: `\n`, `\t`, `\"`, `\\`, `\0`.
@@ -46,11 +46,11 @@ i `[over.literal]` (korisnički literali). Uz to C++ Core Guidelines
 # 2. Raw string literali (kurs 85)
 
 ```cpp
-R"(C:\Users\ana\fajl.txt)"       // backslash NIJE escape
+R"(C:\Users\ann\file.txt)"       // backslash NIJE escape
 R"(\d{3}-\d{4})"                 // regex bez duplih backslash-eva
-R"x(poziv f(")") -- sadrži )" )x"   // sopstveni graničnik x
-R"(prvi red
-drugi red)"                      // novi red je deo teksta
+R"x(call f(")") -- contains )" )x"   // sopstveni graničnik x
+R"(first line
+second line)"                   // novi red je deo teksta
 ```
 
 - Tekst je sve između `R"graničnik(` i `)graničnik"`. Graničnik je
@@ -67,7 +67,7 @@ drugi red)"                      // novi red je deo teksta
 
 | Operacija | Primer | Napomena |
 |---|---|---|
-| dodavanje | `s += ", svete";`, `s.append(...)`, `s + t` | |
+| dodavanje | `s += ", world";`, `s.append(...)`, `s + t` | |
 | umetanje / brisanje / zamena | `insert(0, ">> ")`, `erase(pos, n)`, `replace(pos, n, "x")` | |
 | deo | `substr(pos, n)` | pravi **novi** string (kopija); za pogled bez kopije `string_view` |
 | traženje | `find`, `rfind`, `find_first_of` | rezultat `std::string::npos` kad nema |
@@ -79,7 +79,7 @@ drugi red)"                      // novi red je deo teksta
 nikad sa `-1` tipa `int` i ne čuva se u `int` (gubi se vrednost ili znak).
 
 ⚠️ **`size()` broji bajtove, ne slova.** Izvorni fajl je UTF-8, pa je
-`"čaša".size()` jednako 6 (test). Za broj slova, sečenje po slovima i
+`"café".size()` jednako 5 (test). Za broj slova, sečenje po slovima i
 velika/mala slova van ASCII treba biblioteka za Unicode.
 
 ⚠️ **Konstrukcija i dodela nisu simetrične:** `std::string s = 'a';` se ne
@@ -120,8 +120,8 @@ stringovi (u libstdc++ do 15 bajtova) ne alociraju uopšte (lekcija 22).
 
 ```cpp
 std::ostringstream out;                   // pravljenje teksta
-out << "cena=" << std::fixed << std::setprecision(2) << 3.14159;
-out.str();                                // "cena=3.14"
+out << "price=" << std::fixed << std::setprecision(2) << 3.14159;
+out.str();                                // "price=3.14"
 
 std::istringstream in("10 20 x 30");      // čitanje iz teksta
 in >> a >> b >> c;                        // c = 0, in.fail() == true: "x" nije broj
@@ -134,11 +134,11 @@ for (std::string field; std::getline(csv, field, ',');) { ... }   // deljenje po
 - Kad čitanje ne uspe, promenljiva dobija **0** (od C++11) i stream
   ulazi u **fail** stanje. Sva sledeća čitanja ne rade ništa dok se ne
   pozove `clear()`.
-- ⚠️ **Ponovna upotreba:** `ss.str("novi tekst")` menja sadržaj, ali
+- ⚠️ **Ponovna upotreba:** `ss.str("new text")` menja sadržaj, ali
   **ne briše** fail/eof stanje. Test: bez `clear()` čitanje ne uspe (`y=0`),
   sa `clear()` uspe (`y=7`). Najčistije je napraviti nov stream.
 - ✅ Za format bez stream-ova: C++20 `std::format`. Test (g++ 13 i clang
-  18 sa libstdc++ 13, `-std=c++20`): `std::format("cena={:.2f} kolicina={:4}", 3.14159, 7)`
+  18 sa libstdc++ 13, `-std=c++20`): `std::format("price={:.2f} quantity={:4}", 3.14159, 7)`
   daje isto što i `ostringstream` gore. U C++17 ne postoji.
 
 ---
@@ -150,8 +150,8 @@ for (std::string field; std::getline(csv, field, ',');) { ... }   // deljenje po
 
 | Literal | Tip | `using namespace` |
 |---|---|---|
-| `"tekst"s` | `std::string` | `std::string_literals` |
-| `"tekst"sv` | `std::string_view` | `std::string_view_literals` |
+| `"text"s` | `std::string` | `std::string_literals` |
+| `"text"sv` | `std::string_view` | `std::string_view_literals` |
 | `1500ms`, `2s`, `5min`, `1h` | `std::chrono::duration` | `std::chrono_literals` |
 
 - `"a\0b"s.size()` je **3**, a `std::string("a\0b").size()` je **1**:
@@ -219,14 +219,14 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_parsiranje_konfiguracije`](exercises/ex1_parsiranje_konfiguracije.cpp) | usage | std::string, getline sa graničnikom, string streams i raw string (sekcije 2, 3, 5) | — |
-| [`ex2_from_chars`](exercises/ex2_from_chars.cpp) | why | zašto atoi (i stoi bez provere) nije parsiranje (sekcija 4) | `-DNAIVNO` |
-| [`ex3_jedinice_literal`](exercises/ex3_jedinice_literal.cpp) | why | zašto jedinice u tipu i korisnički literali (sekcija 6) | `-DNAIVNO` |
+| [`ex1_config_parsing`](exercises/ex1_config_parsing.cpp) | usage | std::string, getline sa graničnikom, string streams i raw string (sekcije 2, 3, 5) | — |
+| [`ex2_from_chars`](exercises/ex2_from_chars.cpp) | why | zašto atoi (i stoi bez provere) nije parsiranje (sekcija 4) | `-DNAIVE` |
+| [`ex3_units_literal`](exercises/ex3_units_literal.cpp) | why | zašto jedinice u tipu i korisnički literali (sekcija 6) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
 

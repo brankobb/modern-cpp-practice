@@ -1,15 +1,15 @@
 // KIND: why
-// DEMO-OUT: NAIVNO kopiranja: 3, geo::swap: 0
+// DEMO-OUT: NAIVE copies: 3, geo::swap: 0
 //
 // Zadatak 2 -- zašto "using std::swap; swap(a, b);" (sekcija 3, EC++ Item 25)
 // Rešenje: exercises/solutions/ex2_swap_adl.cpp
 //
-// geo::Slika drži veliki bafer i ima SAMO kopiju (C++03 stil, bez move-a),
+// geo::Image drži veliki bafer i ima SAMO kopiju (C++03 stil, bez move-a),
 // pa je kopiranje skupo. Zato uz tip postoji jeftin geo::swap koji samo
 // zameni pokazivače.
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 1-language-basics/08-namespaces-and-linkage/exercises/ex2_swap_adl.cpp -DNAIVNO
+//     ./build.sh 1-language-basics/08-namespaces-and-linkage/exercises/ex2_swap_adl.cpp -DNAIVE
 //   std::swap(a, b) napravi 3 kopije, a geo::swap se ne pozove nijednom.
 //   Zašto? Kvalifikovan poziv std::swap isključuje ADL.
 // Korak 2: u #else grani zameni objekte idiomom
@@ -25,33 +25,33 @@
 #include <iostream>
 #include <utility>
 
-int kopiranja = 0;
+int copies = 0;
 int geoSwap = 0;
 
 namespace geo {
 
-class Slika {
+class Image {
 public:
-    explicit Slika(std::size_t n) : n_(n), px_(new int[n]()) {}
-    Slika(const Slika& o) : n_(o.n_), px_(new int[o.n_]) {
+    explicit Image(std::size_t n) : n_(n), px_(new int[n]()) {}
+    Image(const Image& o) : n_(o.n_), px_(new int[o.n_]) {
         std::copy(o.px_, o.px_ + n_, px_);
-        ++kopiranja;
+        ++copies;
     }
-    Slika& operator=(const Slika& o) {
+    Image& operator=(const Image& o) {
         if (this != &o) {
-            int* novi = new int[o.n_];
-            std::copy(o.px_, o.px_ + o.n_, novi);
+            int* fresh = new int[o.n_];
+            std::copy(o.px_, o.px_ + o.n_, fresh);
             delete[] px_;
-            px_ = novi;
+            px_ = fresh;
             n_ = o.n_;
-            ++kopiranja;
+            ++copies;
         }
         return *this;
     }
-    ~Slika() { delete[] px_; }
+    ~Image() { delete[] px_; }
 
-    std::size_t velicina() const { return n_; }
-    friend void swap(Slika& a, Slika& b) noexcept {
+    std::size_t size() const { return n_; }
+    friend void swap(Image& a, Image& b) noexcept {
         std::swap(a.n_, b.n_);
         std::swap(a.px_, b.px_);
         ++geoSwap;
@@ -65,17 +65,17 @@ private:
 }  // namespace geo
 
 int main() {
-    geo::Slika a(1000), b(2000);
-#ifdef NAIVNO
+    geo::Image a(1000), b(2000);
+#ifdef NAIVE
     std::swap(a, b);
 #else
     // TODO korak 2
 #endif
-    std::cout << "a: " << a.velicina() << ", b: " << b.velicina() << '\n';
-    std::cout << "kopiranja: " << kopiranja << ", geo::swap: " << geoSwap << '\n';
+    std::cout << "a: " << a.size() << ", b: " << b.size() << '\n';
+    std::cout << "copies: " << copies << ", geo::swap: " << geoSwap << '\n';
 }
 
 /* EXPECTED OUTPUT
 a: 2000, b: 1000
-kopiranja: 0, geo::swap: 1
+copies: 0, geo::swap: 1
 */

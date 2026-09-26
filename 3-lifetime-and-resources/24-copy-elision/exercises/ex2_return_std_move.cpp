@@ -1,11 +1,11 @@
 // KIND: why
-// DEMO-OUT: NAIVNO kopija: 0, pomeranja: 1
+// DEMO-OUT: NAIVE kopija: 0, pomeranja: 1
 //
 // Zadatak 2 -- zašto NE pisati return std::move(lokalna) (sekcije 1, 2)
 // Rešenje: exercises/solutions/ex2_return_std_move.cpp
 //
 // Korak 1: pokreni naivnu verziju:
-//     ./build.sh 3-lifetime-and-resources/24-copy-elision/exercises/ex2_return_std_move.cpp -DNAIVNO
+//     ./build.sh 3-lifetime-and-resources/24-copy-elision/exercises/ex2_return_std_move.cpp -DNAIVE
 //   Ideja "pomeriću je da se ne kopira" daje GORI rezultat: 1 move umesto
 //   0. std::move(t) nije ime lokalne promenljive nego izraz tipa Tekst&&,
 //   pa NRVO više ne može da se primeni -- ostaje samo move. Pročitaj i
@@ -29,7 +29,7 @@ struct Tekst {
     Tekst(Tekst&& o) noexcept : s(o.s) { ++brojac.pomeranja; }
 };
 
-#ifdef NAIVNO
+#ifdef NAIVE
 Tekst napravi() {
     Tekst t("rezultat");
     return std::move(t);

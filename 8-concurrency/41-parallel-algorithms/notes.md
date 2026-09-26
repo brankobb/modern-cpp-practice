@@ -212,13 +212,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVNO`). Sve zadatke i rešenja proverava
+`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
 | [`ex1_obrada_merenja`](exercises/ex1_obrada_merenja.cpp) | usage | obrada velikog niza merenja paralelnim algoritmima (sekcije 1, 2, 3) | — |
-| [`ex2_reduce_nije_accumulate`](exercises/ex2_reduce_nije_accumulate.cpp) | why | zašto reduce nije "brži accumulate" (sekcije 2, 4) | `-DNAIVNO` |
-| [`ex3_for_each_bez_stanja`](exercises/ex3_for_each_bez_stanja.cpp) | why | zašto paralelni for_each ne vraća funktor (sekcija 4; errors/e01) | `-DNAIVNO` |
+| [`ex2_reduce_nije_accumulate`](exercises/ex2_reduce_nije_accumulate.cpp) | why | zašto reduce nije "brži accumulate" (sekcije 2, 4) | `-DNAIVE` |
+| [`ex3_for_each_bez_stanja`](exercises/ex3_for_each_bez_stanja.cpp) | why | zašto paralelni for_each ne vraća funktor (sekcija 4; errors/e01) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
