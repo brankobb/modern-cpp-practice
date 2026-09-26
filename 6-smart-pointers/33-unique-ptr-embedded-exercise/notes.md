@@ -112,7 +112,7 @@ public:
 };
 ```
 
-Test: `heap alokacija: 0`.
+Test: `heap allocations: 0`.
 
 Pravila za placement new:
 
