@@ -40,6 +40,7 @@ od onog što piše u lekcijama.
 | `ub/` | kod koji se kompajlira, a ASan/UBSan (ili ThreadSanitizer, za niti) ga hvata pri pokretanju |
 | `runtime/` | kod koji se kompajlira, a program se prekine iako nije UB (npr. `std::terminate`) |
 | `exercises/` | tri zadatka: bar jedan "upotreba" (vežbaš jezik) i bar jedan "zašto" (prvo vidiš problem, pa ga ispraviš); rešenja u `exercises/solutions/` |
+| `<deo>/zavrsna-vezba/` | na kraju svakog dela jedna veća vežba koja spaja sve lekcije tog dela: `notes.md` (zadatak i spisak lekcija), `zadatak.cpp` (kostur koji se kompajlira, sa blokom OČEKIVANI IZLAZ), `resenje.cpp`; delovi 3 i 6 imaju tu vežbu kao lekciju (25 i 33) |
 
 Build i pokretanje jednog fajla preko `./build.sh <fajl.cpp>`: kompajlira sa
 AddressSanitizer + UndefinedBehaviorSanitizer i `-pedantic-errors` (kod koji
@@ -166,6 +167,7 @@ Tipovi, inicijalizacija, pokazivači i reference, nizovi, stringovi i `vector` (
 | [11](1-osnove-jezika/11-funkcije-napredno) | Funkcije | overloading i overload resolution, overload po vrsti reference, `= delete`, podrazumevani argumenti, pokazivači na funkcije i `std::function`; pogrešni slučajevi u `errors/` i `ub/` | EMC It. 11/26, EC++ It. 37 |
 | [12](1-osnove-jezika/12-constexpr) | `constexpr` | sme vs mora pri kompajliranju, UB u konstantnom izrazu je greška, literal tipovi, tabele u `.rodata`, `if constexpr`, `static_assert`; C++20 `consteval`/`constinit` u `main_cpp20.cpp`; pogrešni slučajevi u `errors/` i `ub/` | kurs 91, EMC It. 15 |
 | [13](1-osnove-jezika/13-dinamicka-memorija) | Dinamička memorija | `malloc`/`free` vs `new`/`delete`, neuspela alokacija, `new[]`/`delete[]` i zašto se oblici ne mešaju, 2D nizovi na četiri načina, `make_unique`/`vector`; pogrešni slučajevi u `errors/` i `ub/` | EC++ It. 16, EMC It. 21 |
+| [ZV](1-osnove-jezika/zavrsna-vezba) | **Završna vežba:** izveštaj o merenjima | čita konfiguraciju kanala i merenja iz teksta, proverava svaki red (četiri vrste grešaka kao `enum class` sa `constexpr` tabelom naziva), statistika po kanalu, formatiran izveštaj; spaja lekcije 01–13 | — |
 
 ## Deo 2: klase (`2-klase/`)
 

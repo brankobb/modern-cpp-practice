@@ -26,13 +26,17 @@
 #   /* OČEKIVANI IZLAZ
 #   ...
 #   */
-# Usage: ./check_exercises.sh [<folder lekcije>...]   (bez argumenata: sve)
+# Završna vežba dela (<deo>/zavrsna-vezba/): zadatak.cpp (kostur, sa blokom
+# OČEKIVANI IZLAZ i istim zaglavljima) i resenje.cpp; pravilo o vrstama
+# zadataka za nju ne važi.
+# Usage: ./check_exercises.sh [<folder lekcije ili zavrsna-vezba>...]   (bez argumenata: sve)
 set -u
 cd "$(dirname "$0")"
 
 lessons=("$@")
 if [ ${#lessons[@]} -eq 0 ]; then
-    mapfile -t lessons < <(find . -path '*/exercises' -type d -printf '%h\n' | sed 's|^\./||' | sort)
+    mapfile -t lessons < <({ find . -path '*/exercises' -type d -printf '%h\n'
+                             find . -type d -name zavrsna-vezba; } | sed 's|^\./||' | sort)
 fi
 
 fail=0
@@ -87,10 +91,21 @@ for lesson in "${lessons[@]}"; do
     lesson="${lesson%/}"
     echo "== $lesson"
     kinds=""
-    for f in "$lesson"/exercises/*.cpp; do
-        [ -e "$f" ] || continue
+    pairs=()
+    zavrsna=0
+    if [ "$(basename "$lesson")" = zavrsna-vezba ]; then
+        zavrsna=1
+        pairs=("$lesson/zadatak.cpp|$lesson/resenje.cpp")
+    else
+        for f in "$lesson"/exercises/*.cpp; do
+            [ -e "$f" ] && pairs+=("$f|$lesson/exercises/solutions/$(basename "$f")")
+        done
+    fi
+    for pair in ${pairs[@]+"${pairs[@]}"}; do
+        f="${pair%%|*}"
+        sol="${pair#*|}"
+        if [ ! -e "$f" ]; then echo "FAIL  $f ne postoji"; fail=1; continue; fi
         name="$(basename "$f")"
-        sol="$lesson/exercises/solutions/$name"
         kinds+=" $(header VRSTA "$f")"
         if [ ! -e "$sol" ]; then echo "FAIL  $name: nema rešenja $sol"; fail=1; continue; fi
         expect="$(expected_output "$f")"
@@ -162,7 +177,7 @@ for lesson in "${lessons[@]}"; do
             done
         done
     done
-    if [[ "$kinds" != *upotreba* || "$kinds" != *zašto* ]]; then
+    if [ "$zavrsna" = 0 ] && [[ "$kinds" != *upotreba* || "$kinds" != *zašto* ]]; then
         echo "FAIL  $lesson: treba bar jedan zadatak VRSTA: upotreba i bar jedan VRSTA: zašto"
         fail=1
     fi

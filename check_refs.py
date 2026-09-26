@@ -18,7 +18,7 @@ red tabele "| 03, sekcija 11 |"); ako je nema, to je lekcija u kojoj je
 fajl. "main.cpp, sekcija N" se proverava prema redovima "// ----- N" u
 main.cpp, a ne prema notes.md.
 
-Proverava sve lekcije i README.md.
+Proverava sve lekcije, završne vežbe delova (<deo>/zavrsna-vezba) i README.md.
 Usage: ./check_refs.py            (izlaz 1 ako ima pokvarenih referenci)
 """
 import os
@@ -260,7 +260,13 @@ def main():
     problems = []
     stats = {"lekcija": 0, "errors/ub": 0, "exercises": 0, "sekcija": 0, "putanja": 0}
 
-    for key, ldir in lessons.items():
+    # Lekcije i završne vežbe delova (<deo>/zavrsna-vezba, bez broja).
+    dirs = list(lessons.values())
+    for part in sorted(os.listdir(ROOT)):
+        z = os.path.join(ROOT, part, "zavrsna-vezba")
+        if re.match(r"\d-", part) and os.path.isdir(z):
+            dirs.append(z)
+    for ldir in dirs:
         for dirpath, _, files in os.walk(ldir):
             for fn in sorted(files):
                 if not (fn.endswith(".md") or fn.endswith(".cpp") or fn.endswith(".h")):
