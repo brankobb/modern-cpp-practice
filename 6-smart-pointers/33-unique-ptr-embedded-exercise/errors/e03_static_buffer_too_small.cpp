@@ -1,6 +1,6 @@
 // STD: c++17
-// EXPECT-GCC: FixedStorage: objekat ne staje u bafer
-// EXPECT-CLANG: FixedStorage: objekat ne staje u bafer
+// EXPECT-GCC: FixedStorage: the object does not fit in the buffer
+// EXPECT-CLANG: FixedStorage: the object does not fit in the buffer
 // POGREŠNO: bafer fiksne veličine (npr. određen konfiguracijom firmvera) je
 //   premali za tip koji se u njega stavlja.
 // Zašto: placement new ne proverava veličinu: napravio bi objekat preko
@@ -14,8 +14,8 @@
 
 template <typename T, std::size_t Capacity>
 class FixedStorage {
-    static_assert(sizeof(T) <= Capacity, "FixedStorage: objekat ne staje u bafer");
-    static_assert(alignof(T) <= alignof(std::max_align_t), "FixedStorage: poravnanje nije podržano");
+    static_assert(sizeof(T) <= Capacity, "FixedStorage: the object does not fit in the buffer");
+    static_assert(alignof(T) <= alignof(std::max_align_t), "FixedStorage: alignment is not supported");
 
 public:
     T* create() { return new (buffer_) T(); }

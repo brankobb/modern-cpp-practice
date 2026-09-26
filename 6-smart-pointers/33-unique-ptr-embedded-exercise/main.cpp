@@ -71,26 +71,26 @@ UniquePtr<T> makeUnique(Args&&... args) { // lekcija 27: savršeno prosleđivanj
 }
 
 void part1_uniquePtr() {
-    std::cout << "-- deo 1: sopstveni UniquePtr --\n  ";
+    std::cout << "-- part 1: our own UniquePtr --\n  ";
     UniquePtr<Widget> a = makeUnique<Widget>(1);
     UniquePtr<Widget> b = std::move(a);
-    std::cout << "| a=" << (a ? "pun" : "prazan") << " b->id=" << b->id << " | ";
+    std::cout << "| a=" << (a ? "full" : "empty") << " b->id=" << b->id << " | ";
     b.reset(new Widget(2)); // ~Widget(1)
     std::cout << "| ";
     UniquePtr<Widget>& alias = b;
     b = std::move(alias); // move dodela samom sebi: ništa ne sme da se obriše
-    std::cout << "posle b = move(b): b->id=" << b->id << " | ";
+    std::cout << "after b = move(b): b->id=" << b->id << " | ";
     Widget* raw = b.release();
-    std::cout << "release -> b=" << (b ? "pun" : "prazan") << " | ";
+    std::cout << "release -> b=" << (b ? "full" : "empty") << " | ";
     delete raw;
     std::cout << "\n  ";
     std::vector<UniquePtr<Widget>> many;
     for (int i = 3; i < 6; ++i) many.push_back(makeUnique<Widget>(i)); // realokacija koristi noexcept move
-    std::cout << "| u vektoru: " << many.size() << " | ";
+    std::cout << "| in the vector: " << many.size() << " | ";
     many.clear();
     std::cout << "\n  sizeof(UniquePtr<Widget>)=" << sizeof(UniquePtr<Widget>) << " nothrow move="
               << std::is_nothrow_move_constructible_v<UniquePtr<Widget>>
-              << " kopija=" << std::is_copy_constructible_v<UniquePtr<Widget>> << "\n";
+              << " copy=" << std::is_copy_constructible_v<UniquePtr<Widget>> << "\n";
 }
 
 // ================================================================ deo 2
@@ -117,7 +117,7 @@ public:
     NaiveInterruptGuard& operator=(const NaiveInterruptGuard&) = delete;
 };
 
-const char* irqState() { return interruptsEnabled ? "uključeni" : "isključeni"; }
+const char* irqState() { return interruptsEnabled ? "enabled" : "disabled"; }
 
 class SpinLock { // BasicLockable: lock() + unlock() -> radi sa std::lock_guard
 public:
@@ -132,22 +132,22 @@ private:
 };
 
 void part2_embeddedGuards() {
-    std::cout << "-- deo 2: RAII guard-ovi (prekidi, lock) --\n";
+    std::cout << "-- part 2: RAII guards (interrupts, lock) --\n";
     {
         InterruptGuard outer;
         {
             InterruptGuard inner;
         }
-        std::cout << "  InterruptGuard: posle unutrašnjeg guard-a prekidi su " << irqState() << "\n";
+        std::cout << "  InterruptGuard: after the inner guard interrupts are " << irqState() << "\n";
     }
-    std::cout << "  posle spoljnog: " << irqState() << "\n";
+    std::cout << "  after the outer one: " << irqState() << "\n";
     {
         NaiveInterruptGuard outer;
         {
             NaiveInterruptGuard inner;
         }
-        std::cout << "  NaiveInterruptGuard: posle unutrašnjeg prekidi su " << irqState()
-                  << "  <- BAG: kritična sekcija spoljnog više nije zaštićena\n";
+        std::cout << "  NaiveInterruptGuard: after the inner one interrupts are " << irqState()
+                  << "  <- BUG: the outer critical section is no longer protected\n";
     }
     SpinLock spin;
     int shared = 0;
@@ -155,7 +155,7 @@ void part2_embeddedGuards() {
         std::lock_guard<SpinLock> lock(spin); // standardni guard radi sa bilo kojim lock()/unlock() tipom
         ++shared;
     }
-    std::cout << "  std::lock_guard<SpinLock>: shared=" << shared << " (unlock u destruktoru)\n";
+    std::cout << "  std::lock_guard<SpinLock>: shared=" << shared << " (unlock in the destructor)\n";
 }
 
 // ================================================================ deo 3
@@ -191,14 +191,14 @@ private:
 StaticStorage<Widget> globalSlot; // statička memorija: rezervisana pri pokretanju programa
 
 void part3_noHeap() {
-    std::cout << "-- deo 3: objekat bez heap-a (placement new) --\n  ";
+    std::cout << "-- part 3: an object without the heap (placement new) --\n  ";
     allocations = 0;
     globalSlot.emplace(7);
     std::cout << "| id=" << globalSlot.get().id << " | ";
     globalSlot.emplace(8); // prvo uništi 7, pa napravi 8
     std::cout << "| ";
     globalSlot.destroy();
-    std::cout << "| hasValue=" << globalSlot.hasValue() << "\n  heap alokacija: " << allocations
+    std::cout << "| hasValue=" << globalSlot.hasValue() << "\n  heap allocations: " << allocations
               << "; sizeof(StaticStorage<Widget>)=" << sizeof(StaticStorage<Widget>) << "\n";
 }
 

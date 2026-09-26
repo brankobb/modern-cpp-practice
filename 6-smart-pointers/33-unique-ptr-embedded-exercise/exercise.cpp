@@ -56,19 +56,19 @@ struct Widget {
 };
 
 int main() {
-    std::cout << "prekidi na početku: " << (interruptsEnabled ? "uključeni" : "isključeni") << "\n";
+    std::cout << "interrupts at the start: " << (interruptsEnabled ? "enabled" : "disabled") << "\n";
 
     // Deo 1 -- otkomentariši:
     // UniquePtr<Widget> a(new Widget(1));
     // UniquePtr<Widget> b = std::move(a);   // a mora biti prazan
     // b.reset(new Widget(2));               // ~Widget(1) pa ništa curi
-    // std::cout << (a ? "a pun" : "a prazan") << " b->id=" << b->id << "\n";
+    // std::cout << (a ? "a full" : "a empty") << " b->id=" << b->id << "\n";
 
     // Deo 2 -- otkomentariši:
     // {
     //     InterruptGuard outer;
     //     { InterruptGuard inner; }
-    //     std::cout << "posle unutrašnjeg: " << (interruptsEnabled ? "uključeni (BAG)" : "isključeni") << "\n";
+    //     std::cout << "after the inner one: " << (interruptsEnabled ? "enabled (BUG)" : "disabled") << "\n";
     // }
 
     // Deo 3 -- otkomentariši:

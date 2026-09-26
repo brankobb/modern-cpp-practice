@@ -248,8 +248,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_vlasnistvo`](exercises/ex1_vlasnistvo.cpp) | usage | unique_ptr, shared_ptr i weak_ptr po nameni (sekcije 1-4) | — |
-| [`ex2_kruzna_referenca`](exercises/ex2_kruzna_referenca.cpp) | why | zašto weak_ptr za "pokazivač nazad" (sekcija 5) | `-DNAIVE` |
+| [`ex1_ownership`](exercises/ex1_ownership.cpp) | usage | unique_ptr, shared_ptr i weak_ptr po nameni (sekcije 1-4) | — |
+| [`ex2_circular_reference`](exercises/ex2_circular_reference.cpp) | why | zašto weak_ptr za "pokazivač nazad" (sekcija 5) | `-DNAIVE` |
 | [`ex3_shared_from_this`](exercises/ex3_shared_from_this.cpp) | why | zašto enable_shared_from_this, a ne shared_ptr(this) (sekcija 8) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

@@ -25,5 +25,5 @@ int main() {
         a->partner = b;
         b->partner = a;
     }
-    std::printf("kraj main\n");
+    std::printf("end of main\n");
 }

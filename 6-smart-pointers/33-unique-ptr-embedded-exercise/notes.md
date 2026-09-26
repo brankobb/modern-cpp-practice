@@ -43,8 +43,8 @@ void reset(T* p = nullptr) noexcept {
 
 | Zahtev | Kako | Test |
 |---|---|---|
-| jedan vlasnik | kopija `= delete` (`errors/e01`) | `kopija=false` |
-| prenos vlasništva | move, izvor → `nullptr` | `a=prazan` |
+| jedan vlasnik | kopija `= delete` (`errors/e01`) | `copy=false` |
+| prenos vlasništva | move, izvor → `nullptr` | `a=empty` |
 | move dodela samom sebi | `reset(other.release())`: release vrati isti pokazivač, reset ga ne briše | `b->id=2` posle `b = std::move(b)` |
 | radi u `std::vector` | move je `noexcept` | 3 elementa bez kopija |
 | bez dodatne cene | samo jedan pokazivač | `sizeof = 8` |

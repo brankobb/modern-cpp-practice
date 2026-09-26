@@ -40,17 +40,17 @@ std::unique_ptr<Widget> createWidget(int id) { return std::make_unique<Widget>(i
 
 void consume(std::unique_ptr<Widget> w) { std::cout << "consume(" << w->id() << ") "; } // preuzima: briše na kraju
 void inspect(const Widget& w) { std::cout << "inspect(" << w.id() << ") "; }          // samo koristi
-void inspectMaybe(const Widget* w) { std::cout << (w ? "inspectMaybe(ima) " : "inspectMaybe(nullptr) "); }
+void inspectMaybe(const Widget* w) { std::cout << (w ? "inspectMaybe(has) " : "inspectMaybe(nullptr) "); }
 
 void s01_uniquePtr() {
-    std::cout << "-- 1. unique_ptr: jedan vlasnik (kurs 73, 75) --\n  ";
+    std::cout << "-- 1. unique_ptr: one owner (course 73, 75) --\n  ";
     auto a = createWidget(1);
     inspect(*a);              // ne-vlasnik: referenca
     inspectMaybe(a.get());    // ne-vlasnik koji može biti prazan: sirov pokazivač
     auto b = std::move(a);    // prenos vlasništva; a je sada nullptr
-    std::cout << "| a=" << (a ? "pun" : "prazan") << " b=" << b->id() << "\n  ";
+    std::cout << "| a=" << (a ? "full" : "empty") << " b=" << b->id() << "\n  ";
     consume(std::move(b));    // vlasništvo ode u funkciju, Widget umire na njenom kraju
-    std::cout << "| posle consume\n  ";
+    std::cout << "| after consume\n  ";
     auto c = createWidget(2);
     Widget* released = c.release(); // c više ne poseduje; ko sada briše? (retko potrebno)
     delete released;
@@ -61,17 +61,17 @@ void s01_uniquePtr() {
 
 // ---------------------------------------------------------------- 2
 void s02_sharedPtr() {
-    std::cout << "-- 2. shared_ptr: više vlasnika (kurs 74, 76) --\n  ";
+    std::cout << "-- 2. shared_ptr: several owners (course 74, 76) --\n  ";
     std::shared_ptr<Widget> first = std::make_shared<Widget>(10);
     std::cout << "use_count=" << first.use_count() << " ";
     {
         std::shared_ptr<Widget> second = first; // kopija: +1 (atomski)
         std::vector<std::shared_ptr<Widget>> many(3, first);
-        std::cout << "| unutra use_count=" << first.use_count() << " ";
+        std::cout << "| inside use_count=" << first.use_count() << " ";
     }
-    std::cout << "| posle bloka use_count=" << first.use_count() << " ";
+    std::cout << "| after the block use_count=" << first.use_count() << " ";
     first.reset(); // poslednji vlasnik -> objekat se briše
-    std::cout << "| sizeof(shared_ptr)=" << sizeof(std::shared_ptr<Widget>) << " (pokazivač na objekat + na kontrolni blok)\n";
+    std::cout << "| sizeof(shared_ptr)=" << sizeof(std::shared_ptr<Widget>) << " (pointer to the object + to the control block)\n";
 }
 
 // ---------------------------------------------------------------- 3
@@ -80,7 +80,7 @@ struct Plain {
 };
 
 void s03_makeFunctions() {
-    std::cout << "-- 3. make funkcije (kurs 82, EMC Item 21) --\n";
+    std::cout << "-- 3. make functions (course 82, EMC Item 21) --\n";
     allocations = 0;
     { auto p = std::make_shared<Plain>(); }
     int viaMake = allocations;
@@ -90,13 +90,13 @@ void s03_makeFunctions() {
     allocations = 0;
     { auto p = std::make_unique<Plain>(); }
     int viaMakeUnique = allocations;
-    std::cout << "  alokacija: make_shared=" << viaMake << " shared_ptr(new T)=" << viaNew
-              << " make_unique=" << viaMakeUnique << "  <- make_shared: objekat i kontrolni blok zajedno\n";
+    std::cout << "  allocations: make_shared=" << viaMake << " shared_ptr(new T)=" << viaNew
+              << " make_unique=" << viaMakeUnique << "  <- make_shared: object and control block together\n";
 }
 
 // ---------------------------------------------------------------- 4
 void s04_weakPtr() {
-    std::cout << "-- 4. weak_ptr: posmatrač bez vlasništva (kurs 77, 78) --\n  ";
+    std::cout << "-- 4. weak_ptr: an observer without ownership (course 77, 78) --\n  ";
     std::weak_ptr<Widget> observer;
     {
         auto owner = std::make_shared<Widget>(20);
@@ -106,8 +106,8 @@ void s04_weakPtr() {
             std::cout << "lock()->id=" << locked->id() << " ";
         }
     }
-    std::cout << "| posle bloka expired=" << observer.expired() << " lock()="
-              << (observer.lock() ? "pun" : "prazan") << "\n";
+    std::cout << "| after the block expired=" << observer.expired() << " lock()="
+              << (observer.lock() ? "full" : "empty") << "\n";
 }
 
 // ---------------------------------------------------------------- 5
@@ -120,15 +120,15 @@ struct Person {
 };
 
 void s05_cycles() {
-    std::cout << "-- 5. kružne reference (kurs 79) --\n  ";
+    std::cout << "-- 5. circular references (course 79) --\n  ";
     {
-        auto ana = std::make_shared<Person>("Ana");
-        auto bojan = std::make_shared<Person>("Bojan");
-        ana->friendWeak = bojan;
-        bojan->friendWeak = ana;
-        std::cout << "weak u oba smera, use_count(ana)=" << ana.use_count() << " | ";
+        auto ann = std::make_shared<Person>("Ann");
+        auto bob = std::make_shared<Person>("Bob");
+        ann->friendWeak = bob;
+        bob->friendWeak = ann;
+        std::cout << "weak in both directions, use_count(ann)=" << ann.use_count() << " | ";
     } // oba se unište
-    std::cout << "\n  <- sa shared_ptr u oba smera use_count bi bio 2 i destruktori se ne bi pozvali\n";
+    std::cout << "\n  <- with shared_ptr in both directions use_count would be 2 and the destructors would not run\n";
 }
 
 // ---------------------------------------------------------------- 6
@@ -140,7 +140,7 @@ struct FileCloser {
 };
 
 void s06_deleters() {
-    std::cout << "-- 6. deleter (kurs 80) --\n  ";
+    std::cout << "-- 6. deleter (course 80) --\n  ";
     {
         std::unique_ptr<std::FILE, FileCloser> file(std::tmpfile()); // deleter je deo TIPA
         auto lambdaDeleter = [](Widget* w) {
@@ -167,12 +167,12 @@ void s06_deleters() {
 
 // ---------------------------------------------------------------- 7
 void s07_arrays() {
-    std::cout << "-- 7. dinamički nizovi (kurs 81) --\n";
+    std::cout << "-- 7. dynamic arrays (course 81) --\n";
     auto numbers = std::make_unique<int[]>(4); // unique_ptr<int[]>: delete[] i operator[]
     numbers[2] = 42;
     std::shared_ptr<int[]> shared(new int[3]{1, 2, 3}); // C++17: shared_ptr<T[]> zove delete[]
     std::cout << "  unique_ptr<int[]>: numbers[2]=" << numbers[2] << "; shared_ptr<int[]>: shared[1]=" << shared[1]
-              << "  (najčešće je std::vector bolji izbor)\n";
+              << "  (std::vector is usually the better choice)\n";
 }
 
 // ---------------------------------------------------------------- 8
@@ -190,7 +190,7 @@ void s08_sharedFromThis() {
     try {
         onStack.self(); // objekat nije u shared_ptr-u
     } catch (const std::bad_weak_ptr&) {
-        std::cout << "; na objektu van shared_ptr-a -> std::bad_weak_ptr (C++17)";
+        std::cout << "; on an object outside a shared_ptr -> std::bad_weak_ptr (C++17)";
     }
     std::cout << "\n";
 }
