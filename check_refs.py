@@ -2,18 +2,18 @@
 """Proverava unakrsne reference u lekcijama (notes.md i .cpp fajlovi).
 
 Šta se proverava:
-  lekcija NN            -> postoji week0-fundamentals/NN-*
-  weekN sNN / sNN       -> postoji sesija sNN-* (week1 ili week2)
+  lekcija NN            -> postoji <deo>/NN-* (npr. 3-zivotni-vek-i-resursi/21-raii)
+  lekcije NN, MM i KK   -> postoji svaka; raspon NN–MM: svaka između
   errors/eNN, ub/uNN,
   runtime/rNN           -> postoji fajl sa tim prefiksom u ciljnoj lekciji
   sekcija N, sekcije    -> ciljni notes.md ima naslov "# N."
   N, M, ... / N-M / N i M
   exercises/zN          -> postoji zadatak sa tim prefiksom
-  week0-.../fajl.cpp    -> fajl postoji (putanja od korena repozitorijuma)
+  1-osnove.../fajl.cpp  -> fajl postoji (putanja od korena repozitorijuma)
   exercises/.../x.cpp   -> fajl postoji u ciljnoj lekciji
 
 Ciljna lekcija je najbliža PRETHODNA oznaka lekcije u istoj rečenici
-("lekcija 11, ub/u02", "week2 s09 sekcija 5", "lekcija 01 (...), 03 (...)",
+("lekcija 11, ub/u02", "lekcija 32, sekcija 5", "lekcija 01 (...), 03 (...)",
 red tabele "| 03, sekcija 11 |"); ako je nema, to je lekcija u kojoj je
 fajl. "main.cpp, sekcija N" se proverava prema redovima "// ----- N" u
 main.cpp, a ne prema notes.md.
@@ -28,16 +28,15 @@ import sys
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 LESSON_RE = re.compile(
-    r"(?i:lekcij[aeiu]) (\d{2})(?!\d)"          # lekcija 03, Lekcija 04
-    r"|(?:week[12] )?\b(s\d{2})\b"             # week2 s09 / s09
-    r"|\|\s*(s?\d{2}),"                         # tabela "Mapa": | 03, sekcija 11 |
+    r"(?i:lekcij[a-z]*) (\d{2}(?:\s*(?:,|–|-|\bi\b)\s*\d{2}(?!\d))*)(?!\d)"  # lekcija 03, lekcije 23, 25 / 14–17
+    r"|\|\s*(\d{2}),"                         # tabela: | 03, sekcija 11 |
 )
 FILE_RE = re.compile(r"\b(main(?:_cpp20)?\.cpp)\b")
 CASE_RE = re.compile(r"\b(errors|ub|runtime)/([eur]\d{2})\b")
 EXERCISE_RE = re.compile(r"\bexercises/(z\d)\b")
 # Putanje fajlova: od korena repozitorijuma (./build.sh week0-.../main.cpp)
 # ili od lekcije (exercises/solutions/z1_ime.cpp).
-ROOT_PATH_RE = re.compile(r"(?<![\w/.])(week[0-9][\w-]*/[\w./-]+\.(?:cpp|h|md))")
+ROOT_PATH_RE = re.compile(r"(?<![\w/.])([1-9]-[\w-]+/[\w./-]+\.(?:cpp|h|md))")
 LESSON_PATH_RE = re.compile(r"(?<![\w/.])(exercises/(?:solutions/)?\w+\.cpp)")
 SECTION_RE = re.compile(r"\b(?i:sekcij[aeiu]) (\d+(?:\s*(?:,|-|–|\bi\b)\s*\d+)*)")
 # Kraj rečenice: tačka pa razmak pa veliko slovo (reference ne prelaze rečenicu).
@@ -45,20 +44,32 @@ SENTENCE_END = re.compile(r"[.!?]\s+(?=[A-ZČĆŠĐŽ])")
 
 
 def lesson_dirs():
-    """Mapira oznaku ('03', 's09') na folder lekcije."""
+    """Mapira broj lekcije ('03', '21') na folder lekcije (<deo>/NN-ime)."""
     out = {}
-    for week in sorted(os.listdir(ROOT)):
-        wdir = os.path.join(ROOT, week)
-        if not (os.path.isdir(wdir) and week.startswith("week")):
+    for part in sorted(os.listdir(ROOT)):
+        pdir = os.path.join(ROOT, part)
+        if not (os.path.isdir(pdir) and re.match(r"\d-", part)):
             continue
-        for name in sorted(os.listdir(wdir)):
-            path = os.path.join(wdir, name)
+        for name in sorted(os.listdir(pdir)):
+            path = os.path.join(pdir, name)
             if not os.path.isdir(path):
                 continue
-            m = re.match(r"(s?\d{2})-", name)
+            m = re.match(r"(\d{2})-", name)
             if m:
                 out[m.group(1)] = path
     return out
+
+
+def lesson_numbers(text):
+    """'23, 25' -> ['23', '25']; '14–17' -> ['14', '15', '16', '17']."""
+    nums = []
+    for part in re.split(r"\s*(?:,|\bi\b)\s*", text):
+        r = re.match(r"(\d{2})\s*[-–]\s*(\d{2})$", part)
+        if r:
+            nums.extend(f"{n:02d}" for n in range(int(r.group(1)), int(r.group(2)) + 1))
+        elif re.fullmatch(r"\d{2}", part):
+            nums.append(part)
+    return nums
 
 
 def headings(notes_path):
@@ -155,11 +166,12 @@ def paragraphs(lines, is_md):
 def check_paragraph(text, line_of, rel, ldir, lessons, head_cache, problems, stats):
     lesson_marks = []
     for m in LESSON_RE.finditer(text):
-        tag = m.group(1) or m.group(2) or m.group(3)
-        lesson_marks.append((m.start(), tag))
-        stats["lekcija"] += 1
-        if tag not in lessons:
-            problems.append(f"{rel}:{line_of(m.start())}: nema lekcije '{m.group(0)}'")
+        tags = lesson_numbers(m.group(1)) if m.group(1) else [m.group(2)]
+        lesson_marks.append((m.start(), tags[-1]))   # dalje reference se odnose na poslednju
+        for tag in tags:
+            stats["lekcija"] += 1
+            if tag not in lessons:
+                problems.append(f"{rel}:{line_of(m.start())}: nema lekcije {tag} ('{m.group(0)}')")
     file_marks = [(m.start(), m.group(1)) for m in FILE_RE.finditer(text)]
     ends = [m.start() for m in SENTENCE_END.finditer(text)]
 

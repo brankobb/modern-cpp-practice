@@ -18,7 +18,7 @@
 #   fajl (npr. sanitizer koji -fsanitize=undefined ne uključuje).
 # Opciono "// SANITIZER: thread" u ub/ fajlu: ThreadSanitizer umesto
 #   ASan/UBSan (data race, redosled zaključavanja); ne mogu zajedno.
-# Usage: ./check_cases.sh week0-fundamentals/04-pointers-and-references
+# Usage: ./check_cases.sh 1-osnove-jezika/04-pokazivaci-i-reference
 set -u
 
 if [ $# -ne 1 ] || [ ! -d "$1" ]; then

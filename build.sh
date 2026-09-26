@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Compile and run a single exercise with ASan + UBSan.
-# Usage: ./build.sh week1-cpp03-to-move/s01-object-lifetime/main.cpp
+# Usage: ./build.sh 3-zivotni-vek-i-resursi/19-zivotni-vek-objekta/main.cpp
 #        ./build.sh <fajl>.cpp --tsan   -- ThreadSanitizer umesto ASan+UBSan
 #        (za niti; TSan i ASan ne mogu zajedno)
 # -pedantic-errors: code the standard calls ill-formed is always an error,
@@ -22,7 +22,7 @@ for a in "$@"; do
 done
 out="$(mktemp -u /tmp/mcpp-XXXXXX)"
 
-# Paralelni algoritmi (<execution>, s24): kad libstdc++ nađe TBB zaglavlja,
+# Paralelni algoritmi (<execution>, lekcija 41): kad libstdc++ nađe TBB zaglavlja,
 # koristi TBB i mora da se linkuje sa -ltbb; bez TBB-a radi sekvencijalno.
 libs=()
 if grep -q '#include <execution>' "$src"; then

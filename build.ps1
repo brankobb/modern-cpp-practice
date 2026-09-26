@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # Compile and run a single exercise, with ASan + UBSan when the toolchain
 # supports them.
-# Usage: .\build.ps1 week1-cpp03-to-move\s01-object-lifetime\main.cpp
+# Usage: .\build.ps1 3-zivotni-vek-i-resursi\19-zivotni-vek-objekta\main.cpp
 #
 # Requires a g++ on PATH (MinGW-w64 via MSYS2 or w64devkit). Many MSYS2
 # GCC builds don't ship libasan/libubsan for the mingw target -- if the
