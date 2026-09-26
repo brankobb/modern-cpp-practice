@@ -11,33 +11,33 @@
 // otkomentariši njegov deo main()-a. Pokreni i sa --tsan: ThreadSanitizer
 // ne sme ništa da prijavi, ni posle više pokretanja.
 //
-// Korak 1: template <typename T> class BezbedanRed (notes.md, "Nova tema")
+// Korak 1: template <typename T> class SafeQueue (notes.md, "Nova tema")
 //   -- članovi: std::mutex, std::condition_variable, std::deque<T>,
-//   bool zatvoren_.
-//   -- void posalji(T x): pod lock_guard-om dodaj na kraj; ako je red
+//   bool closed_.
+//   -- void send(T x): pod lock_guard-om dodaj na kraj; ako je red
 //   zatvoren, baci std::logic_error("slanje u zatvoren red"); notify_one
 //   posle otključavanja (lekcija 39, sekcije 5 i 6).
-//   -- std::optional<T> primi(): unique_lock i wait SA PREDIKATOM (ima
+//   -- std::optional<T> receive(): unique_lock i wait SA PREDIKATOM (ima
 //   nešto ili je zatvoren); prazan optional znači "zatvoren i prazan, nema
 //   više posla" (lekcija 37, sekcija 1).
-//   -- void zatvori(): postavi zatvoren_ pod mutex-om, pa notify_all.
+//   -- void close(): postavi closed_ pod mutex-om, pa notify_all.
 // Korak 2: proizvođač i potrošač
-//   -- int proizvodjac(BezbedanRed<Merenje>&, int senzor, int n,
-//   int otkazPosle = -1): šalje {senzor, senzor * 100 + i} za i = 0..n-1;
-//   kad je i == otkazPosle, baci std::runtime_error("senzor S: nema
-//   odgovora"); vraća n.
-//   -- std::map<int, Zbir> potrosac(BezbedanRed<Merenje>&): prima dok
-//   primi() ne vrati prazan optional; svaki potrošač ima SVOJU mapu, bez
+//   -- int producer(SafeQueue<Reading>&, int sensor, int n,
+//   int failAfter = -1): šalje {sensor, sensor * 100 + i} za i = 0..n-1;
+//   kad je i == failAfter, baci std::runtime_error("sensor S: no
+//   response"); vraća n.
+//   -- std::map<int, Sum> consumer(SafeQueue<Reading>&): prima dok
+//   receive() ne vrati prazan optional; svaki potrošač ima SVOJU mapu, bez
 //   deljenja i bez mutex-a (lekcija 39, sekcije 2 i 4).
-// Korak 3: Rezultat pokreni(int potrosaca, senzori, int otkazujeSenzor,
-// int otkazPosle)
+// Korak 3: Result run(int consumers, sensors, int failingSensor,
+// int failAfter)
 //   -- potrošači i proizvođači preko std::async(std::launch::async, ...),
 //   red se prosleđuje sa std::ref (lekcija 40, sekcija 1).
-//   -- class ZatvoriNaKraju: RAII, zatvara red u destruktoru (lekcija 21,
+//   -- class CloseAtEnd: RAII, zatvara red u destruktoru (lekcija 21,
 //   sekcija 1); drži ga u bloku oko proizvođača, pa se red zatvori čim su
 //   svi proizvođači gotovi -- i kad neki baci.
 //   -- izuzetak proizvođača stiže kroz get(): uhvati ga i dodaj poruku u
-//   greske (lekcija 40, sekcija 6); rezultate potrošača spoji sa spoji().
+//   errors (lekcija 40, sekcija 6); rezultate potrošača spoji sa mergeInto().
 // Korak 4: isto, ali senzor 2 otkaže posle 50 merenja -- ostali se
 // obrade do kraja, a program se ne zaglavi.
 
@@ -54,36 +54,36 @@
 #include <utility>
 #include <vector>
 
-struct Merenje {
-    int senzor;
-    long vrednost;
+struct Reading {
+    int sensor;
+    long value;
 };
 
-struct Zbir {
+struct Sum {
     int n = 0;
-    long suma = 0;
+    long total = 0;
 };
 
-void spoji(std::map<int, Zbir>& ukupno, const std::map<int, Zbir>& deo) {
-    for (const auto& [senzor, z] : deo) {
-        ukupno[senzor].n += z.n;
-        ukupno[senzor].suma += z.suma;
+void mergeInto(std::map<int, Sum>& overall, const std::map<int, Sum>& part) {
+    for (const auto& [sensor, z] : part) {
+        overall[sensor].n += z.n;
+        overall[sensor].total += z.total;
     }
 }
 
-struct Rezultat {
-    std::map<int, Zbir> poSenzoru;
-    std::vector<std::string> greske;
+struct Result {
+    std::map<int, Sum> bySensor;
+    std::vector<std::string> errors;
 };
 
-void ispisi(const Rezultat& r) {
-    int ukupno = 0;
-    for (const auto& [senzor, z] : r.poSenzoru) {
-        std::cout << "  senzor " << senzor << ": " << z.n << " merenja, suma " << z.suma << '\n';
-        ukupno += z.n;
+void print(const Result& r) {
+    int overall = 0;
+    for (const auto& [sensor, z] : r.bySensor) {
+        std::cout << "  sensor " << sensor << ": " << z.n << " readings, total " << z.total << '\n';
+        overall += z.n;
     }
-    std::cout << "  ukupno " << ukupno << " merenja";
-    for (const auto& g : r.greske) std::cout << "; greška: " << g;
+    std::cout << "  total " << overall << " readings";
+    for (const auto& g : r.errors) std::cout << "; error: " << g;
     std::cout << '\n';
 }
 
@@ -91,58 +91,58 @@ void ispisi(const Rezultat& r) {
 
 int main() {
     // Korak 1 -- otkomentariši:
-    // std::cout << std::boolalpha << "== korak 1: red u jednoj niti\n";
-    // BezbedanRed<Merenje> red;
-    // red.posalji({1, 10});
-    // red.posalji({2, 20});
-    // red.zatvori();
-    // const auto a = red.primi();
-    // const auto b = red.primi();
-    // const auto c = red.primi();
-    // std::cout << "primljeno " << a->vrednost << ", " << b->vrednost << ", posle zatvaranja prazan: " << !c.has_value()
+    // std::cout << std::boolalpha << "== step 1: queue in a single thread\n";
+    // SafeQueue<Reading> queue;
+    // queue.send({1, 10});
+    // queue.send({2, 20});
+    // queue.close();
+    // const auto a = queue.receive();
+    // const auto b = queue.receive();
+    // const auto c = queue.receive();
+    // std::cout << "received " << a->value << ", " << b->value << ", empty after closing: " << !c.has_value()
     //           << '\n';
     // try {
-    //     red.posalji({3, 30});
+    //     queue.send({3, 30});
     // } catch (const std::logic_error& e) {
-    //     std::cout << "slanje posle zatvaranja: " << e.what() << '\n';
+    //     std::cout << "sending after closing: " << e.what() << '\n';
     // }
 
     // Korak 2 -- otkomentariši:
-    // std::cout << "== korak 2: jedan proizvođač, jedan potrošač (std::thread)\n";
-    // BezbedanRed<Merenje> r2;
-    // std::map<int, Zbir> zbir2;
-    // std::thread potr([&] { zbir2 = potrosac(r2); });
-    // std::thread proiz([&] {
-    //     proizvodjac(r2, 7, 1000);
-    //     r2.zatvori();
+    // std::cout << "== step 2: one producer, one consumer (std::thread)\n";
+    // SafeQueue<Reading> r2;
+    // std::map<int, Sum> sums2;
+    // std::thread cons([&] { sums2 = consumer(r2); });
+    // std::thread prod([&] {
+    //     producer(r2, 7, 1000);
+    //     r2.close();
     // });
-    // proiz.join();
-    // potr.join();
-    // std::cout << "senzor 7: " << zbir2[7].n << " merenja, suma " << zbir2[7].suma << '\n';
+    // prod.join();
+    // cons.join();
+    // std::cout << "sensor 7: " << sums2[7].n << " readings, total " << sums2[7].total << '\n';
 
     // Korak 3 -- otkomentariši:
-    // std::cout << "== korak 3: tri proizvođača, dva potrošača (std::async)\n";
-    // ispisi(pokreni(2, {{1, 500}, {2, 300}, {3, 200}}, 0, -1));
+    // std::cout << "== step 3: three producers, two consumers (std::async)\n";
+    // print(run(2, {{1, 500}, {2, 300}, {3, 200}}, 0, -1));
 
     // Korak 4 -- otkomentariši:
-    // std::cout << "== korak 4: senzor 2 otkaže posle 50 merenja\n";
-    // ispisi(pokreni(3, {{1, 500}, {2, 300}, {3, 200}}, 2, 50));
+    // std::cout << "== step 4: sensor 2 fails after 50 readings\n";
+    // print(run(3, {{1, 500}, {2, 300}, {3, 200}}, 2, 50));
 }
 
 /* EXPECTED OUTPUT
-== korak 1: red u jednoj niti
-primljeno 10, 20, posle zatvaranja prazan: true
-slanje posle zatvaranja: slanje u zatvoren red
-== korak 2: jedan proizvođač, jedan potrošač (std::thread)
-senzor 7: 1000 merenja, suma 1199500
-== korak 3: tri proizvođača, dva potrošača (std::async)
-  senzor 1: 500 merenja, suma 174750
-  senzor 2: 300 merenja, suma 104850
-  senzor 3: 200 merenja, suma 79900
-  ukupno 1000 merenja
-== korak 4: senzor 2 otkaže posle 50 merenja
-  senzor 1: 500 merenja, suma 174750
-  senzor 2: 50 merenja, suma 11225
-  senzor 3: 200 merenja, suma 79900
-  ukupno 750 merenja; greška: senzor 2: nema odgovora
+== step 1: queue in a single thread
+received 10, 20, empty after closing: true
+sending after closing: sending to a closed queue
+== step 2: one producer, one consumer (std::thread)
+sensor 7: 1000 readings, total 1199500
+== step 3: three producers, two consumers (std::async)
+  sensor 1: 500 readings, total 174750
+  sensor 2: 300 readings, total 104850
+  sensor 3: 200 readings, total 79900
+  total 1000 readings
+== step 4: sensor 2 fails after 50 readings
+  sensor 1: 500 readings, total 174750
+  sensor 2: 50 readings, total 11225
+  sensor 3: 200 readings, total 79900
+  total 750 readings; error: sensor 2: no response
 */

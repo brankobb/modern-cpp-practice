@@ -49,7 +49,7 @@ zadatka), **CP.61** (`async` za pokretanje konkurentnih zadataka).
 # 1. `std::async` i `std::future` (kurs 196)
 
 ```cpp
-std::future<int> f = std::async(racunaj, 10);   // pokrene, odmah vrati future
+std::future<int> f = std::async(compute, 10);   // pokrene, odmah vrati future
 int x = f.get();                                // čeka i vrati rezultat
 ```
 
@@ -75,7 +75,7 @@ int x = f.get();                                // čeka i vrati rezultat
 - ⚠️ Future vraćen iz funkcije se premešta pozivaocu, pa zadatak radi i
   posle `return`. Capture po referenci na lokalnu promenljivu te funkcije
   tada visi (`ub/u02`, ASan: `stack-use-after-return`).
-- Metoda: `std::async(&Kalibrator::primeni, &k, 10)` (test: 15).
+- Metoda: `std::async(&Calibrator::apply, &k, 10)` (test: 15).
 - **`shared_future`** (`f.share()`): kopira se, i svaka kopija sme da zove
   `get()` koliko puta hoće (`get()` je `const` i vraća `const T&`). Test:
   tri zadatka čitaju isti rezultat 100.
@@ -162,7 +162,7 @@ f.get();                                     // 21
 - Sa `promise` to radiš ručno:
 
   ```cpp
-  try { p.set_value(racunaj()); }
+  try { p.set_value(compute()); }
   catch (...) { p.set_exception(std::current_exception()); }   // lekcija 18, sekcija 9
   ```
 
@@ -215,13 +215,13 @@ Zadaci su u `exercises/`, rešenja u `exercises/solutions/`. Svaki zadatak
 se kompajlira i nerešen; koraci su u komentaru na vrhu, testovi su
 zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 "why" prvo pokažu problem: build sa navedenim `-D` makroom (npr.
-`./build.sh <zadatak>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
+`./build.sh <task>.cpp -DNAIVE`). Sve zadatke i rešenja proverava
 `./check_exercises.sh <lekcija>`.
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_citanje_senzora`](exercises/ex1_citanje_senzora.cpp) | usage | paralelno čitanje senzora preko std::async, izuzeci kroz future, čekanje sa rokom (sekcije 1, 4, 6) | — |
-| [`ex2_odbacen_future`](exercises/ex2_odbacen_future.cpp) | why | zašto "pokreni i zaboravi" sa std::async ne radi paralelno (sekcija 4, EMC Item 38) | `-DNAIVE` |
-| [`ex3_obecanje_bez_greske`](exercises/ex3_obecanje_bez_greske.cpp) | why | zašto promise mora da dobije i GREŠKU, ne samo vrednost (sekcije 5, 6) | `-DNAIVE` |
+| [`ex1_reading_sensors`](exercises/ex1_reading_sensors.cpp) | usage | paralelno čitanje senzora preko std::async, izuzeci kroz future, čekanje sa rokom (sekcije 1, 4, 6) | — |
+| [`ex2_discarded_future`](exercises/ex2_discarded_future.cpp) | why | zašto "pokreni i zaboravi" sa std::async ne radi paralelno (sekcija 4, EMC Item 38) | `-DNAIVE` |
+| [`ex3_promise_without_error`](exercises/ex3_promise_without_error.cpp) | why | zašto promise mora da dobije i GREŠKU, ne samo vrednost (sekcije 5, 6) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

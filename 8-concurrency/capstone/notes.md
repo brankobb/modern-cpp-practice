@@ -17,8 +17,8 @@ lepo da se napravi samo od mutex-a.
 ```
 
 Koraci su u komentaru na vrhu `task.cpp`; `main()` je napisan i
-zakomentarisan po koracima. `Merenje`, `Zbir`, `spoji`, `Rezultat` i
-`ispisi` su dati. Rešenje je u `solution.cpp`. Prvo pročitaj sekciju
+zakomentarisan po koracima. `Reading`, `Sum`, `mergeInto`, `Result` i
+`print` su dati. Rešenje je u `solution.cpp`. Prvo pročitaj sekciju
 "Nova tema" ispod. Očekuj 2–3 sedenja.
 
 ---
@@ -72,25 +72,25 @@ cv.notify_one();
 - ⚠️ **`notify_one` ili `notify_all`.** `notify_one` budi jednu nit koja
   čeka i dovoljan je kad je stiglo jedno merenje, jer posao može da uzme
   samo jedan. Kad se red **zatvara**, to moraju da vide **svi**
-  potrošači, pa ide `notify_all`. Provereno: sa `notify_one` u `zatvori()`
+  potrošači, pa ide `notify_all`. Provereno: sa `notify_one` u `close()`
   rešenje se zaglavilo u 3 od 5 pokretanja, a u 2 je prošlo. Greška zavisi
   od rasporeda niti, pa je jedno uspešno pokretanje ne otkriva.
 - ✅ **`notify` posle otključavanja.** Radi ispravno i pod mutex-om, ali
   tada probuđena nit može odmah da naleti na još zaključan mutex. Zato
-  `posalji` zatvara zagradu pre `notify_one`. Ovo je optimizacija, a ne
+  `send` zatvara zagradu pre `notify_one`. Ovo je optimizacija, a ne
   pitanje ispravnosti.
 
 **Zatvaranje reda.** Potrošač ne može da zna da više neće biti merenja
-ako mu to neko ne kaže. Zato red ima stanje "zatvoren". Tada `primi()`
+ako mu to neko ne kaže. Zato red ima stanje "zatvoren". Tada `receive()`
 vraća prazan `std::optional`, ali tek kad je red i prazan, da se ništa
 poslato ne izgubi (lekcija 37, sekcija 1). Petlja potrošača je onda samo
-`while (auto m = red.primi())`.
+`while (auto m = queue.receive())`.
 
 ## Šta vežba spaja
 
 | Korak | Šta radiš | Lekcija |
 |---|---|---|
-| 1 | `BezbedanRed<T>`: mutex, `condition_variable`, zatvaranje; `optional` kao "nema više" | nova tema; lekcija 39, sekcije 5 i 6; lekcija 37, sekcija 1 |
+| 1 | `SafeQueue<T>`: mutex, `condition_variable`, zatvaranje; `optional` kao "nema više" | nova tema; lekcija 39, sekcije 5 i 6; lekcija 37, sekcija 1 |
 | 2 | proizvođač i potrošač u `std::thread`; svaki potrošač ima svoj rezultat | lekcija 39, sekcije 2 i 4 |
 | 3 | isto preko `std::async`; red kroz `std::ref`; RAII koji zatvara red | lekcija 40, sekcija 1; lekcija 21, sekcija 1 |
 | 3–4 | izuzetak proizvođača stiže kroz `future::get()` u izveštaj | lekcija 40, sekcija 6 |
@@ -100,17 +100,17 @@ poslato ne izgubi (lekcija 37, sekcija 1). Petlja potrošača je onda samo
 - ⚠️ **Zaboravljeno zatvaranje = večno čekanje.** Ako se red ne zatvori,
   potrošači spavaju zauvek. Tada i program visi: destruktor `future`-a iz
   `std::async` čeka da se njegova nit završi (lekcija 40, sekcija 4).
-  Provereno: kad se `zatvori()` pozove običnim redom posle petlje sa
-  `get()`, a izuzetak iz proizvođača izađe iz `pokreni`, program se
+  Provereno: kad se `close()` pozove običnim redom posle petlje sa
+  `get()`, a izuzetak iz proizvođača izađe iz `run`, program se
   zaglavi u 3 od 3 pokretanja. `catch` u `main` se nikad ne izvrši, jer
   se unwinding zaustavi na destruktoru vektora potrošačkih `future`-a.
-  Zato `ZatvoriNaKraju`: destruktor se izvrši i kad izuzetak preskoči
+  Zato `CloseAtEnd`: destruktor se izvrši i kad izuzetak preskoči
   ostatak bloka (lekcija 21, sekcija 2).
 - ⚠️ **`get()` potrošača tek posle bloka.** Potrošački `future`-i nastaju
   **pre** bloka sa proizvođačima, a njihov `get()` ide **posle** njega. Tek
-  kad blok završi, `ZatvoriNaKraju` zatvori red, pa potrošači mogu da
-  izađu iz petlje. Provereno: kad se petlja sa `spoji(..., f.get())`
-  premesti u blok, `pokreni` se zaglavi u 3 od 3 pokretanja. `get()`
+  kad blok završi, `CloseAtEnd` zatvori red, pa potrošači mogu da
+  izađu iz petlje. Provereno: kad se petlja sa `mergeInto(..., f.get())`
+  premesti u blok, `run` se zaglavi u 3 od 3 pokretanja. `get()`
   čeka potrošača, a potrošač čeka zatvaranje koje dolazi tek posle.
 - ⚠️ **Slanje posle zatvaranja baca.** Tiho odbacivanje bi sakrilo grešku
   u redosledu gašenja. Izuzetak je glasan (korak 1).
@@ -130,9 +130,9 @@ poslato ne izgubi (lekcija 37, sekcija 1). Petlja potrošača je onda samo
 ## Posle rešenja
 
 1. Red nema gornju granicu. Šta ako senzori šalju brže nego što radnici
-   stižu? Dodaj kapacitet: `posalji` čeka dok ima mesta. Koliko
+   stižu? Dodaj kapacitet: `send` čeka dok ima mesta. Koliko
    `condition_variable` ti treba, i ko koga budi?
-2. Šta bi se desilo da `primi()` vrati prazan `optional` čim je red
+2. Šta bi se desilo da `receive()` vrati prazan `optional` čim je red
    zatvoren, a ne tek kad je zatvoren **i prazan**? Koji bi se broj u
    izlazu promenio, i da li uvek za isto?
 3. U koraku 2 proizvođač je `std::thread`, a ne `std::async`. Šta bi se

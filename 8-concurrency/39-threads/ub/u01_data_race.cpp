@@ -11,14 +11,14 @@
 // ili std::atomic<long> brojac.
 #include <iostream>
 #include <thread>
-long brojac = 0;
-void posao() {
-    for (int i = 0; i < 100000; ++i) ++brojac;
+long counter = 0;
+void work() {
+    for (int i = 0; i < 100000; ++i) ++counter;
 }
 int main() {
-    std::thread t1(posao);
-    std::thread t2(posao);
+    std::thread t1(work);
+    std::thread t2(work);
     t1.join();
     t2.join();
-    std::cout << brojac << '\n';
+    std::cout << counter << '\n';
 }

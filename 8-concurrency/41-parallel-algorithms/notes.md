@@ -95,8 +95,8 @@ izuzetak → `terminate`), `[reduce]`, `[transform.reduce]`,
 sekcija 5):
 
 ```cpp
-long zbir = 0;
-std::for_each(std::execution::par, v.begin(), v.end(), [&](int x) { zbir += x; });   // ❌
+long sum = 0;
+std::for_each(std::execution::par, v.begin(), v.end(), [&](int x) { sum += x; });   // ❌
 ```
 
 Izmereno (100000 jedinica, `-O1`, TBB, 4 jezgra, 3 pokretanja): 71064,
@@ -128,7 +128,7 @@ mutex dvaput. Takav kod je UB bez ikakvog upozorenja.
   asocijativna i komutativna (`+`, `*`, `min`, `max`). Sa `-`: `accumulate`
   daje 84, `reduce(seq)` 94 (test, libstdc++: grupiše po 4 i sekvencijalno;
   sa TBB-om i `par` ovde 84, bez TBB-a 94 -- zadatak ex2). ✅ Za `-`:
-  `budzet - reduce(..., plus)`.
+  `budget - reduce(..., plus)`.
 - ⚠️ Za `double` ni `+` nije tačno asocijativan: `reduce(par)` može da se
   razlikuje od `accumulate` u poslednjim ciframa, i od pokretanja do
   pokretanja. (Zadatak ex1 bira vrednosti čiji su zbirovi tačni, pa je
@@ -217,8 +217,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_obrada_merenja`](exercises/ex1_obrada_merenja.cpp) | usage | obrada velikog niza merenja paralelnim algoritmima (sekcije 1, 2, 3) | — |
-| [`ex2_reduce_nije_accumulate`](exercises/ex2_reduce_nije_accumulate.cpp) | why | zašto reduce nije "brži accumulate" (sekcije 2, 4) | `-DNAIVE` |
-| [`ex3_for_each_bez_stanja`](exercises/ex3_for_each_bez_stanja.cpp) | why | zašto paralelni for_each ne vraća funktor (sekcija 4; errors/e01) | `-DNAIVE` |
+| [`ex1_processing_readings`](exercises/ex1_processing_readings.cpp) | usage | obrada velikog niza merenja paralelnim algoritmima (sekcije 1, 2, 3) | — |
+| [`ex2_reduce_is_not_accumulate`](exercises/ex2_reduce_is_not_accumulate.cpp) | why | zašto reduce nije "brži accumulate" (sekcije 2, 4) | `-DNAIVE` |
+| [`ex3_for_each_without_state`](exercises/ex3_for_each_without_state.cpp) | why | zašto paralelni for_each ne vraća funktor (sekcija 4; errors/e01) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe

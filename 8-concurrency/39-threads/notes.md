@@ -70,11 +70,11 @@ vrednosti).
 # 2. Pravljenje niti (kurs 190)
 
 ```cpp
-std::thread t1(funkcija);
+std::thread t1(plainFunction);
 std::thread t2([&x] { x = 2; });            // lambda
-std::thread t3(Funktor{&y});                // funkcijski objekat
-std::thread t4(&Senzor::citaj, &s, 4);      // metoda: objekat, pa argumenti
-t1.join();                                  // čeka kraj niti
+std::thread t3(Functor{&y});                // funkcijski objekat
+std::thread t4(&Sensor::read, &s, 4);      // metoda: objekat, pa argumenti
+t1.join();                                  // čeka kraj threads
 ```
 
 - Nit počinje da radi **odmah** u konstruktoru.
@@ -106,11 +106,11 @@ prostor nove niti i funkciji ih predaje kao rvalue -- isto pravilo kao
 `std::bind` (lekcija 31, sekcija 4).
 
 - ❌ Parametar `int&` sa običnim argumentom se ne kompajlira: rvalue se ne
-  veže za `int&` (`errors/e01`). ✅ `std::ref(brojac)` kaže "prosledi
-  referencu" (test: `brojac` postane 1).
+  veže za `int&` (`errors/e01`). ✅ `std::ref(counter)` kaže "prosledi
+  referencu" (test: `counter` postane 1).
 - ⚠️ Parametar `const int&` se kompajlira, ali vidi **kopiju** (test:
-  `&x == &brojac` je `false`). Tiho, bez greške.
-- ✅ Move-only argument: `std::thread t(preuzmi, std::move(p), ...)` --
+  `&x == &counter` je `false`). Tiho, bez greške.
+- ✅ Move-only argument: `std::thread t(take, std::move(p), ...)` --
   posle toga je `p` prazan (test).
 - ⚠️ `std::ref` i `[&]` znače: original mora da živi dok nit radi. Sa
   `join()` pre izlaska iz opsega to je ispunjeno; sa `detach()` obično
@@ -127,9 +127,9 @@ parametar-referencu (`std::ref`), capture po referenci ili član
 funkcijskog objekta.
 
 ```cpp
-std::vector<long> delovi(4);                            // svaka nit SVOJ element
-niti.emplace_back(zbirDela, std::cref(v), od, doKraja, std::ref(delovi[i]));
-for (auto& t : niti) t.join();                          // tek posle ovoga čitaj delovi
+std::vector<long> parts(4);                             // svaka nit SVOJ element
+threads.emplace_back(partSum, std::cref(v), from, to, std::ref(parts[i]));
+for (auto& t : threads) t.join();                          // tek posle ovoga čitaj parts
 ```
 
 - `join()` je tačka sinhronizacije: sve što je nit upisala vidljivo je
@@ -149,7 +149,7 @@ for (auto& t : niti) t.join();                          // tek posle ovoga čita
 **Data race**: dve niti pristupaju istoj memoriji, bar jedna piše, a
 nema sinhronizacije. To je **UB** ([intro.races]).
 
-- ❌ `++brojac` iz dve niti gubi uvećanja: to su tri koraka (pročitaj,
+- ❌ `++counter` iz dve niti gubi uvećanja: to su tri koraka (pročitaj,
   dodaj, upiši), pa se niti prepliću (`ub/u01`; bez TSan-a, 5
   pokretanja: 104728 do 179652 umesto 200000; zadatak ex2).
 - ✅ `std::mutex`: samo jedna nit može da ga drži. `lock()` čeka dok se ne
@@ -261,8 +261,8 @@ zakomentarisani u `main()`, a na dnu je blok EXPECTED OUTPUT. Zadaci
 
 | Zadatak | Vrsta | Tema | Demonstracija problema |
 |---|---|---|---|
-| [`ex1_paralelna_obrada`](exercises/ex1_paralelna_obrada.cpp) | usage | podela posla na niti, bezbedan deljeni dnevnik, join u destruktoru (sekcije 2, 4, 6; runtime/r01) | — |
-| [`ex2_izgubljena_uvecanja`](exercises/ex2_izgubljena_uvecanja.cpp) | why | zašto ++ nad deljenom promenljivom treba mutex (sekcije 5, 6; ub/u01) | `-DNAIVE` |
-| [`ex3_izuzetak_drzi_mutex`](exercises/ex3_izuzetak_drzi_mutex.cpp) | why | zašto lock_guard, a ne lock()/unlock() (sekcija 6) | `-DNAIVE` |
+| [`ex1_parallel_processing`](exercises/ex1_parallel_processing.cpp) | usage | podela posla na niti, bezbedan deljeni dnevnik, join u destruktoru (sekcije 2, 4, 6; runtime/r01) | — |
+| [`ex2_lost_increments`](exercises/ex2_lost_increments.cpp) | why | zašto ++ nad deljenom promenljivom treba mutex (sekcije 5, 6; ub/u01) | `-DNAIVE` |
+| [`ex3_exception_holds_mutex`](exercises/ex3_exception_holds_mutex.cpp) | why | zašto lock_guard, a ne lock()/unlock() (sekcija 6) | `-DNAIVE` |
 
 ## Zapažanja posle vežbe
