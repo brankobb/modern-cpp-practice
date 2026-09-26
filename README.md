@@ -179,6 +179,7 @@ Klase, preopterećenje operatora, nasleđivanje i polimorfizam, konverzije tipov
 | [15](2-klase/15-preopterecenje-operatora) | Operator overloading | član vs slobodna funkcija, `friend` (hidden friend), `operator=` i dodela samom sebi, poređenje (C++17 i C++20 `<=>`), stream, `[]`, `++`, `()`, `*`/`->`, šta se ne preopterećuje; pogrešni slučajevi u `errors/` i `ub/` | EC++ It. 10/11/23/24 |
 | [16](2-klase/16-nasledjivanje-i-polimorfizam) | Nasleđivanje i polimorfizam | pristup i vrste nasleđivanja, redosled konstrukcije, sakrivanje imena, `virtual`/`override`/`final`, virtual destruktor, virtual u konstruktoru, vptr/vtable i devirtualizacija, slicing i `clone()`, dijamant, kompozicija, apstraktne klase i interfejsi; pogrešni slučajevi u `errors/` i `ub/` | EC++ It. 7/9/32/33/38/39 |
 | [17](2-klase/17-konverzije-tipova) | Konverzije tipova | implicitne konverzije, `static_cast`/`dynamic_cast`/`const_cast`/`reinterpret_cast` i zašto ne C-cast, strict aliasing i `bit_cast`, konstruktor i operator konverzije (`explicit operator bool`), korisnički → korisnički tip, proverena konverzija brojeva, `typeid` i RTTI; pogrešni slučajevi u `errors/` i `ub/` | EC++ It. 27 |
+| [ZV](2-klase/zavrsna-vezba) | **Završna vežba:** temperature i senzori | `Temperatura` i `Razlika` kao dva tipa (invarijanta, fabričke funkcije, `explicit`, operatori, `<<` bez menjanja stanja stream-a), apstraktni `Senzor` i hijerarhija sa `final`, `dynamic_cast`, funkcijski objekat za alarm; spaja lekcije 14–17 | — |
 
 ## Deo 3: životni vek i resursi (`3-zivotni-vek-i-resursi/`)
 
